@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Djinn", "Djinn\Djinn.csproj", "{A9711517-695D-4F80-A5C2-87F82981A190}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Djinn.CLI", "Djinn.CLI\Djinn.CLI.csproj", "{9DAA5FB9-863A-426C-BD0A-2F091E8A6016}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A9711517-695D-4F80-A5C2-87F82981A190}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9711517-695D-4F80-A5C2-87F82981A190}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9711517-695D-4F80-A5C2-87F82981A190}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9711517-695D-4F80-A5C2-87F82981A190}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DAA5FB9-863A-426C-BD0A-2F091E8A6016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DAA5FB9-863A-426C-BD0A-2F091E8A6016}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DAA5FB9-863A-426C-BD0A-2F091E8A6016}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DAA5FB9-863A-426C-BD0A-2F091E8A6016}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
