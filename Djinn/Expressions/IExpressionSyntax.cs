@@ -4,5 +4,5 @@ namespace Djinn.Expressions;
 
 public interface IExpressionSyntax : ISyntaxNode
 {
-    public SyntaxToken Type { get; }
+    public SyntaxToken ReturnType { get; }
 }

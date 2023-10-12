@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Djinn.Expressions;
 using Djinn.Statements;
@@ -14,10 +13,11 @@ public class Parser
         SyntaxKind.WhiteSpaceToken,
         SyntaxKind.BadToken
     };
-    
-    private readonly IList<SyntaxToken> _tokens = new List<SyntaxToken>();
+
     private readonly IList<Diagnostic> _diagnostics = new List<Diagnostic>();
     private readonly Lexer _lexer;
+
+    private readonly IList<SyntaxToken> _tokens = new List<SyntaxToken>();
     private int _index;
 
     public Parser(Lexer lexer)
@@ -26,17 +26,28 @@ public class Parser
         while (!lexer.EOF)
         {
             var token = _lexer.NextToken();
-            if(IgnoredKinds.Contains(token.Kind))
+            if (IgnoredKinds.Contains(token.Kind))
                 continue;
-            
+
             _tokens.Add(token);
         }
-
     }
+
+    private bool IsEOF => _index >= _tokens.Count;
+
+    public bool HasNext => _index + 1 < _tokens.Count;
+
+    [MemberNotNullWhen(true, nameof(Current))]
+    public bool HasCurrent => _index < _tokens.Count;
+
+    public SyntaxToken Current => Peek();
 
     public SyntaxTree Parse()
     {
-        var nodes= new List<IStatement>() { ParseStatement() };
+        var nodes = new List<IStatement> { };
+        while (!IsEOF)
+            nodes.Add(ParseStatement());
+
         return new SyntaxTree
         {
             Diagnostics = _diagnostics.AsReadOnly(),
@@ -44,7 +55,7 @@ public class Parser
         };
     }
 
-    public IStatement? ParseStatement()
+    public IStatement ParseStatement()
     {
         return Current?.Kind switch
         {
@@ -53,15 +64,20 @@ public class Parser
             SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(),
             SyntaxKind.OpenBrace => ParseBlockStatement(),
             SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
-            _ => null,
-        };
+            _ => ExpectingStatement(),
+        } ?? ExpectingStatement();
+    }
+
+    private IStatement ExpectingStatement()
+    {
+        return DiagnosticError<BlockStatement>("Expecting statement.");
     }
 
     private IStatement ParseReturnStatement()
     {
         Consume(SyntaxKind.ReturnDeclaration);
         var expression = ParseExpression();
-        var returnType = SyntaxToken.BadToken;
+        var returnType = expression.ReturnType;
         return new ReturnStatement(returnType, expression!);
     }
 
@@ -70,8 +86,9 @@ public class Parser
         Consume(SyntaxKind.OpenBrace);
         var statements = new List<IStatement>();
         while (HasCurrent && !TryMatch(SyntaxKind.CloseBrace, out _))
+        {
             statements.Add(ParseStatement()!);
-        Consume(SyntaxKind.CloseBrace);
+        }
 
         return new BlockStatement(statements);
     }
@@ -80,12 +97,12 @@ public class Parser
     {
         var function = Consume(SyntaxKind.FunctionDeclaration);
         var type = Consume(SyntaxKind.Void);
-        var identifier = Consume(SyntaxKind.Identifier);       
+        var identifier = Consume(SyntaxKind.Identifier);
         ParseParametersStatement();
         var statement = ParseStatement();
         //if(!statement.Type.Kind.IsValueType() || statement.Type.Kind == SyntaxKind.Void)
         //    return null;
-        
+
         return statement;
     }
 
@@ -106,20 +123,17 @@ public class Parser
         throw new NotImplementedException();
     }
 
-    
+
     public IExpressionSyntax? ParseExpression()
     {
         var leftExpression = ParsePrimaryExpression();
         while (leftExpression is not null && HasCurrent && Current.Kind.IsLogicOperator())
         {
-            var operatorToken = Advance()!; // TODO:DIAGNOSTICS
+            var operatorToken = Advance();
             var rightExpression = ParsePrimaryExpression();
-            if(rightExpression is null)
-            {
-                DiagnosticError<bool>("Expected expression after operator");
-                break;
-            }
-            
+            if (rightExpression is null)
+                return DiagnosticError<NoOpExpression>("Expected expression after operator");
+
             leftExpression = new BinaryExpressionSyntax(leftExpression, operatorToken, rightExpression);
         }
 
@@ -130,7 +144,7 @@ public class Parser
     {
         if (TryMatch(SyntaxKind.StringLiteral, out var stringToken))
             return new ConstantStringExpressionSyntax(stringToken);
-        if(TryMatch(SyntaxKind.NumberLiteral, out var numberToken))
+        if (TryMatch(SyntaxKind.NumberLiteral, out var numberToken))
             return new ConstantNumberExpressionSyntax(numberToken);
         if (TryMatch(SyntaxKind.Identifier, out var identifierToken))
         {
@@ -141,8 +155,8 @@ public class Parser
                 return fn;
             }
         }
-        
-        return DiagnosticError<IExpressionSyntax>("Invalid expression syntax");
+
+        return DiagnosticError<NoOpExpression>("Invalid expression syntax");
     }
 
     public bool Match(SyntaxKind kind)
@@ -154,13 +168,11 @@ public class Parser
     {
         return TryMatch<SyntaxToken>(kind, out token);
     }
+
     public bool TryMatch<TCast>(SyntaxKind kind, [NotNullWhen(true)] out TCast? token) where TCast : SyntaxToken
     {
         token = default;
-        if(!HasCurrent)
-            return DiagnosticError<bool>($"Expected token kind '{kind}' but it's out of bounds");
-
-        if (Current.Kind != kind)
+        if (!Match(kind))
             return false;
 
         var current = Current;
@@ -169,14 +181,8 @@ public class Parser
         return true;
     }
 
-    public SyntaxToken? Peek(int offset = 0)
+    public SyntaxToken Peek(int offset = 0)
     {
-        if (!HasCurrent)
-        {
-            DiagnosticError<SyntaxToken>($"Out of bounds for current token");
-            return SyntaxToken.BadToken;
-        }
-        
         var skip = _index + offset;
         if (skip >= _tokens.Count)
         {
@@ -187,59 +193,49 @@ public class Parser
         return _tokens[skip];
     }
 
-    public bool HasNext => _index + 1 < _tokens.Count;
-    [MemberNotNullWhen(true, nameof(Current))]
-    public bool HasCurrent => _index < _tokens.Count;
-    public SyntaxToken? Current => Peek();
-
     public SyntaxToken? ConsumeOptional(SyntaxKind kind, int offset = 0)
     {
         var token = Peek(offset);
         if (token?.Kind != kind)
-        {
             return null;
-        }
-        
+
         _index += offset + 1;
         return token;
     }
+
     public SyntaxToken Consume(SyntaxKind kind, int offset = 0)
     {
         var token = Peek(offset);
-        if (token?.Kind != kind)
+        if (token.Kind != kind)
         {
             DiagnosticError<SyntaxToken>($"Expected token of kind '{kind}' but got '{token?.Kind}'");
             return SyntaxToken.BadToken;
         }
-        
+
         _index += offset + 1;
         return token;
     }
-    public SyntaxToken? Advance()
+
+    public SyntaxToken Advance()
     {
-        if (!HasCurrent)
-        {
-            DiagnosticError<SyntaxToken>($"Out of bounds for current token");
-            return SyntaxToken.BadToken;
-        }
-        
         var current = Current;
         _index++;
         return current;
     }
 
-    public T? DiagnosticError<T>( string message)
+    public T? DiagnosticError<T>(string message)
     {
         return Diagnostic<T>(DiagnosticSeverity.Error, message);
     }
-    public T? DiagnosticWarn<T>( string message)
+
+    public T? DiagnosticWarn<T>(string message)
     {
         return Diagnostic<T>(DiagnosticSeverity.Warning, message);
     }
-    
+
     public T? Diagnostic<T>(DiagnosticSeverity severity, string message)
     {
-        _diagnostics.Add(new Diagnostic(new Position(_index),message, severity));
+        _diagnostics.Add(new Diagnostic(new Position(_index), message, severity));
         // if(HasCurrent)
         //     Advance();
         _index++;
