@@ -57,7 +57,7 @@ public class Parser
 
     public IStatement ParseStatement()
     {
-        return Current?.Kind switch
+        return Current.Kind switch
         {
             SyntaxKind.VariableDeclaration => ParseVariableDeclaration(),
             SyntaxKind.VariableAssignment => ParseVariableAssignment(),
@@ -65,7 +65,7 @@ public class Parser
             SyntaxKind.OpenBrace => ParseBlockStatement(),
             SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
             _ => ExpectingStatement(),
-        } ?? ExpectingStatement();
+        };
     }
 
     private IStatement ExpectingStatement()
@@ -93,7 +93,7 @@ public class Parser
         return new BlockStatement(statements);
     }
 
-    private IStatement? ParseFunctionDeclaration()
+    private IStatement ParseFunctionDeclaration()
     {
         var function = Consume(SyntaxKind.FunctionDeclaration);
         var type = Consume(SyntaxKind.Void);
@@ -113,34 +113,31 @@ public class Parser
         Consume(SyntaxKind.CloseParenthesis);
     }
 
-    private IStatement? ParseVariableAssignment()
+    private IStatement ParseVariableAssignment()
     {
         throw new NotImplementedException();
     }
 
-    private IStatement? ParseVariableDeclaration()
+    private IStatement ParseVariableDeclaration()
     {
         throw new NotImplementedException();
     }
 
 
-    public IExpressionSyntax? ParseExpression()
+    public IExpressionSyntax ParseExpression()
     {
         var leftExpression = ParsePrimaryExpression();
-        while (leftExpression is not null && HasCurrent && Current.Kind.IsLogicOperator())
+        while (HasCurrent && Current.Kind.IsLogicOperator())
         {
             var operatorToken = Advance();
             var rightExpression = ParsePrimaryExpression();
-            if (rightExpression is null)
-                return DiagnosticError<NoOpExpression>("Expected expression after operator");
-
             leftExpression = new BinaryExpressionSyntax(leftExpression, operatorToken, rightExpression);
         }
 
         return leftExpression;
     }
 
-    public IExpressionSyntax? ParsePrimaryExpression()
+    public IExpressionSyntax ParsePrimaryExpression()
     {
         if (TryMatch(SyntaxKind.StringLiteral, out var stringToken))
             return new ConstantStringExpressionSyntax(stringToken);
