@@ -1,10 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Djinn.Expressions;
+using Djinn.Lexing;
 using Djinn.Statements;
 using Djinn.Syntax;
 using Djinn.Utils;
 
-namespace Djinn.Parser;
+namespace Djinn.Parsing;
 
 public class Parser
 {
@@ -15,12 +16,12 @@ public class Parser
     };
 
     private readonly IList<Diagnostic> _diagnostics = new List<Diagnostic>();
-    private readonly Lexer.Lexer _lexer;
+    private readonly Lexer _lexer;
 
     private readonly IList<SyntaxToken> _tokens = new List<SyntaxToken>();
     private int _index;
 
-    public Parser(Lexer.Lexer lexer)
+    public Parser(Lexer lexer)
     {
         _lexer = lexer;
         while (!lexer.EOF)

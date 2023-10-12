@@ -1,4 +1,6 @@
 using Djinn.Expressions;
+using Djinn.Lexing;
+using Djinn.Parsing;
 using Djinn.Statements;
 using Djinn.Syntax;
 using FluentAssertions;
@@ -16,8 +18,8 @@ public class SyntaxTreeTestings
                      }
                      """;
 
-        var lexer = new Lexer.Lexer(source);
-        var parser = new Parser.Parser(lexer);
+        var lexer = new Lexer(source);
+        var parser = new Parser(lexer);
         var tree = parser.Parse();
 
         tree.Should().NotBeNull();
@@ -47,8 +49,8 @@ public class SyntaxTreeTestings
                      }
                      """;
 
-        var lexer = new Lexer.Lexer(source);
-        var parser = new Parser.Parser(lexer);
+        var lexer = new Lexer(source);
+        var parser = new Parser(lexer);
         var tree = parser.Parse();
 
         tree.Should().NotBeNull();

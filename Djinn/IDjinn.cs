@@ -1,4 +1,6 @@
 ﻿using Djinn.Compile;
+using Djinn.Lexing;
+using Djinn.Parsing;
 using LLVMSharp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -11,8 +13,8 @@ public class IDjinn
 
     public static void Compile(string source)
     {
-        var lexer = new Lexer.Lexer(source);
-        var parser = new Parser.Parser(lexer);
+        var lexer = new Lexer(source);
+        var parser = new Parser(lexer);
         var tree = parser.Parse();
         var codeGen = new CodeGen(tree);
         var module = codeGen.GenerateLlvm();

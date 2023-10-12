@@ -1,4 +1,4 @@
-namespace Djinn.Binders;
+namespace Djinn.Syntax.Biding;
 
 public enum BoundKind
 {

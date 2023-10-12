@@ -4,7 +4,7 @@ using System.Text;
 using Djinn.Syntax;
 using Djinn.Utils;
 
-namespace Djinn.Lexer;
+namespace Djinn.Lexing;
 
 public record Lexer(string Source)
 {
