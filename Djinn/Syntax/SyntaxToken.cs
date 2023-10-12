@@ -1,6 +1,6 @@
 using Djinn.Utils;
 
-namespace Djinn.SyntaxNodes;
+namespace Djinn.Syntax;
 
 public record SyntaxToken(SyntaxKind Kind, object Value, Position Position)
 {

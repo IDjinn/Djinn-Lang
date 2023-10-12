@@ -1,4 +1,4 @@
-using Djinn.SyntaxNodes;
+using Djinn.Syntax;
 using Djinn.Utils;
 
 namespace Djinn.Expressions;

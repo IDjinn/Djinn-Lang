@@ -1,6 +1,4 @@
-using Djinn.Utils;
-
-namespace Djinn.SyntaxNodes;
+namespace Djinn.Syntax;
 
 public interface ISyntaxNode
 {

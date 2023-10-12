@@ -7,15 +7,16 @@ namespace Djinn;
 
 public class IDjinn
 {
-    private readonly ILogger<IDjinn> _logger= new Logger<IDjinn>(NullLoggerFactory.Instance);
+    private readonly ILogger<IDjinn> _logger = new Logger<IDjinn>(NullLoggerFactory.Instance);
+
     public static void Compile(string source)
     {
-        var lexer = new Lexer(source);
-        var parser = new Parser(lexer);
+        var lexer = new Lexer.Lexer(source);
+        var parser = new Parser.Parser(lexer);
         var tree = parser.Parse();
         var codeGen = new CodeGen(tree);
         var module = codeGen.GenerateLlvm();
-        
+
         string moduleError = "";
         LLVM.VerifyModule(module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);
         Console.WriteLine(moduleError);

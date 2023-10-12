@@ -1,21 +1,17 @@
 using Djinn.Expressions;
 using Djinn.Statements;
-using Djinn.SyntaxNodes;
+using Djinn.Syntax;
 using Djinn.Utils;
 using LLVMSharp;
 
 namespace Djinn.Compile;
 
-public class CodeGen :  IStatementVisitor<object>, IExpressionVisitor<object>
+public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
 {
-    private readonly SyntaxTree _syntaxTree;
     private static readonly LLVMBool LLVMBoolFalse = new(0);
-    private static readonly LLVMBool LLVMBoolTrue  = new(1);
-    
-    private LLVMModuleRef Module { get; }
-    private LLVMBuilderRef Builder { get; }
-    private IReadOnlyList<IStatement> Statements { get; }
-    
+    private static readonly LLVMBool LLVMBoolTrue = new(1);
+    private readonly SyntaxTree _syntaxTree;
+
 
     public CodeGen(SyntaxTree syntaxTree)
     {
@@ -23,6 +19,35 @@ public class CodeGen :  IStatementVisitor<object>, IExpressionVisitor<object>
         Statements = syntaxTree.Statements;
         Module = LLVM.ModuleCreateWithName("main");
         Builder = LLVM.CreateBuilder();
+    }
+
+    private LLVMModuleRef Module { get; }
+    private LLVMBuilderRef Builder { get; }
+    private IReadOnlyList<IStatement> Statements { get; }
+
+    public object Visit(BinaryExpressionSyntax expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(ConstantNumberExpressionSyntax expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(ConstantStringExpressionSyntax expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(FunctionStatement functionStatement)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(ReturnStatement returnStatement)
+    {
+        throw new NotImplementedException();
     }
 
     public LLVMModuleRef GenerateLlvm()
@@ -51,30 +76,5 @@ public class CodeGen :  IStatementVisitor<object>, IExpressionVisitor<object>
         // }
 
         return Module;
-    }
-
-    public object Visit(FunctionStatement functionStatement)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Visit(ReturnStatement returnStatement)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Visit(BinaryExpressionSyntax expressionSyntax)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Visit(ConstantNumberExpressionSyntax expressionSyntax)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Visit(ConstantStringExpressionSyntax expressionSyntax)
-    {
-        throw new NotImplementedException();
     }
 }

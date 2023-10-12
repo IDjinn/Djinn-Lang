@@ -1,4 +1,4 @@
-namespace Djinn.SyntaxNodes;
+namespace Djinn.Syntax;
 
 public enum SyntaxKind
 {

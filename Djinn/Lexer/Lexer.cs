@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Djinn.SyntaxNodes;
+using Djinn.Syntax;
 using Djinn.Utils;
 
-namespace Djinn;
+namespace Djinn.Lexer;
 
 public record Lexer(string Source)
 {
