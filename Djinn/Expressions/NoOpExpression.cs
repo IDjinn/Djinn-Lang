@@ -2,7 +2,7 @@ using Djinn.Syntax;
 
 namespace Djinn.Expressions;
 
-public readonly record struct NoOpExpression : IExpressionSyntax
+public record NoOpExpression : IExpressionSyntax
 {
     public NoOpExpression()
     {

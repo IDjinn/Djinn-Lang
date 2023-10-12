@@ -3,7 +3,7 @@ using Djinn.Utils;
 
 namespace Djinn.Expressions;
 
-public readonly record struct ConstantStringExpressionSyntax(SyntaxToken StringToken) : IExpressionSyntax
+public record ConstantStringExpressionSyntax(SyntaxToken StringToken) : IExpressionSyntax
 {
     public SyntaxKind Kind => SyntaxKind.ConstantStringExpression;
 

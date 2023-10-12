@@ -61,7 +61,7 @@ public class Parser
         return Current.Kind switch
         {
             SyntaxKind.VariableDeclaration => ParseVariableDeclaration(),
-            SyntaxKind.VariableAssignment => ParseVariableAssignment(),
+            SyntaxKind.VariableAssignmentExpression => ParseVariableAssignmentExpression(),
             SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(),
             SyntaxKind.OpenBrace => ParseBlockStatement(),
             SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
@@ -114,7 +114,7 @@ public class Parser
         Consume(SyntaxKind.CloseParenthesis);
     }
 
-    private IStatement ParseVariableAssignment()
+    private IStatement ParseVariableAssignmentExpression()
     {
         throw new NotImplementedException();
     }
@@ -128,7 +128,7 @@ public class Parser
     public IExpressionSyntax ParseExpression()
     {
         var leftExpression = ParsePrimaryExpression();
-        while (HasCurrent && Current.Kind.IsLogicOperator())
+        while (HasCurrent && Current.Kind.HasFlag(SyntaxKind.LogicalOperators))
         {
             var operatorToken = Advance();
             var rightExpression = ParsePrimaryExpression();

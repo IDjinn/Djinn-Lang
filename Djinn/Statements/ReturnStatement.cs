@@ -3,7 +3,7 @@ using Djinn.Syntax;
 
 namespace Djinn.Statements;
 
-public readonly record struct ReturnStatement(SyntaxToken Type, IExpressionSyntax ExpressionSyntax) : IStatement
+public record ReturnStatement(SyntaxToken Type, IExpressionSyntax ExpressionSyntax) : IStatement
 {
     public SyntaxKind Kind => SyntaxKind.ReturnDeclaration;
 

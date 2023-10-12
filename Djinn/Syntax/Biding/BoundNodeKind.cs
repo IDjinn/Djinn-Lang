@@ -5,5 +5,8 @@ public enum BoundNodeKind
     Unknown,
 
     UnaryExpression,
-    LiteralExpression
+    LiteralExpression,
+    BlockStatement,
+    ReturnStatement,
+    FunctionStatement
 }

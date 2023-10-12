@@ -1,9 +1,6 @@
-﻿using Djinn.Compile;
-using Djinn.Lexing;
+﻿using Djinn.Lexing;
 using Djinn.Parsing;
-using Djinn.Statements;
 using Djinn.Syntax.Biding;
-using LLVMSharp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -20,19 +17,18 @@ public class IDjinn
         var tree = parser.Parse();
         var binder = new Binder();
 
-        var block = (BlockStatement)tree.Statements[0];
-        var ret = (ReturnStatement)block.Statements.First();
+        var any = tree.Generate(binder);
 
-        var codeGen = new CodeGen(tree);
-        var module = codeGen.GenerateLlvm();
-
-        string moduleError = "";
-        LLVM.VerifyModule(module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);
-        Console.WriteLine(moduleError);
-
-        string error = "";
-        LLVM.DumpModule(module);
-        LLVM.PrintModuleToFile(module, "test.ll", out error);
-        Console.WriteLine(error);
+        // var codeGen = new CodeGen(tree);
+        // var module = codeGen.GenerateLlvm();
+        //
+        // string moduleError = "";
+        // LLVM.VerifyModule(module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);
+        // Console.WriteLine(moduleError);
+        //
+        // string error = "";
+        // LLVM.DumpModule(module);
+        // LLVM.PrintModuleToFile(module, "test.ll", out error);
+        // Console.WriteLine(error);
     }
 }

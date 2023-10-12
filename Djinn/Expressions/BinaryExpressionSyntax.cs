@@ -3,7 +3,7 @@ using Djinn.Utils;
 
 namespace Djinn.Expressions;
 
-public readonly record struct BinaryExpressionSyntax(
+public record BinaryExpressionSyntax(
     IExpressionSyntax LeftExpression,
     SyntaxToken Operator,
     IExpressionSyntax RightExpression

@@ -50,6 +50,11 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
         throw new NotImplementedException();
     }
 
+    public object Visit(BlockStatement blockStatement)
+    {
+        throw new NotImplementedException();
+    }
+
     public LLVMModuleRef GenerateLlvm()
     {
         var stringType = LLVMTypeRef.PointerType(LLVMTypeRef.Int8Type(), 0);

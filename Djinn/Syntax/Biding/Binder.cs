@@ -1,34 +1,74 @@
 using Djinn.Expressions;
 using Djinn.Statements;
+using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 
 namespace Djinn.Syntax.Biding;
 
-public class Binder : IStatementVisitor<object>, IExpressionVisitor<object>
+public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBoundExpression>
 {
-    public object Visit(BinaryExpressionSyntax expressionSyntax)
+    public IBoundExpression Visit(BinaryExpressionSyntax expressionSyntax)
     {
         return BindBinaryExpression(expressionSyntax);
     }
 
-    public object Visit(ConstantNumberExpressionSyntax expressionSyntax)
+    public IBoundExpression Visit(ConstantNumberExpressionSyntax expressionSyntax)
     {
         return BindExpression(expressionSyntax);
     }
 
-    public object Visit(ConstantStringExpressionSyntax expressionSyntax)
+    public IBoundExpression Visit(ConstantStringExpressionSyntax expressionSyntax)
     {
         return BindExpression(expressionSyntax);
     }
 
-    public object Visit(FunctionStatement functionStatement)
+    public IBoundStatement Visit(FunctionStatement functionStatement)
     {
-        throw new NotImplementedException();
+        return BindFunctionStatement(functionStatement);
     }
 
-    public object Visit(ReturnStatement returnStatement)
+    public IBoundStatement Visit(ReturnStatement returnStatement)
     {
-        throw new NotImplementedException();
+        return BindReturnStatement(returnStatement);
+    }
+
+    public IBoundStatement Visit(BlockStatement blockStatement)
+    {
+        return BindBlockStatement(blockStatement);
+    }
+
+    public IBoundStatement BoundStatement(IStatement statement)
+    {
+        return statement switch
+        {
+            FunctionStatement functionStatement => BindFunctionStatement(functionStatement),
+            ReturnStatement returnStatement => BindReturnStatement(returnStatement),
+            BlockStatement blockStatement => BindBlockStatement(blockStatement),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    public IEnumerable<IBoundStatement> BoundStatements(IEnumerable<IStatement> statements)
+    {
+        foreach (var statement in statements)
+        {
+            yield return BoundStatement(statement);
+        }
+    }
+
+    private IBoundStatement BindBlockStatement(BlockStatement blockStatement)
+    {
+        return new BoundBlockStatement(BoundStatements(blockStatement.Statements));
+    }
+
+    private IBoundStatement BindReturnStatement(ReturnStatement returnStatement)
+    {
+        return new BoundReturnStatement(BindExpression(returnStatement.ExpressionSyntax));
+    }
+
+    private IBoundStatement BindFunctionStatement(FunctionStatement function)
+    {
+        return new BoundFunctionStatement(default); // ToDO
     }
 
     public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax)
@@ -41,7 +81,7 @@ public class Binder : IStatementVisitor<object>, IExpressionVisitor<object>
         };
     }
 
-    public BoundExpression BindExpression(IExpressionSyntax expressionSyntax)
+    public IBoundExpression BindExpression(IExpressionSyntax expressionSyntax)
     {
         return expressionSyntax switch
         {
@@ -49,11 +89,11 @@ public class Binder : IStatementVisitor<object>, IExpressionVisitor<object>
             UnaryExpressionSyntax unary => BindUnaryExpression(unary),
             ConstantNumberExpressionSyntax constantNumber => BindLiteralNumber(constantNumber),
             ConstantStringExpressionSyntax constantString => BindLiteralString(constantString),
-            _ => throw new InvalidOperationException()
+            _ => throw new NotImplementedException()
         };
     }
 
-    private BoundExpression BindLiteralString(ConstantStringExpressionSyntax constantString)
+    private IBoundExpression BindLiteralString(ConstantStringExpressionSyntax constantString)
     {
         return new BoundLiteralExpression
         {
@@ -65,7 +105,7 @@ public class Binder : IStatementVisitor<object>, IExpressionVisitor<object>
         };
     }
 
-    private BoundExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber)
+    private IBoundExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber)
     {
         return new BoundLiteralExpression
         {
@@ -77,7 +117,7 @@ public class Binder : IStatementVisitor<object>, IExpressionVisitor<object>
         };
     }
 
-    private BoundExpression BindUnaryExpression(UnaryExpressionSyntax unary)
+    private IBoundExpression BindUnaryExpression(UnaryExpressionSyntax unary)
     {
         return new BoundUnaryExpression()
         {

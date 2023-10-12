@@ -1,4 +1,8 @@
-﻿using Djinn;
+﻿using Djinn.Lexing;
+using Djinn.Parsing;
+using Djinn.Statements;
+using Djinn.Syntax.Biding;
+using Djinn.Syntax.Biding.Statements;
 
 // var source = $$"""
 //                function void hello(void) {
@@ -16,4 +20,13 @@ var source = $$"""
 
 // var source = "";
 
-IDjinn.Compile(source);
+var lexer = new Lexer(source);
+var parser = new Parser(lexer);
+var tree = parser.Parse();
+var binder = new Binder();
+
+var a = binder.Visit((BlockStatement)tree.Statements.First());
+var test = (BoundBlockStatement)a;
+// IDjinn.Compile(source);
+
+return;

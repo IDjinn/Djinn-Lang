@@ -2,7 +2,7 @@ using Djinn.Syntax;
 
 namespace Djinn.Statements;
 
-public readonly record struct FunctionStatement(SyntaxToken Type) : IStatement
+public record FunctionStatement(SyntaxToken Type) : IStatement
 {
     public SyntaxKind Kind => SyntaxKind.FunctionDeclaration;
 
