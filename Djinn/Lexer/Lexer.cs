@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Djinn.SyntaxNodes;
@@ -14,9 +15,10 @@ public record Lexer(string Source)
 
     public char? Current => Source[Index];
 
-    public int Advance()
+    public int Advance(int count = 1)
     {
-        return Index++;
+        Index += count;
+        return Index;
     }
 
     public char Consume()
@@ -24,6 +26,12 @@ public record Lexer(string Source)
         var aux = Current!.Value!;
         Advance();
         return aux;
+    }
+
+    public char Peek(int offset = 0)
+    {
+        Debug.Assert(Source.Length > offset + Index);
+        return Source[offset];
     }
 
     public SyntaxToken NextToken()
@@ -36,9 +44,33 @@ public record Lexer(string Source)
                 case ' ':
                     return new SyntaxToken(SyntaxKind.WhiteSpaceToken, current, new Position(Advance(), 1));
                 case '+':
+                {
+                    if (Peek(1) == '+')
+                        return new SyntaxToken(SyntaxKind.IncrementOperator, current, new Position(Advance(2), 2));
+                    if (Peek(1) == '=')
+                        return new SyntaxToken(SyntaxKind.PlusAssignmentOperator, current, new Position(Advance(2), 2));
+                    if (char.IsNumber(Peek(1))) // this is a positive number
+                    {
+                        Advance();
+                        goto case '0';
+                    }
+
                     return new SyntaxToken(SyntaxKind.PlusToken, current, new Position(Advance(), 1));
+                }
                 case '-':
+                    if (Peek(1) == '-')
+                        return new SyntaxToken(SyntaxKind.DecrementOperator, current, new Position(Advance(2), 2));
+                    if (Peek(1) == '=')
+                        return new SyntaxToken(SyntaxKind.MinusAssignmentOperator, current,
+                            new Position(Advance(2), 2));
+                    if (char.IsNumber(Peek(1))) // this is a negative number 
+                    {
+                        Advance();
+                        goto case '0';
+                    }
+
                     return new SyntaxToken(SyntaxKind.MinusToken, current, new Position(Advance(), 1));
+
                 case '/':
                     return new SyntaxToken(SyntaxKind.SlashToken, current, new Position(Advance(), 1));
                 case '*':
@@ -52,7 +84,9 @@ public record Lexer(string Source)
                 case '}':
                     return new SyntaxToken(SyntaxKind.CloseBrace, current, new Position(Advance(), 1));
                 case '=':
-                    return new SyntaxToken(SyntaxKind.EqualsOperator, current, new Position(Advance(),1));
+                    if (Peek(1) == '=')
+                        return new SyntaxToken(SyntaxKind.EqualsEqualsOperator, current, new Position(Advance(), 1));
+                    return new SyntaxToken(SyntaxKind.EqualsOperator, current, new Position(Advance(), 1));
                 case '"':
                 {
                     Advance();
@@ -77,7 +111,7 @@ public record Lexer(string Source)
                     var position = new Position(startIndex, lenght);
                     return new SyntaxToken(SyntaxKind.NumberLiteral, int.Parse(value), position);
                 }
-                
+
                 case 'A':
                 case 'B':
                 case 'C':
@@ -138,11 +172,10 @@ public record Lexer(string Source)
                     var position = new Position(startIndex, lenght);
                     return new SyntaxToken(
                         keywordKind != SyntaxKind.BadToken ? keywordKind : SyntaxKind.Identifier,
-                        value, 
+                        value,
                         position
-                        );
+                    );
                 }
-
             }
 
             return new SyntaxToken(SyntaxKind.BadToken, current, new Position(Advance(), 1));
@@ -165,8 +198,9 @@ public record Lexer(string Source)
 
         return (buffer.ToString(), startIndex, buffer.Length);
     }
+
     public (string, int, int) ReadToken(Func<char, bool> predicate)
     {
-        return ReadToken((ch,_) => predicate(ch));
+        return ReadToken((ch, _) => predicate(ch));
     }
 }

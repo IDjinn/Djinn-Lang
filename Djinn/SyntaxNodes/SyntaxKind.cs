@@ -5,12 +5,12 @@ public enum SyntaxKind
     BadToken = 0,
     EndOfFileToken,
 
-    
+
     NumberLiteral,
-    
-    
+
+
     WhiteSpaceToken,
-    
+
     PlusToken,
     MinusToken,
     SlashToken,
@@ -20,13 +20,13 @@ public enum SyntaxKind
     CloseParenthesis,
     ConstantNumberExpression,
     BinaryExpression,
-    
-    
+
+
     VariableDeclaration,
     VariableAssignment,
     FunctionDeclaration,
     EqualsOperator,
-    
+
     Void,
     Int32,
     OpenBrace,
@@ -35,17 +35,40 @@ public enum SyntaxKind
     FunctionCallExpression,
     StringLiteral,
     ConstantStringExpression,
-    BlockStatement
+    BlockStatement,
+    IncrementOperator,
+    PlusAssignmentOperator,
+    DecrementOperator,
+    MinusAssignmentOperator,
+    EqualsEqualsOperator
 }
 
 public static class SyntaxKindExtensions
 {
+    public static bool IsMathOperator(this SyntaxKind kind) => kind switch
+    {
+        SyntaxKind.PlusToken => true,
+        SyntaxKind.MinusToken => true,
+        SyntaxKind.SlashToken => true,
+        SyntaxKind.StarToken => true,
+        SyntaxKind.IncrementOperator => true,
+        SyntaxKind.PlusAssignmentOperator => true,
+        SyntaxKind.DecrementOperator => true,
+        SyntaxKind.MinusAssignmentOperator => true,
+        _ => false,
+    };
+
     public static bool IsLogicOperator(this SyntaxKind kind) => kind switch
     {
         SyntaxKind.PlusToken => true,
         SyntaxKind.MinusToken => true,
         SyntaxKind.SlashToken => true,
         SyntaxKind.StarToken => true,
+        SyntaxKind.IncrementOperator => true,
+        SyntaxKind.PlusAssignmentOperator => true,
+        SyntaxKind.DecrementOperator => true,
+        SyntaxKind.MinusAssignmentOperator => true,
+        SyntaxKind.EqualsEqualsOperator => true,
         _ => false,
     };
 
