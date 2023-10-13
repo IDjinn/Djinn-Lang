@@ -11,6 +11,7 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
     private static readonly LLVMBool LLVMBoolFalse = new(0);
     private static readonly LLVMBool LLVMBoolTrue = new(1);
     private readonly SyntaxTree _syntaxTree;
+    public readonly Stack<Tuple<LLVMValueRef, object>> Stack = new Stack<Tuple<LLVMValueRef, object>>();
 
 
     public CodeGen(SyntaxTree syntaxTree)
@@ -21,9 +22,9 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
         Builder = LLVM.CreateBuilder();
     }
 
-    private LLVMModuleRef Module { get; }
-    private LLVMBuilderRef Builder { get; }
-    private IReadOnlyList<IStatement> Statements { get; }
+    public LLVMModuleRef Module { get; set; }
+    public LLVMBuilderRef Builder { get; }
+    public IReadOnlyList<IStatement> Statements { get; }
 
     public object Visit(BinaryExpressionSyntax expressionSyntax)
     {
@@ -32,12 +33,65 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
 
     public object Visit(ConstantNumberExpressionSyntax expressionSyntax)
     {
-        throw new NotImplementedException();
+        var value = Convert.ToUInt64(expressionSyntax.NumberToken.Value.ToString());
+        return LLVM.ConstInt(LLVM.Int64Type(), value, LLVMBoolFalse);
     }
 
     public object Visit(ConstantStringExpressionSyntax expressionSyntax)
     {
         throw new NotImplementedException();
+    }
+
+    public object Visit(UnaryExpressionSyntax expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(ParameterExpression expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(NoOpExpression expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(NameExpression expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(FunctionCallExpression expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(ConstantBooleanExpression expressionSyntax)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Visit(AssigmentExpression expressionSyntax)
+    {
+        var value = expressionSyntax.Expression.Accept(this);
+
+        return value;
+    }
+
+    public object Visit(ArgumentsExpression expressionSyntax)
+    {
+        foreach (var argument in expressionSyntax.Arguments)
+        {
+            argument.Accept(this);
+        }
+
+        return default;
+    }
+
+    public object Visit(DiscardExpressionResultStatement discardExpressionResult)
+    {
+        return discardExpressionResult.Expression.Accept(this);
     }
 
     public object Visit(FunctionStatement functionStatement)
@@ -76,7 +130,7 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
         // Generate functions, globals, etc.
         foreach (var statement in Statements)
         {
-            statement.Generate(this);
+            statement.Generate(this, this);
         }
 
         // Generate everything inside the functions

@@ -65,7 +65,17 @@ public class Parser
             SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(),
             SyntaxKind.OpenBrace => ParseBlockStatement(),
             SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
+            SyntaxKind.Identifier => ParseIdentifier(),
             _ => ExpectingStatement(),
+        };
+    }
+
+    private IStatement ParseIdentifier()
+    {
+        var expression = ParsePrimaryExpression();
+        return expression switch
+        {
+            FunctionCallExpression call => new DiscardExpressionResultStatement(call)
         };
     }
 
@@ -77,7 +87,7 @@ public class Parser
     private IStatement ParseReturnStatement()
     {
         Consume(SyntaxKind.ReturnDeclaration);
-        var expression = ParseExpression();
+        var expression = ParseBinaryExpression();
         return new ReturnStatement(expression);
     }
 
@@ -102,7 +112,7 @@ public class Parser
         var statement = ParseStatement();
 
         return new FunctionDeclarationStatement(
-            identifier, parameters, statement
+            type, identifier, parameters, statement
         );
     }
 
@@ -121,7 +131,7 @@ public class Parser
     {
         var type = Consume(SyntaxKind.Type);
         if (type.Kind.HasFlag(SyntaxKind.Void))
-            return new ParameterExpression(ParameterExpression.VoidIdentifier, null);
+            return new ParameterExpression(ParameterExpression.VoidIdentifier, ParameterExpression.VoidIdentifier);
 
         if (!TryMatch(SyntaxKind.Identifier, out var identifier))
         {
@@ -138,7 +148,7 @@ public class Parser
             return ParameterExpression.BadParameters;
         }
 
-        return new ParameterExpression(paramIdentifier, defaultValue);
+        return new ParameterExpression(paramIdentifier, type);
     }
 
 
@@ -149,11 +159,21 @@ public class Parser
 
     private IStatement ParseVariableDeclaration()
     {
-        throw new NotImplementedException();
+        return new ReturnStatement(ParseAssignmentExpression()); // TODO 
     }
 
 
-    public IExpressionSyntax ParseExpression()
+    public IExpressionSyntax ParseAssignmentExpression()
+    {
+        Consume(SyntaxKind.VariableDeclaration);
+        var identifier = Consume(SyntaxKind.Identifier);
+        var operatorToken = Consume(SyntaxKind.LogicalOperators);
+        var expression = ParsePrimaryExpression();
+        return new AssigmentExpression(identifier, operatorToken, expression);
+    }
+
+
+    public IExpressionSyntax ParseBinaryExpression()
     {
         var leftExpression = ParsePrimaryExpression();
         while (HasCurrent && Current.Kind.HasFlag(SyntaxKind.LogicalOperators))
@@ -181,15 +201,29 @@ public class Parser
         {
             if (TryMatch(SyntaxKind.OpenParenthesis, out var openParenthesisToken))
             {
-                var fn = new FunctionCallExpression(ParseExpression());
+                var fn = new FunctionCallExpression(ParseArgumentsExpression());
                 Consume(SyntaxKind.CloseParenthesis);
                 return fn;
             }
 
-            return new VariableExpression(identifierToken);
+            return new NameExpression(identifierToken);
         }
 
         return DiagnosticError<NoOpExpression>("Invalid expression syntax");
+    }
+
+    private ArgumentsExpression ParseArgumentsExpression()
+    {
+        var args = new List<IExpressionSyntax>();
+        while (!TryMatch(SyntaxKind.CloseParenthesis, out var _))
+            args.Add(ParseArgument());
+
+        return new ArgumentsExpression(args);
+    }
+
+    private IExpressionSyntax ParseArgument()
+    {
+        return ParseParameterExpression();
     }
 
     public bool Match(SyntaxKind kind)

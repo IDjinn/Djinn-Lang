@@ -1,3 +1,4 @@
+using Djinn.Compile;
 using Djinn.Expressions;
 using Djinn.Syntax;
 
@@ -12,7 +13,7 @@ public record ParametersDeclarationStatement(IEnumerable<ParameterExpression> Pa
         throw new NotImplementedException();
     }
 
-    public T Generate<T>(IStatementVisitor<T> visitor)
+    public T Generate<T>(IStatementVisitor<T> visitor, CodeGen codeGen)
     {
         throw new NotImplementedException();
     }

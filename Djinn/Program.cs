@@ -1,8 +1,7 @@
-﻿using Djinn.Lexing;
+﻿using Djinn.Compile;
+using Djinn.Lexing;
 using Djinn.Parsing;
-using Djinn.Statements;
-using Djinn.Syntax.Biding;
-using Djinn.Syntax.Biding.Statements;
+using LLVMSharp;
 
 namespace Djinn;
 
@@ -15,28 +14,40 @@ public static class Program
 //                    ret printf("Hello World!");
 //                }
 //                """;
-
-        var source = $$"""
-                       function void hello(int a) {
-                           ret 1 + 2;
-                       }
-                       """;
+//
+//         var source = $$"""
+//                        function void hello(int a) {
+//                            ret 1 + 2;
+//                        }
+//                        """;
 
 // var source = $$"""1+2+3+4""";
 
-// var source = "";
+        var source = $$"""
+                       function void main() {
+                          hello(1,2);
+                       }
+                       function int64 hello(int b, int64 c) {
+                          ret 10;
+                       }
+                       """;
+
+
         System.Diagnostics.Debugger.Launch();
         var lexer = new Lexer(source);
         var parser = new Parser(lexer);
         var tree = parser.Parse();
-        var binder = new Binder();
 
-        var some = (FunctionDeclarationStatement)tree.Statements.First();
-        var a = binder.Visit(some);
-        var test = (BoundFunctionStatement)a;
-        var other = (BoundBlockStatement)test.Statement;
-// IDjinn.Compile(source);
+        var codegen = new CodeGen(tree);
+        var module = codegen.GenerateLlvm();
+        string moduleError = "";
+        LLVM.VerifyModule(module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);
+        Console.WriteLine(moduleError);
 
+        string error = "";
+        LLVM.DumpModule(module);
+        LLVM.PrintModuleToFile(module, "test.ll", out error);
+        Console.WriteLine(error);
         return;
     }
 }

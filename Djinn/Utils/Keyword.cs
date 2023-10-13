@@ -1,4 +1,5 @@
 using Djinn.Syntax;
+using LLVMSharp;
 
 namespace Djinn.Utils;
 
@@ -44,6 +45,7 @@ public enum Keyword
     Class,
     Record,
     Function,
+    Var,
 }
 
 public static class KeywordExtensions
@@ -53,6 +55,7 @@ public static class KeywordExtensions
         return str switch
         {
             "void" => Keyword.Void,
+            "var" => Keyword.Var,
             "function" or "fn" => Keyword.Function,
             "ret" or "return" => Keyword.Return,
             "true" => Keyword.True,
@@ -100,8 +103,42 @@ public static class KeywordExtensions
 
             Keyword.String => SyntaxKind.String,
             Keyword.Null => SyntaxKind.Null,
+            Keyword.Var => SyntaxKind.VariableDeclaration,
 
             _ => SyntaxKind.BadToken
+        };
+    }
+
+
+    public static LLVMTypeRef ToLLVMType(this Keyword keyword)
+    {
+        return keyword switch
+        {
+            Keyword.Void => LLVMTypeRef.VoidType(),
+            // Keyword.Function => LLVMTypeRef.FunctionType(),
+            // Keyword.Return => LLVMTypeKind.ReturnDeclaration,
+
+            Keyword.True => LLVMTypeRef.Int1Type(),
+            Keyword.False => LLVMTypeRef.Int1Type(),
+
+            Keyword.Float16 => LLVMTypeRef.FloatType(),
+            Keyword.Float32 => LLVMTypeRef.FloatType(),
+            Keyword.Float64 => LLVMTypeRef.FloatType(),
+            Keyword.Float80 => LLVMTypeRef.FloatType(),
+            Keyword.Float128 => LLVMTypeRef.FloatType(),
+
+            Keyword.Integer1 => LLVMTypeRef.Int1Type(),
+            Keyword.Integer8 => LLVMTypeRef.Int8Type(),
+            Keyword.Integer16 => LLVMTypeRef.Int16Type(),
+            Keyword.Integer32 => LLVMTypeRef.Int32Type(),
+            Keyword.Integer64 => LLVMTypeRef.Int64Type(),
+            // Keyword.Integer128 => LLVMTypeRef.int,
+
+            // Keyword.String => LLVMTypeRef.ArrayType(LLVMTypeRef.IntType(64), ),
+            Keyword.Null => LLVMTypeRef.VoidType(), //LLVMTypeRef.ConstNull(LLVMTypeRef.VoidType()),
+            // Keyword.Var => LLVMTypeRef.var,
+
+            _ => LLVMTypeRef.VoidType()
         };
     }
 }

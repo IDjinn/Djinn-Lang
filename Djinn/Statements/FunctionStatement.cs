@@ -1,3 +1,4 @@
+using Djinn.Compile;
 using Djinn.Syntax;
 
 namespace Djinn.Statements;
@@ -11,7 +12,7 @@ public record FunctionStatement(SyntaxToken Type) : IStatement
         return visitor.Visit(this);
     }
 
-    public T Generate<T>(IStatementVisitor<T> visitor)
+    public T Generate<T>(IStatementVisitor<T> visitor, CodeGen codeGen)
     {
         throw new NotImplementedException();
     }

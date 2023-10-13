@@ -1,5 +1,7 @@
+using Djinn.Compile;
 using Djinn.Expressions;
 using Djinn.Syntax;
+using LLVMSharp;
 
 namespace Djinn.Statements;
 
@@ -12,8 +14,10 @@ public record ReturnStatement(IExpressionSyntax ExpressionSyntax) : IStatement
         return visitor.Visit(this);
     }
 
-    public T Generate<T>(IStatementVisitor<T> visitor)
+    public T Generate<T>(IStatementVisitor<T> visitor, CodeGen codeGen)
     {
+        var expressionValue = ExpressionSyntax.Accept(codeGen);
+        LLVM.BuildRet(codeGen.Builder, (LLVMValueRef)expressionValue);
         return default;
     }
 }

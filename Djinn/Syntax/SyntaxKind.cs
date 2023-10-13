@@ -51,6 +51,7 @@ public enum SyntaxKind : long
     VariableAssignmentExpression = Variable | LogicalOperators | Expression | 1,
     FunctionCallExpression = Function | Expression | 1,
     FunctionParametersExpression = Function | Expression | 2,
+    FunctionArgumentsExpression = Function | Expression | 3,
 
     VariableDeclaration = Variable | Declaration | 1,
     FunctionDeclaration = Function | Declaration | 2,
@@ -70,7 +71,7 @@ public enum SyntaxKind : long
     ConstantNumberExpression = Variable | StringLiteral | Expression | 1,
     ConstantFloatExpression = Variable | FloatLiteral | Expression | 1,
 
-    Void = ValueTypes | 1,
+    Void = ValueTypes | 30,
 
     True = ValueTypes | 2,
     False = ValueTypes | 3,

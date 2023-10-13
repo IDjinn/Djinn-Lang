@@ -22,6 +22,51 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindExpression(expressionSyntax);
     }
 
+    public IBoundExpression Visit(UnaryExpressionSyntax expressionSyntax)
+    {
+        return BindExpression(expressionSyntax);
+    }
+
+    public IBoundExpression Visit(ParameterExpression expressionSyntax)
+    {
+        return BindExpression(expressionSyntax);
+    }
+
+    public IBoundExpression Visit(NoOpExpression expressionSyntax)
+    {
+        return BindExpression(expressionSyntax);
+    }
+
+    public IBoundExpression Visit(NameExpression expressionSyntax)
+    {
+        return BindExpression(expressionSyntax);
+    }
+
+    public IBoundExpression Visit(FunctionCallExpression expressionSyntax)
+    {
+        return BindExpression(expressionSyntax);
+    }
+
+    public IBoundExpression Visit(ConstantBooleanExpression expressionSyntax)
+    {
+        return BindExpression(expressionSyntax);
+    }
+
+    public IBoundExpression Visit(AssigmentExpression expressionSyntax)
+    {
+        return BindExpression(expressionSyntax);
+    }
+
+    public IBoundExpression Visit(ArgumentsExpression expressionSyntax)
+    {
+        return BindExpression(expressionSyntax);
+    }
+
+    public IBoundStatement Visit(DiscardExpressionResultStatement discardExpressionResult)
+    {
+        return BindStatement(discardExpressionResult);
+    }
+
     public IBoundStatement Visit(FunctionStatement functionStatement)
     {
         throw new NotSupportedException();

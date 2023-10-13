@@ -3,13 +3,9 @@ using Djinn.Utils;
 
 namespace Djinn.Expressions;
 
-public record NoOpExpression : IExpressionSyntax
+public record NameExpression(SyntaxToken Identifier) : IExpressionSyntax
 {
-    public NoOpExpression()
-    {
-    }
-
-    public SyntaxKind Kind { get; init; } = SyntaxKind.Void;
+    public SyntaxKind Kind => SyntaxKind.Identifier;
 
     public T Accept<T>(IExpressionVisitor<T> expr)
     {
