@@ -8,6 +8,5 @@ public record NoOpExpression : IExpressionSyntax
     {
     }
 
-    public SyntaxToken ReturnType { get; init; } = SyntaxToken.Void;
     public SyntaxKind Kind { get; init; } = SyntaxKind.Void;
 }

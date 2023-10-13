@@ -78,15 +78,14 @@ public class Parser
     {
         Consume(SyntaxKind.ReturnDeclaration);
         var expression = ParseExpression();
-        var returnType = expression.ReturnType;
-        return new ReturnStatement(returnType, expression!);
+        return new ReturnStatement(expression);
     }
 
     private IStatement ParseBlockStatement()
     {
         Consume(SyntaxKind.OpenBrace);
         var statements = new List<IStatement>();
-        while (HasCurrent && !TryMatch(SyntaxKind.CloseBrace, out _))
+        while (HasCurrent && !TryMatchExact(SyntaxKind.CloseBrace, out _))
         {
             statements.Add(ParseStatement()!);
         }
@@ -94,25 +93,54 @@ public class Parser
         return new BlockStatement(statements);
     }
 
-    private IStatement ParseFunctionDeclaration()
+    private FunctionDeclarationStatement ParseFunctionDeclaration()
     {
-        var function = Consume(SyntaxKind.FunctionDeclaration);
-        var type = Consume(SyntaxKind.Void);
+        Consume(SyntaxKind.FunctionDeclaration);
+        var type = Consume(SyntaxKind.Type); // TODO what i will do with tat 
         var identifier = Consume(SyntaxKind.Identifier);
-        ParseParametersStatement();
+        var parameters = ParseParametersStatement();
         var statement = ParseStatement();
-        //if(!statement.Type.Kind.IsValueType() || statement.Type.Kind == SyntaxKind.Void)
-        //    return null;
 
-        return statement;
+        return new FunctionDeclarationStatement(
+            identifier, parameters, statement
+        );
     }
 
-    private void ParseParametersStatement()
+    private ParametersDeclarationStatement ParseParametersStatement()
     {
         Consume(SyntaxKind.OpenParenthesis);
-        ConsumeOptional(SyntaxKind.Void);
+        var parameters = new List<ParameterExpression>();
+        while (Match(SyntaxKind.Type))
+            parameters.Add(ParseParameterExpression());
         Consume(SyntaxKind.CloseParenthesis);
+
+        return new ParametersDeclarationStatement(parameters);
     }
+
+    private ParameterExpression ParseParameterExpression()
+    {
+        var type = Consume(SyntaxKind.Type);
+        if (type.Kind.HasFlag(SyntaxKind.Void))
+            return new ParameterExpression(ParameterExpression.VoidIdentifier, null);
+
+        if (!TryMatch(SyntaxKind.Identifier, out var identifier))
+        {
+            DiagnosticError<bool>("Invalid parameter declaration");
+            return ParameterExpression.BadParameters;
+        }
+
+        var paramIdentifier = identifier with { Kind = SyntaxKind.ParamVariableIdentifier };
+        var equals = ConsumeOptional(SyntaxKind.EqualsOperator);
+        var defaultValue = ConsumeOptional(SyntaxKind.Constant);
+        if (equals is not null && defaultValue is null)
+        {
+            DiagnosticError<bool>("Invalid parameter declaration");
+            return ParameterExpression.BadParameters;
+        }
+
+        return new ParameterExpression(paramIdentifier, defaultValue);
+    }
+
 
     private IStatement ParseVariableAssignmentExpression()
     {
@@ -144,14 +172,21 @@ public class Parser
             return new ConstantStringExpressionSyntax(stringToken);
         if (TryMatch(SyntaxKind.NumberLiteral, out var numberToken))
             return new ConstantNumberExpressionSyntax(numberToken);
+        if (TryMatch(SyntaxKind.True, out var trueToken))
+            return new ConstantBooleanExpression(trueToken);
+        if (TryMatch(SyntaxKind.True, out var falseToken))
+            return new ConstantBooleanExpression(falseToken);
+
         if (TryMatch(SyntaxKind.Identifier, out var identifierToken))
         {
             if (TryMatch(SyntaxKind.OpenParenthesis, out var openParenthesisToken))
             {
-                var fn = new FunctionCallExpression(ParseExpression()!);
+                var fn = new FunctionCallExpression(ParseExpression());
                 Consume(SyntaxKind.CloseParenthesis);
                 return fn;
             }
+
+            return new VariableExpression(identifierToken);
         }
 
         return DiagnosticError<NoOpExpression>("Invalid expression syntax");
@@ -159,12 +194,34 @@ public class Parser
 
     public bool Match(SyntaxKind kind)
     {
+        return HasCurrent && (Current.Kind.HasFlag(kind) || Current.Kind == kind);
+    }
+
+    public bool MatchExact(SyntaxKind kind)
+    {
         return HasCurrent && Current.Kind == kind;
     }
 
     public bool TryMatch(SyntaxKind kind, [NotNullWhen(true)] out SyntaxToken? token)
     {
         return TryMatch<SyntaxToken>(kind, out token);
+    }
+
+    public bool TryMatchExact(SyntaxKind kind, [NotNullWhen(true)] out SyntaxToken? token)
+    {
+        return TryMatchExact<SyntaxToken>(kind, out token);
+    }
+
+    public bool TryMatchExact<TCast>(SyntaxKind kind, [NotNullWhen(true)] out TCast? token) where TCast : SyntaxToken
+    {
+        token = default;
+        if (!MatchExact(kind))
+            return false;
+
+        var current = Current;
+        token = (TCast)current;
+        Advance();
+        return true;
     }
 
     public bool TryMatch<TCast>(SyntaxKind kind, [NotNullWhen(true)] out TCast? token) where TCast : SyntaxToken
@@ -194,7 +251,7 @@ public class Parser
     public SyntaxToken? ConsumeOptional(SyntaxKind kind, int offset = 0)
     {
         var token = Peek(offset);
-        if (token?.Kind != kind)
+        if (!token.Kind.HasFlag(kind) && token.Kind != kind)
             return null;
 
         _index += offset + 1;
@@ -204,7 +261,7 @@ public class Parser
     public SyntaxToken Consume(SyntaxKind kind, int offset = 0)
     {
         var token = Peek(offset);
-        if (token.Kind != kind)
+        if (!token.Kind.HasFlag(kind) && token.Kind != kind)
         {
             DiagnosticError<SyntaxToken>($"Expected token of kind '{kind}' but got '{token?.Kind}'");
             return SyntaxToken.BadToken;
@@ -221,7 +278,7 @@ public class Parser
         return current;
     }
 
-    public T? DiagnosticError<T>(string message)
+    public T DiagnosticError<T>(string message)
     {
         return Diagnostic<T>(DiagnosticSeverity.Error, message);
     }
@@ -231,12 +288,10 @@ public class Parser
         return Diagnostic<T>(DiagnosticSeverity.Warning, message);
     }
 
-    public T? Diagnostic<T>(DiagnosticSeverity severity, string message)
+    public T Diagnostic<T>(DiagnosticSeverity severity, string message)
     {
         _diagnostics.Add(new Diagnostic(new Position(_index), message, severity));
-        // if(HasCurrent)
-        //     Advance();
         _index++;
-        return default;
+        return default!;
     }
 }

@@ -11,8 +11,8 @@ using Djinn.Syntax.Biding.Statements;
 //                """;
 
 var source = $$"""
-               function void hello(void) {
-                   ret 1 + 2;
+               function void hello(int a) {
+                   ret 1 + a;
                }
                """;
 

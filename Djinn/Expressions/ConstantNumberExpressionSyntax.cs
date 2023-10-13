@@ -7,7 +7,6 @@ public record ConstantNumberExpressionSyntax(SyntaxToken NumberToken) : IExpress
 {
     public SyntaxKind Kind => SyntaxKind.ConstantNumberExpression;
 
-    public SyntaxToken ReturnType => NumberToken;
 
     public T Accept<T>(IExpressionVisitor<T> expressionVisitor)
     {

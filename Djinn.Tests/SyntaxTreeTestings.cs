@@ -34,8 +34,6 @@ public class SyntaxTreeTestings
 
         var statement = (ReturnStatement)blockStatement.Statements.First();
         statement.Should().BeOfType<ReturnStatement>();
-        statement.Type.Kind.Should().Be(SyntaxKind.StringLiteral);
-        statement.Type.Value.Should().Be("Hello World!");
 
         statement.ExpressionSyntax.Should().BeOfType<FunctionCallExpression>();
     }
@@ -65,8 +63,6 @@ public class SyntaxTreeTestings
 
         var statement = (ReturnStatement)blockStatement.Statements.First();
         statement.Should().BeOfType<ReturnStatement>();
-        statement.Type.Kind.Should().Be(SyntaxKind.NumberLiteral);
-        statement.Type.Value.Should().Be(1);
 
         var binaryExpression = (BinaryExpressionSyntax)statement.ExpressionSyntax;
         binaryExpression.Should().BeOfType<BinaryExpressionSyntax>();

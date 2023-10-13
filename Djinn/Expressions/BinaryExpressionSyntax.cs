@@ -11,7 +11,6 @@ public record BinaryExpressionSyntax(
 {
     public SyntaxKind Kind => SyntaxKind.BinaryExpression;
 
-    public SyntaxToken ReturnType => LeftExpression.ReturnType;
 
     public T Accept<T>(IExpressionVisitor<T> expressionVisitor)
     {

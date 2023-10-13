@@ -3,7 +3,7 @@ namespace Djinn.Syntax;
 [Flags]
 public enum SyntaxKind : long
 {
-    None = 0,
+    Unknown = 0,
     Trivia = 1 << 2,
     LogicalOperators = 1 << 4,
     ArithmeticOperators = 1 << 5,
@@ -12,10 +12,11 @@ public enum SyntaxKind : long
     Expression = 1 << 10,
     Identifier = 1 << 12,
     Variable = 1 << 16,
+    Type = 1 << 17,
     Function = 1 << 18,
     Block = 1 << 20,
 
-    ValueTypes = 1 << 22,
+    ValueTypes = 1 << 22 | Type,
 
     Float = 1 << 24 | ValueTypes,
     Integer = 1 << 26 | ValueTypes,
@@ -42,11 +43,14 @@ public enum SyntaxKind : long
     LambdaIdentifier = Identifier | 2,
     ClassIdentifier = Identifier | 3,
     NamespaceIdentifier = Identifier | 4,
+    LocalVariableIdentifier = Identifier | 5,
+    ParamVariableIdentifier = Identifier | 6,
 
     BinaryExpression = Expression | 1,
     UnaryExpression = Expression | 2,
     VariableAssignmentExpression = Variable | LogicalOperators | Expression | 1,
     FunctionCallExpression = Function | Expression | 1,
+    FunctionParametersExpression = Function | Expression | 2,
 
     VariableDeclaration = Variable | Declaration | 1,
     FunctionDeclaration = Function | Declaration | 2,

@@ -7,8 +7,6 @@ public record ConstantStringExpressionSyntax(SyntaxToken StringToken) : IExpress
 {
     public SyntaxKind Kind => SyntaxKind.ConstantStringExpression;
 
-    public SyntaxToken ReturnType => StringToken;
-
 
     public T Accept<T>(IExpressionVisitor<T> expressionVisitor)
     {
