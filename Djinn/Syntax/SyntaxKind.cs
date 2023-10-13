@@ -6,7 +6,7 @@ public enum SyntaxKind : long
     Unknown = 0,
     Trivia = 1 << 2,
     LogicalOperators = 1 << 4,
-    ArithmeticOperators = 1 << 5,
+    ArithmeticOperators = LogicalOperators | 1 << 5,
     Assignment = 1 << 6,
     Declaration = 1 << 8,
     Expression = 1 << 10,
@@ -48,7 +48,7 @@ public enum SyntaxKind : long
 
     BinaryExpression = Expression | 1,
     UnaryExpression = Expression | 2,
-    VariableAssignmentExpression = Variable | LogicalOperators | Expression | 1,
+    VariableAssignmentExpression = Variable | Expression | 1,
     FunctionCallExpression = Function | Expression | 1,
     FunctionParametersExpression = Function | Expression | 2,
     FunctionArgumentsExpression = Function | Expression | 3,
@@ -91,4 +91,16 @@ public enum SyntaxKind : long
     Integer32 = Integer | 4,
     Integer64 = Integer | 5,
     Integer128 = Integer | 6,
+}
+
+public static class SyntaxKindExtensions
+{
+    public const int InvalidOperatorPrecedence = -1;
+
+    public static int GetOperatorPrecedence(this SyntaxKind kind) => kind switch
+    {
+        SyntaxKind.PlusToken or SyntaxKind.MinusToken => 10,
+        SyntaxKind.StarToken or SyntaxKind.SlashToken => 20,
+        _ => InvalidOperatorPrecedence
+    };
 }

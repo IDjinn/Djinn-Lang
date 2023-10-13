@@ -87,7 +87,7 @@ public class Parser
     private IStatement ParseReturnStatement()
     {
         Consume(SyntaxKind.ReturnDeclaration);
-        var expression = ParseBinaryExpression();
+        var expression = ParseExpression();
         return new ReturnStatement(expression);
     }
 
@@ -173,17 +173,21 @@ public class Parser
     }
 
 
-    public IExpressionSyntax ParseBinaryExpression()
+    public IExpressionSyntax ParseExpression(int parentPrecedence = 0)
     {
-        var leftExpression = ParsePrimaryExpression();
-        while (HasCurrent && Current.Kind.HasFlag(SyntaxKind.LogicalOperators))
+        var left = ParsePrimaryExpression();
+        while (true)
         {
-            var operatorToken = Advance();
-            var rightExpression = ParsePrimaryExpression();
-            leftExpression = new BinaryExpressionSyntax(leftExpression, operatorToken, rightExpression);
+            var precedence = Current.Kind.GetOperatorPrecedence();
+            if (precedence == SyntaxKindExtensions.InvalidOperatorPrecedence || precedence <= parentPrecedence)
+                break;
+
+            var operatorToken = Consume(SyntaxKind.LogicalOperators);
+            var right = ParseExpression(precedence);
+            left = new BinaryExpressionSyntax(left, operatorToken, right);
         }
 
-        return leftExpression;
+        return left;
     }
 
     public IExpressionSyntax ParsePrimaryExpression()

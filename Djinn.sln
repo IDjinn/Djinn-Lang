@@ -5,6 +5,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extra", "Extra", "{2668AD51-F150-43D4-A5EE-68C3BBE37E4F}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		Readme.md = Readme.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Djinn.Tests", "Djinn.Tests\Djinn.Tests.csproj", "{FAF44232-FA32-427D-8A39-A49C9649227E}"

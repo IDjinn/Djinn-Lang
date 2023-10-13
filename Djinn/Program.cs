@@ -25,7 +25,7 @@ public static class Program
 
         var source = $$"""
                        function int64 hello(int64 b, int64 c) {
-                          ret 10;
+                          ret 10 + 2 * 5;
                        }
                        function void main() {
                           hello(1,2);
