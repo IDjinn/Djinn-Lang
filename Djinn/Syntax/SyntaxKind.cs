@@ -97,10 +97,17 @@ public static class SyntaxKindExtensions
 {
     public const int InvalidOperatorPrecedence = -1;
 
-    public static int GetOperatorPrecedence(this SyntaxKind kind) => kind switch
+    public static int GetBinaryOperatorPrecedence(this SyntaxKind kind) => kind switch
     {
         SyntaxKind.PlusToken or SyntaxKind.MinusToken => 10,
         SyntaxKind.StarToken or SyntaxKind.SlashToken => 20,
+        _ => InvalidOperatorPrecedence
+    };
+
+    public static int GetUnaryOperatorPrecedence(this SyntaxKind kind) => kind switch
+    {
+        SyntaxKind.StarToken or SyntaxKind.SlashToken => 10,
+        SyntaxKind.PlusToken or SyntaxKind.MinusToken => 20,
         _ => InvalidOperatorPrecedence
     };
 }

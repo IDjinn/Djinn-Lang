@@ -175,10 +175,23 @@ public class Parser
 
     public IExpressionSyntax ParseExpression(int parentPrecedence = 0)
     {
-        var left = ParsePrimaryExpression();
+        IExpressionSyntax left;
+        var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
+        if (unaryOperatorPrecedence == SyntaxKindExtensions.InvalidOperatorPrecedence ||
+            parentPrecedence > unaryOperatorPrecedence)
+        {
+            left = ParsePrimaryExpression();
+        }
+        else
+        {
+            var operatorToken = Consume(SyntaxKind.ArithmeticOperators);
+            var operand = ParseExpression(unaryOperatorPrecedence);
+            left = new UnaryExpressionSyntax(operand, operatorToken);
+        }
+
         while (true)
         {
-            var precedence = Current.Kind.GetOperatorPrecedence();
+            var precedence = Current.Kind.GetBinaryOperatorPrecedence();
             if (precedence == SyntaxKindExtensions.InvalidOperatorPrecedence || precedence <= parentPrecedence)
                 break;
 
