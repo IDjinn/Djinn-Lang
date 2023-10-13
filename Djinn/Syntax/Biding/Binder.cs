@@ -24,7 +24,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     public IBoundStatement Visit(FunctionStatement functionStatement)
     {
-        return BindFunctionStatement(functionStatement);
+        throw new NotSupportedException();
     }
 
     public IBoundStatement Visit(ReturnStatement returnStatement)
@@ -37,11 +37,15 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindBlockStatement(blockStatement);
     }
 
-    public IBoundStatement BoundStatement(IStatement statement)
+    public IBoundStatement Visit(FunctionDeclarationStatement functionDeclarationStatement)
+    {
+        return BindFunctionStatement(functionDeclarationStatement);
+    }
+
+    public IBoundStatement BindStatement(IStatement statement)
     {
         return statement switch
         {
-            FunctionStatement functionStatement => BindFunctionStatement(functionStatement),
             ReturnStatement returnStatement => BindReturnStatement(returnStatement),
             BlockStatement blockStatement => BindBlockStatement(blockStatement),
             _ => throw new NotImplementedException()
@@ -50,25 +54,30 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     public IEnumerable<IBoundStatement> BoundStatements(IEnumerable<IStatement> statements)
     {
-        foreach (var statement in statements)
+        // yes, we need make it foreach intentionally array because IDE doesn't support yielded return statements while debugging
+        var stats = statements.ToArray();
+        var bounds = new List<IBoundStatement>(stats.Length);
+        foreach (var statement in stats)
         {
-            yield return BoundStatement(statement);
+            bounds.Add(BindStatement(statement));
         }
+
+        return bounds;
     }
 
-    private IBoundStatement BindBlockStatement(BlockStatement blockStatement)
+    private BoundBlockStatement BindBlockStatement(BlockStatement blockStatement)
     {
         return new BoundBlockStatement(BoundStatements(blockStatement.Statements));
     }
 
-    private IBoundStatement BindReturnStatement(ReturnStatement returnStatement)
+    private BoundReturnStatement BindReturnStatement(ReturnStatement returnStatement)
     {
         return new BoundReturnStatement(BindExpression(returnStatement.ExpressionSyntax));
     }
 
-    private IBoundStatement BindFunctionStatement(FunctionStatement function)
+    private BoundFunctionStatement BindFunctionStatement(FunctionDeclarationStatement functionDeclarationStatement)
     {
-        return new BoundFunctionStatement(default); // ToDO
+        return new BoundFunctionStatement(BindStatement(functionDeclarationStatement.Statement));
     }
 
     public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax)
@@ -77,7 +86,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         {
             Left = BindExpression(binaryExpressionSyntax.LeftExpression),
             OperatorKind = binaryExpressionSyntax.Operator.Kind.BindBinaryOperatorKind(),
-            Right = BindExpression(binaryExpressionSyntax.LeftExpression)
+            Right = BindExpression(binaryExpressionSyntax.RightExpression)
         };
     }
 
@@ -93,7 +102,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         };
     }
 
-    private IBoundExpression BindLiteralString(ConstantStringExpressionSyntax constantString)
+    private BoundLiteralExpression BindLiteralString(ConstantStringExpressionSyntax constantString)
     {
         return new BoundLiteralExpression
         {
@@ -105,7 +114,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         };
     }
 
-    private IBoundExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber)
+    private BoundLiteralExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber)
     {
         return new BoundLiteralExpression
         {
@@ -117,7 +126,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         };
     }
 
-    private IBoundExpression BindUnaryExpression(UnaryExpressionSyntax unary)
+    private BoundUnaryExpression BindUnaryExpression(UnaryExpressionSyntax unary)
     {
         return new BoundUnaryExpression()
         {

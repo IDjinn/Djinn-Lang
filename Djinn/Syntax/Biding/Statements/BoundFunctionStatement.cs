@@ -1,7 +1,7 @@
 namespace Djinn.Syntax.Biding.Statements;
 
 public record BoundFunctionStatement(
-    IBoundExpression Expression
+    IBoundStatement Statement
 ) : IBoundStatement
 {
     public BoundNodeKind Kind => BoundNodeKind.FunctionStatement;
