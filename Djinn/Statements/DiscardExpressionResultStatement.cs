@@ -15,6 +15,7 @@ public record DiscardExpressionResultStatement(IExpressionSyntax Expression) : I
 
     public T Generate<T>(IStatementVisitor<T> visitor, CodeGen codeGen)
     {
+        Expression.Accept(codeGen);
         return default; // TODO: Implement 
     }
 }

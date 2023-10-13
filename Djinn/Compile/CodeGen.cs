@@ -49,12 +49,12 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
 
     public object Visit(ParameterExpression expressionSyntax)
     {
-        throw new NotImplementedException();
+        return default;
     }
 
     public object Visit(NoOpExpression expressionSyntax)
     {
-        throw new NotImplementedException();
+        return new LLVMValueRef();
     }
 
     public object Visit(NameExpression expressionSyntax)
@@ -64,7 +64,14 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
 
     public object Visit(FunctionCallExpression expressionSyntax)
     {
-        throw new NotImplementedException();
+        var function = LLVM.GetNamedFunction(Module, expressionSyntax.Identifier.Value.ToString()!);
+        if (function.IsNullPointer())
+        {
+            // todo diagnostics
+        }
+
+        var arguments = expressionSyntax.Expression.Accept(this) as IEnumerable<LLVMValueRef>;
+        return LLVM.BuildCall(Builder, function, arguments.ToArray(), "calltemp");
     }
 
     public object Visit(ConstantBooleanExpression expressionSyntax)
@@ -81,12 +88,13 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
 
     public object Visit(ArgumentsExpression expressionSyntax)
     {
+        var resolvedArgs = new List<LLVMValueRef>(expressionSyntax.Arguments.Count());
         foreach (var argument in expressionSyntax.Arguments)
         {
-            argument.Accept(this);
+            resolvedArgs.Add((LLVMValueRef)argument.Accept(this));
         }
 
-        return default;
+        return resolvedArgs;
     }
 
     public object Visit(DiscardExpressionResultStatement discardExpressionResult)

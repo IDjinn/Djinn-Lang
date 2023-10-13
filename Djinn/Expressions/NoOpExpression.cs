@@ -5,11 +5,7 @@ namespace Djinn.Expressions;
 
 public record NoOpExpression : IExpressionSyntax
 {
-    public NoOpExpression()
-    {
-    }
-
-    public SyntaxKind Kind { get; init; } = SyntaxKind.Void;
+    public SyntaxKind Kind => SyntaxKind.Void;
 
     public T Accept<T>(IExpressionVisitor<T> expr)
     {

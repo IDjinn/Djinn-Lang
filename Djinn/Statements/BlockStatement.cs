@@ -4,10 +4,17 @@ using LLVMSharp;
 
 namespace Djinn.Statements;
 
-public record BlockStatement(IEnumerable<IStatement> Statements) : IStatement
+public record BlockStatement : IStatement
 {
-    public SyntaxKind Kind => SyntaxKind.BlockStatement;
+    private readonly List<IStatement> _statements = new();
 
+    public BlockStatement(IEnumerable<IStatement> statements)
+    {
+        _statements.AddRange(statements);
+    }
+
+    public IEnumerable<IStatement> Statements => _statements.ToArray();
+    public SyntaxKind Kind => SyntaxKind.BlockStatement;
 
     public T Visit<T>(IStatementVisitor<T> visitor)
     {
@@ -22,10 +29,17 @@ public record BlockStatement(IEnumerable<IStatement> Statements) : IStatement
             LLVM.PositionBuilderAtEnd(codeGen.Builder, block);
         }
 
+        // TODO MOVE FROM HERE
+        if (Statements.All(x => x.Kind != SyntaxKind.ReturnDeclaration))
+        {
+            _statements.Add(ReturnStatement.Void);
+        }
+
         foreach (var statement in Statements)
         {
             statement.Generate(visitor, codeGen);
         }
+
 
         return default;
     }

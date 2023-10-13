@@ -3,7 +3,7 @@ using Djinn.Utils;
 
 namespace Djinn.Expressions;
 
-public record FunctionCallExpression(IExpressionSyntax Expression) : IExpressionSyntax
+public record FunctionCallExpression(SyntaxToken Identifier, IExpressionSyntax Expression) : IExpressionSyntax
 {
     public SyntaxKind Kind => SyntaxKind.FunctionCallExpression;
 

@@ -24,16 +24,15 @@ public static class Program
 // var source = $$"""1+2+3+4""";
 
         var source = $$"""
+                       function int64 hello(int64 b, int64 c) {
+                          ret 10;
+                       }
                        function void main() {
                           hello(1,2);
-                       }
-                       function int64 hello(int b, int64 c) {
-                          ret 10;
                        }
                        """;
 
 
-        System.Diagnostics.Debugger.Launch();
         var lexer = new Lexer(source);
         var parser = new Parser(lexer);
         var tree = parser.Parse();

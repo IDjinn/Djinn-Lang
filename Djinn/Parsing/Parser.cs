@@ -201,7 +201,7 @@ public class Parser
         {
             if (TryMatch(SyntaxKind.OpenParenthesis, out var openParenthesisToken))
             {
-                var fn = new FunctionCallExpression(ParseArgumentsExpression());
+                var fn = new FunctionCallExpression(identifierToken, ParseArgumentsExpression());
                 Consume(SyntaxKind.CloseParenthesis);
                 return fn;
             }
@@ -223,7 +223,7 @@ public class Parser
 
     private IExpressionSyntax ParseArgument()
     {
-        return ParseParameterExpression();
+        return ParsePrimaryExpression();
     }
 
     public bool Match(SyntaxKind kind)
