@@ -1,7 +1,6 @@
-﻿using Djinn.Compile;
-using Djinn.Lexing;
+﻿using Djinn.Lexing;
 using Djinn.Parsing;
-using LLVMSharp;
+using Djinn.Syntax.Biding;
 
 namespace Djinn;
 
@@ -27,9 +26,6 @@ public static class Program
                        function int64 hello(int64 b, int64 c) {
                           ret -10 + 2 * 5;
                        }
-                       function void main() {
-                          hello(1,2);
-                       }
                        """;
 
 
@@ -37,16 +33,19 @@ public static class Program
         var parser = new Parser(lexer);
         var tree = parser.Parse();
 
-        var codegen = new CodeGen(tree);
-        var module = codegen.GenerateLlvm();
-        string moduleError = "";
-        LLVM.VerifyModule(module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);
-        Console.WriteLine(moduleError);
+        var binder = new Binder();
+        var result = binder.Bind(tree);
 
-        string error = "";
-        LLVM.DumpModule(module);
-        LLVM.PrintModuleToFile(module, "test.ll", out error);
-        Console.WriteLine(error);
         return;
+
+        // string moduleError = "";
+        // LLVM.VerifyModule(module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);
+        // Console.WriteLine(moduleError);
+        //
+        // string error = "";
+        // LLVM.DumpModule(module);
+        // LLVM.PrintModuleToFile(module, "test.ll", out error);
+        // Console.WriteLine(error);
+        // return;
     }
 }

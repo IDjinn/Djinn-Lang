@@ -1,5 +1,6 @@
 using Djinn.Expressions;
 using Djinn.Statements;
+using Djinn.Syntax.Biding.Expressions;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 
@@ -7,6 +8,13 @@ namespace Djinn.Syntax.Biding;
 
 public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBoundExpression>
 {
+    private Reporter _reporter;
+
+    public Binder()
+    {
+        _reporter = new Reporter();
+    }
+
     public IBoundExpression Visit(BinaryExpressionSyntax expressionSyntax)
     {
         return BindBinaryExpression(expressionSyntax);
@@ -87,15 +95,29 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindFunctionStatement(functionDeclarationStatement);
     }
 
+    public IEnumerable<IBoundStatement> Bind(SyntaxTree syntaxTree)
+    {
+        var statements = new List<IBoundStatement>();
+        foreach (var statement in syntaxTree.Statements)
+        {
+            statements.Add(BindStatement(statement));
+        }
+
+        return statements;
+    }
+
     public IBoundStatement BindStatement(IStatement statement)
     {
         return statement switch
         {
             ReturnStatement returnStatement => BindReturnStatement(returnStatement),
             BlockStatement blockStatement => BindBlockStatement(blockStatement),
-            _ => throw new NotImplementedException()
+            FunctionDeclarationStatement functionDeclaration => BindFunctionStatement(functionDeclaration),
+            _ => _reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
+                BoundBlockStatement.Empty)
         };
     }
+
 
     public IEnumerable<IBoundStatement> BoundStatements(IEnumerable<IStatement> statements)
     {
@@ -127,7 +149,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax)
     {
-        return new BoundBinaryExpression()
+        return new BoundBinaryExpression
         {
             Left = BindExpression(binaryExpressionSyntax.LeftExpression),
             OperatorKind = binaryExpressionSyntax.Operator.Kind.BindBinaryOperatorKind(),
@@ -175,7 +197,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
     {
         return new BoundUnaryExpression()
         {
-            Operand = BindExpression(unary),
+            Operand = BindExpression(unary.Operand),
             OperatorKind = unary.Operator.Kind.BindUnaryOperatorKind(),
         };
     }

@@ -28,7 +28,7 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
 
     public object Visit(BinaryExpressionSyntax expressionSyntax)
     {
-        throw new NotImplementedException();
+        return default;
     }
 
     public object Visit(ConstantNumberExpressionSyntax expressionSyntax)
@@ -39,12 +39,12 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
 
     public object Visit(ConstantStringExpressionSyntax expressionSyntax)
     {
-        throw new NotImplementedException();
+        return default;
     }
 
     public object Visit(UnaryExpressionSyntax expressionSyntax)
     {
-        throw new NotImplementedException();
+        return default;
     }
 
     public object Visit(ParameterExpression expressionSyntax)
@@ -59,7 +59,7 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
 
     public object Visit(NameExpression expressionSyntax)
     {
-        throw new NotImplementedException();
+        return new LLVMValueRef();
     }
 
     public object Visit(FunctionCallExpression expressionSyntax)

@@ -1,4 +1,4 @@
-namespace Djinn.Syntax.Biding;
+namespace Djinn.Syntax.Biding.Expressions;
 
 public interface IBoundExpression : IBoundNode
 {

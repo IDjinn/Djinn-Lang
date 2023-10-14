@@ -168,7 +168,7 @@ public class Parser
         Consume(SyntaxKind.VariableDeclaration);
         var identifier = Consume(SyntaxKind.Identifier);
         var operatorToken = Consume(SyntaxKind.LogicalOperators);
-        var expression = ParsePrimaryExpression();
+        var expression = ParseExpression();
         return new AssigmentExpression(identifier, operatorToken, expression);
     }
 

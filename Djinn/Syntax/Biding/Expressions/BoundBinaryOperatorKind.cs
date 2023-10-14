@@ -1,8 +1,9 @@
-namespace Djinn.Syntax.Biding;
+namespace Djinn.Syntax.Biding.Expressions;
 
 public enum BoundBinaryOperatorKind
 {
     Unknown,
+
     Addiction,
     Subtraction,
     Multiplication,

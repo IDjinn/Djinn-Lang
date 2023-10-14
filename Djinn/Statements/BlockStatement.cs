@@ -14,6 +14,7 @@ public record BlockStatement : IStatement
     }
 
     public IEnumerable<IStatement> Statements => _statements.ToArray();
+    public static BlockStatement Empty => new BlockStatement(new IStatement[] { });
     public SyntaxKind Kind => SyntaxKind.BlockStatement;
 
     public T Visit<T>(IStatementVisitor<T> visitor)
