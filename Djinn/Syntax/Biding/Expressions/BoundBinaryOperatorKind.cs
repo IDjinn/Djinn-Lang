@@ -4,17 +4,21 @@ public enum BoundBinaryOperatorKind
 {
     Unknown,
 
-    Addiction,
+    Addition,
     Subtraction,
     Multiplication,
-    Division
+    Division,
+    LogicalAnd,
+    LogicalOr,
+    Equals,
+    NotEquals
 }
 
 public static class BoundBinaryOperatorExtensions
 {
     public static BoundBinaryOperatorKind BindBinaryOperatorKind(this SyntaxKind kind) => kind switch
     {
-        SyntaxKind.PlusToken => BoundBinaryOperatorKind.Addiction,
+        SyntaxKind.PlusToken => BoundBinaryOperatorKind.Addition,
         SyntaxKind.MinusToken => BoundBinaryOperatorKind.Subtraction,
         SyntaxKind.StarToken => BoundBinaryOperatorKind.Multiplication,
         SyntaxKind.SlashToken => BoundBinaryOperatorKind.Division,

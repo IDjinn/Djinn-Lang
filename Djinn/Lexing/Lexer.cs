@@ -95,6 +95,17 @@ public record Lexer(string Source)
                     Advance();
                     return new SyntaxToken(SyntaxKind.StringLiteral, value, new Position(startIndex, lenght + 1));
                 }
+                case '|':
+                    if (Peek(1) == '|')
+                        return new SyntaxToken(SyntaxKind.PipePipeToken, current, new Position(Advance(2), 1));
+                    return new SyntaxToken(SyntaxKind.PipeToken, current, new Position(Advance(), 1));
+                case '!':
+                    return new SyntaxToken(SyntaxKind.BangToken, current, new Position(Advance(), 1));
+                case '&':
+                    if (Peek(1) == '&')
+                        return new SyntaxToken(SyntaxKind.AmpersendAmpersandToken, current,
+                            new Position(Advance(2), 1));
+                    return new SyntaxToken(SyntaxKind.Ampersend, current, new Position(Advance(), 1));
 
                 case '0':
                 case '1':

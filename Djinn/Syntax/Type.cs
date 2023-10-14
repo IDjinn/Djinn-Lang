@@ -7,6 +7,13 @@ public interface IType
     public bool IsReadOnly { get; }
 }
 
+public readonly record struct Bool(bool Value) : IType
+{
+    public int SizeOf => 1;
+    public bool IsHeap => false;
+    public bool IsReadOnly => false;
+}
+
 public interface INumber : IType
 {
     public bool IsFloat { get; }

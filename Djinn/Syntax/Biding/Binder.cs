@@ -149,10 +149,13 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax)
     {
+        var boundBinaryOperator =
+            BoundBinaryOperator.Bind(binaryExpressionSyntax.Operator.Kind, new Integer32(), new Integer32());
+
         return new BoundBinaryExpression
         {
             Left = BindExpression(binaryExpressionSyntax.LeftExpression),
-            OperatorKind = binaryExpressionSyntax.Operator.Kind.BindBinaryOperatorKind(),
+            Operator = boundBinaryOperator,
             Right = BindExpression(binaryExpressionSyntax.RightExpression)
         };
     }
@@ -165,7 +168,21 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             UnaryExpressionSyntax unary => BindUnaryExpression(unary),
             ConstantNumberExpressionSyntax constantNumber => BindLiteralNumber(constantNumber),
             ConstantStringExpressionSyntax constantString => BindLiteralString(constantString),
+            ConstantBooleanExpression constantBoolean => BindLiteralBoolean(constantBoolean),
             _ => throw new NotImplementedException()
+        };
+    }
+
+    private BoundLiteralExpression BindLiteralBoolean(ConstantBooleanExpression constantBoolean)
+    {
+        var boolean = constantBoolean.Bool.Value.ToString()!.Equals("true");
+        return new BoundLiteralExpression
+        {
+            Value = new BoundValue()
+            {
+                Type = new Bool(boolean),
+                Value = boolean
+            }
         };
     }
 
@@ -195,10 +212,16 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     private BoundUnaryExpression BindUnaryExpression(UnaryExpressionSyntax unary)
     {
+        var boundOperator = BoundUnaryOperator.Bind(unary.Operator.Kind, new Integer32());
+        if (boundOperator is null)
+        {
+            // TODO REPORTING
+        }
+
         return new BoundUnaryExpression()
         {
             Operand = BindExpression(unary.Operand),
-            OperatorKind = unary.Operator.Kind.BindUnaryOperatorKind(),
+            Operator = boundOperator,
         };
     }
 }

@@ -91,6 +91,12 @@ public enum SyntaxKind : long
     Integer32 = Integer | 4,
     Integer64 = Integer | 5,
     Integer128 = Integer | 6,
+    BangToken,
+    Ampersend,
+    AmpersendAmpersandToken,
+    PipeToken,
+    PipePipeToken,
+    BangEqualsToken
 }
 
 public static class SyntaxKindExtensions
@@ -99,8 +105,13 @@ public static class SyntaxKindExtensions
 
     public static int GetBinaryOperatorPrecedence(this SyntaxKind kind) => kind switch
     {
-        SyntaxKind.PlusToken or SyntaxKind.MinusToken => 10,
-        SyntaxKind.StarToken or SyntaxKind.SlashToken => 20,
+        SyntaxKind.AmpersendAmpersandToken => 10,
+
+        SyntaxKind.PlusToken or SyntaxKind.MinusToken => 20,
+
+        SyntaxKind.StarToken or SyntaxKind.SlashToken => 30,
+
+
         _ => InvalidOperatorPrecedence
     };
 
