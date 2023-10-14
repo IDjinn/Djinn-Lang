@@ -180,7 +180,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         {
             Value = new BoundValue()
             {
-                Type = new Bool(boolean),
+                Type = typeof(Bool),
                 Value = boolean
             }
         };
@@ -192,8 +192,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         {
             Value = new BoundValue()
             {
-                Value = constantString.StringToken.Value,
-                Type = new String(constantString.StringToken.Value.ToString()!)
+                Value = new String(constantString.StringToken.Value.ToString()!),
+                Type = typeof(String)
             }
         };
     }
@@ -204,8 +204,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         {
             Value = new BoundValue()
             {
-                Value = constantNumber.NumberToken.Value,
-                Type = new Integer32((int)constantNumber.NumberToken.Value)
+                Value = new Integer32((int)constantNumber.NumberToken.Value),
+                Type = typeof(Integer32)
             }
         };
     }

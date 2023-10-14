@@ -7,28 +7,28 @@ public record BoundUnaryOperator
         new()
         {
             SyntaxKind = SyntaxKind.BangToken,
-            Operator = BoundUnaryOperatorKind.LogicalNegation,
+            OperatorKind = BoundUnaryOperatorKind.LogicalNegation,
             OperandType = typeof(Bool),
             ResultType = typeof(Bool)
         },
         new()
         {
             SyntaxKind = SyntaxKind.PlusToken,
-            Operator = BoundUnaryOperatorKind.Identity,
+            OperatorKind = BoundUnaryOperatorKind.Identity,
             OperandType = typeof(INumber),
             ResultType = typeof(INumber)
         },
         new()
         {
             SyntaxKind = SyntaxKind.MinusToken,
-            Operator = BoundUnaryOperatorKind.Negation,
+            OperatorKind = BoundUnaryOperatorKind.Negation,
             OperandType = typeof(INumber),
             ResultType = typeof(INumber)
         },
     };
 
     public required SyntaxKind SyntaxKind { get; init; }
-    public required BoundUnaryOperatorKind Operator { get; init; }
+    public required BoundUnaryOperatorKind OperatorKind { get; init; }
     public required Type OperandType { get; init; }
     public required Type ResultType { get; init; }
 

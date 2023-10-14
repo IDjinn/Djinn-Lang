@@ -2,7 +2,7 @@ namespace Djinn.Syntax.Biding.Expressions;
 
 public record BoundBinaryOperator(
     SyntaxKind SyntaxKind,
-    BoundBinaryOperatorKind Operator,
+    BoundBinaryOperatorKind OperatorKind,
     Type OperandType,
     Type ResultType
 )
@@ -22,8 +22,8 @@ public record BoundBinaryOperator(
         new(SyntaxKind.BangEqualsToken, BoundBinaryOperatorKind.NotEquals, typeof(Bool)),
     };
 
-    public BoundBinaryOperator(SyntaxKind SyntaxKind, BoundBinaryOperatorKind Operator, Type OperandType) :
-        this(SyntaxKind, Operator, OperandType, OperandType)
+    public BoundBinaryOperator(SyntaxKind SyntaxKind, BoundBinaryOperatorKind OperatorKind, Type OperandType) :
+        this(SyntaxKind, OperatorKind, OperandType, OperandType)
     {
     }
 
