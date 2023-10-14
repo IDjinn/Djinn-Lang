@@ -4,14 +4,14 @@ using Djinn.Syntax.Biding;
 
 namespace Djinn.Tests;
 
-public class BindingTestings
+public partial class BindingExpressionTests
 {
     [Fact]
-    public void unary_expression_binding_test()
+    public Task unary_expression_binding_test()
     {
         var source = """
                      function void hello(void) {
-                         ret 1 + 2;
+                         ret +1;
                      }
                      """;
 
@@ -20,6 +20,6 @@ public class BindingTestings
         var tree = parser.Parse();
         var binder = new Binder();
 
-        var a = tree.Generate(binder);
+        return Verify(tree.Generate(binder));
     }
 }

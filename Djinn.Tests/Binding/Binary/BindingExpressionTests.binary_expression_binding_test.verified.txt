@@ -1,0 +1,57 @@
+﻿[
+  {
+    Statement: {
+      Statements: [
+        {
+          Expression: {
+            Left: {
+              Value: {
+                Value: 1,
+                Type: {
+                  Value: 1,
+                  IsFloat: false,
+                  SizeOf: 4,
+                  IsHeap: false,
+                  IsReadOnly: false
+                }
+              },
+              Kind: LiteralExpression,
+              Type: {
+                Value: 1,
+                IsFloat: false,
+                SizeOf: 4,
+                IsHeap: false,
+                IsReadOnly: false
+              }
+            },
+            OperatorKind: Addiction,
+            Right: {
+              Value: {
+                Value: 2,
+                Type: {
+                  Value: 2,
+                  IsFloat: false,
+                  SizeOf: 4,
+                  IsHeap: false,
+                  IsReadOnly: false
+                }
+              },
+              Kind: LiteralExpression,
+              Type: {
+                Value: 2,
+                IsFloat: false,
+                SizeOf: 4,
+                IsHeap: false,
+                IsReadOnly: false
+              }
+            },
+            Kind: BinaryExpression
+          },
+          Kind: ReturnStatement
+        }
+      ],
+      Kind: BlockStatement
+    },
+    Kind: FunctionStatement
+  }
+]

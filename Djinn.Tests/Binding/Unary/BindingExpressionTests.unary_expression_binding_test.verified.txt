@@ -1,0 +1,44 @@
+﻿[
+  {
+    Statement: {
+      Statements: [
+        {
+          Expression: {
+            OperatorKind: Addition,
+            Operand: {
+              Value: {
+                Value: 1,
+                Type: {
+                  Value: 1,
+                  IsFloat: false,
+                  SizeOf: 4,
+                  IsHeap: false,
+                  IsReadOnly: false
+                }
+              },
+              Kind: LiteralExpression,
+              Type: {
+                Value: 1,
+                IsFloat: false,
+                SizeOf: 4,
+                IsHeap: false,
+                IsReadOnly: false
+              }
+            },
+            Kind: UnaryExpression,
+            Type: {
+              Value: 1,
+              IsFloat: false,
+              SizeOf: 4,
+              IsHeap: false,
+              IsReadOnly: false
+            }
+          },
+          Kind: ReturnStatement
+        }
+      ],
+      Kind: BlockStatement
+    },
+    Kind: FunctionStatement
+  }
+]
