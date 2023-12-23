@@ -169,8 +169,14 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             ConstantNumberExpressionSyntax constantNumber => BindLiteralNumber(constantNumber),
             ConstantStringExpressionSyntax constantString => BindLiteralString(constantString),
             ConstantBooleanExpression constantBoolean => BindLiteralBoolean(constantBoolean),
+            FunctionCallExpression functionCallExpression => BindFunctionCallExpression(functionCallExpression),
             _ => throw new NotImplementedException()
         };
+    }
+
+    private IBoundExpression BindFunctionCallExpression(FunctionCallExpression functionCallExpression)
+    {
+        return default;
     }
 
     private BoundLiteralExpression BindLiteralBoolean(ConstantBooleanExpression constantBoolean)
@@ -180,8 +186,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         {
             Value = new BoundValue()
             {
-                Type = typeof(Bool),
-                Value = boolean
+                Type = new Bool(boolean),
+                Value = new Bool(boolean)
             }
         };
     }
@@ -193,7 +199,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             Value = new BoundValue()
             {
                 Value = new String(constantString.StringToken.Value.ToString()!),
-                Type = typeof(String)
+                Type = new String(constantString.StringToken.Value.ToString()!)
             }
         };
     }
@@ -205,7 +211,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             Value = new BoundValue()
             {
                 Value = new Integer32((int)constantNumber.NumberToken.Value),
-                Type = typeof(Integer32)
+                Type = new Integer32((int)constantNumber.NumberToken.Value)
             }
         };
     }

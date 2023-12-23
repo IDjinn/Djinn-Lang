@@ -1,6 +1,11 @@
+using Djinn.Compile;
+using LLVMSharp;
+
 namespace Djinn.Syntax.Biding.Expressions;
 
 public interface IBoundExpression : IBoundNode
 {
-    public Type Type { get; }
+    public IType Type { get; }
+
+    public LLVMValueRef Evaluate(IBoundExpressionVisitor expressionVisitor);
 }

@@ -3,39 +3,39 @@ namespace Djinn.Syntax.Biding.Expressions;
 public record BoundBinaryOperator(
     SyntaxKind SyntaxKind,
     BoundBinaryOperatorKind OperatorKind,
-    Type OperandType,
-    Type ResultType
+    IType OperandType,
+    IType ResultType
 )
 {
     public static BoundBinaryOperator[] Operators =
     {
-        new(SyntaxKind.PlusToken, BoundBinaryOperatorKind.Addition, typeof(INumber)),
-        new(SyntaxKind.MinusToken, BoundBinaryOperatorKind.Subtraction, typeof(INumber)),
-        new(SyntaxKind.StarToken, BoundBinaryOperatorKind.Multiplication, typeof(INumber)),
-        new(SyntaxKind.SlashToken, BoundBinaryOperatorKind.Division, typeof(INumber)),
-        new(SyntaxKind.EqualsEqualsOperator, BoundBinaryOperatorKind.Equals, typeof(INumber), typeof(Bool)),
-        new(SyntaxKind.BangEqualsToken, BoundBinaryOperatorKind.NotEquals, typeof(INumber), typeof(Bool)),
+        new(SyntaxKind.PlusToken, BoundBinaryOperatorKind.Addition, new Integer32()),
+        new(SyntaxKind.MinusToken, BoundBinaryOperatorKind.Subtraction, new Integer32()),
+        new(SyntaxKind.StarToken, BoundBinaryOperatorKind.Multiplication, new Integer32()),
+        new(SyntaxKind.SlashToken, BoundBinaryOperatorKind.Division, new Integer32()),
+        new(SyntaxKind.EqualsEqualsOperator, BoundBinaryOperatorKind.Equals, new Integer32(), new Bool()),
+        new(SyntaxKind.BangEqualsToken, BoundBinaryOperatorKind.NotEquals, new Integer32(), new Bool()),
 
-        new(SyntaxKind.AmpersendAmpersandToken, BoundBinaryOperatorKind.LogicalAnd, typeof(Bool)),
-        new(SyntaxKind.PipePipeToken, BoundBinaryOperatorKind.LogicalOr, typeof(Bool)),
-        new(SyntaxKind.EqualsEqualsOperator, BoundBinaryOperatorKind.Equals, typeof(Bool)),
-        new(SyntaxKind.BangEqualsToken, BoundBinaryOperatorKind.NotEquals, typeof(Bool)),
+        new(SyntaxKind.AmpersendAmpersandToken, BoundBinaryOperatorKind.LogicalAnd, new Bool()),
+        new(SyntaxKind.PipePipeToken, BoundBinaryOperatorKind.LogicalOr, new Bool()),
+        new(SyntaxKind.EqualsEqualsOperator, BoundBinaryOperatorKind.Equals, new Bool()),
+        new(SyntaxKind.BangEqualsToken, BoundBinaryOperatorKind.NotEquals, new Bool()),
     };
 
-    public BoundBinaryOperator(SyntaxKind SyntaxKind, BoundBinaryOperatorKind OperatorKind, Type OperandType) :
+    public BoundBinaryOperator(SyntaxKind SyntaxKind, BoundBinaryOperatorKind OperatorKind, IType OperandType) :
         this(SyntaxKind, OperatorKind, OperandType, OperandType)
     {
     }
 
-    public Type ResultType { get; init; } = ResultType;
+    public IType ResultType { get; init; } = ResultType;
 
     public static BoundBinaryOperator? Bind(SyntaxKind kind, IType leftType, IType rightType)
     {
         foreach (var binaryOperator in Operators)
         {
             if (binaryOperator.SyntaxKind == kind
-                && binaryOperator.OperandType.IsInstanceOfType(leftType)
-                && binaryOperator.OperandType.IsInstanceOfType(rightType)
+                && binaryOperator.OperandType.GetType().IsInstanceOfType(leftType)
+                && binaryOperator.OperandType.GetType().IsInstanceOfType(rightType)
                )
                 return binaryOperator;
         }

@@ -1,3 +1,6 @@
+using Djinn.Syntax.Biding;
+using LLVMSharp;
+
 namespace Djinn.Syntax;
 
 public interface IType
@@ -39,6 +42,11 @@ public readonly record struct String : IType, IArray<char>
     public int SizeOf { get; }
     public bool IsHeap => true;
     public bool IsReadOnly => true;
+
+    public static LLVMValueRef FromValue(string name, BoundValue value, LLVMBuilderRef builderRef)
+    {
+        return LLVM.BuildGlobalString(builderRef, value.Value.ToString(), name);
+    }
 }
 
 public readonly record struct Integer1(byte Value) : INumber
@@ -59,4 +67,10 @@ public readonly record struct Integer32(int Value) : INumber
     public int SizeOf => sizeof(int);
     public bool IsHeap => false;
     public bool IsReadOnly => false;
+
+    public static LLVMValueRef FromValue(string name, BoundValue value, LLVMBuilderRef builderRef)
+    {
+        var integer = (Integer32)value.Value;
+        return LLVM.ConstInt(LLVMTypeRef.Int32Type(), (ulong)integer.Value, new LLVMBool(0));
+    }
 }
