@@ -30,7 +30,7 @@ public static class Program
 // var source = $$"""1+2+3+4""";
 
         var source = $$"""
-                       function void main() {
+                       function void main(int a, int b) {
                             ret -10 + 2 * 5;
                        }
                        """;

@@ -11,7 +11,9 @@ public enum BoundNodeKind
 
     BlockStatement,
     ReturnStatement,
-    FunctionStatement
+    FunctionStatement,
+    FunctionIdentifier,
+    FunctionParameter
 }
 
 public static class BoundNodeKindExtensions

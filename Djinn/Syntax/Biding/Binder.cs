@@ -35,9 +35,9 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindExpression(expressionSyntax);
     }
 
-    public IBoundExpression Visit(ParameterExpression expressionSyntax)
+    public IBoundExpression Visit(ParameterDeclaration declarationSyntax)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(declarationSyntax);
     }
 
     public IBoundExpression Visit(NoOpExpression expressionSyntax)
@@ -144,7 +144,37 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     private BoundFunctionStatement BindFunctionStatement(FunctionDeclarationStatement functionDeclarationStatement)
     {
-        return new BoundFunctionStatement(BindStatement(functionDeclarationStatement.Statement));
+        var functionNameIdentifier = new BoundIdentifier((string)functionDeclarationStatement.Identifier.Value);
+        var paramsDeclaration = BindFunctionParameters(functionDeclarationStatement);
+        var body = BindStatement(functionDeclarationStatement.Statement);
+        return new BoundFunctionStatement(
+            functionNameIdentifier,
+            paramsDeclaration,
+            body
+        );
+    }
+
+    private IEnumerable<BoundParameter> BindFunctionParameters(FunctionDeclarationStatement functionDeclarationStatement)
+    {
+        var parameters = new List<BoundParameter>(functionDeclarationStatement.Parameters.Count());
+        foreach (var parameterDeclaration in functionDeclarationStatement.Parameters)
+        {
+            var type = new BoundIdentifier((string)parameterDeclaration.Type.Value);
+            var identifier = new BoundIdentifier((string)parameterDeclaration.Identifier.Value);
+            BoundLiteralExpression? defaultValue = null;
+            if (parameterDeclaration.DefaultValue is not null)
+            {
+                defaultValue = BindExpression(parameterDeclaration.DefaultValue) as BoundLiteralExpression;
+            }
+            
+            parameters.Add(new BoundParameter(
+                type,
+                identifier,
+                defaultValue
+                ));
+        }
+
+        return parameters;
     }
 
     public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax)

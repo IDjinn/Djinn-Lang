@@ -108,7 +108,7 @@ public class Parser
         Consume(SyntaxKind.FunctionDeclaration);
         var type = Consume(SyntaxKind.Type); // TODO what i will do with tat 
         var identifier = Consume(SyntaxKind.Identifier);
-        var parameters = ParseParametersStatement();
+        var parameters = ParseFunctionParametersDeclaration();
         var statement = ParseStatement();
 
         return new FunctionDeclarationStatement(
@@ -116,27 +116,29 @@ public class Parser
         );
     }
 
-    private ParametersDeclarationStatement ParseParametersStatement()
+    private IEnumerable<ParameterDeclaration> ParseFunctionParametersDeclaration()
     {
         Consume(SyntaxKind.OpenParenthesis);
-        var parameters = new List<ParameterExpression>();
+        var parameters = new List<ParameterDeclaration>();
         while (Match(SyntaxKind.Type))
+        {
             parameters.Add(ParseParameterExpression());
+        }
         Consume(SyntaxKind.CloseParenthesis);
 
-        return new ParametersDeclarationStatement(parameters);
+        return parameters;
     }
 
-    private ParameterExpression ParseParameterExpression()
+    private ParameterDeclaration ParseParameterExpression()
     {
         var type = Consume(SyntaxKind.Type);
         if (type.Kind.HasFlag(SyntaxKind.Void))
-            return new ParameterExpression(ParameterExpression.VoidIdentifier, ParameterExpression.VoidIdentifier);
+            return ParameterDeclaration.VoidParameter;
 
         if (!TryMatch(SyntaxKind.Identifier, out var identifier))
         {
             DiagnosticError<bool>("Invalid parameter declaration");
-            return ParameterExpression.BadParameters;
+            return ParameterDeclaration.BadParameters;
         }
 
         var paramIdentifier = identifier with { Kind = SyntaxKind.ParamVariableIdentifier };
@@ -145,10 +147,10 @@ public class Parser
         if (equals is not null && defaultValue is null)
         {
             DiagnosticError<bool>("Invalid parameter declaration");
-            return ParameterExpression.BadParameters;
+            return ParameterDeclaration.BadParameters;
         }
 
-        return new ParameterExpression(paramIdentifier, type);
+        return new ParameterDeclaration(paramIdentifier, type, null);
     }
 
 

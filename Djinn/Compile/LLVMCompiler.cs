@@ -1,5 +1,6 @@
 using Djinn.Syntax.Biding.Expressions;
 using Djinn.Syntax.Biding.Statements;
+using Djinn.Utils;
 using LLVMSharp;
 
 namespace Djinn.Compile;
@@ -68,25 +69,25 @@ public class LLVMCompiler : IBoundExpressionVisitor, IBoundStatementGenerator
     public LLVMValueRef Generate(BoundFunctionStatement functionStatement)
     {
         //var paramList = Parameters.Parameters.ToArray();
-        var paramList = new int[] { };
-        var args = new LLVMTypeRef[paramList.Length];
-        for (var i = 0; i < paramList.Length; i++)
+        var paramList = functionStatement.Parameters.ToList();
+        var args = new LLVMTypeRef[paramList.Count];
+        for (var i = 0; i < paramList.Count; i++)
         {
-            // var keyword = KeywordExtensions.FromString(paramList[i].DefaultValue!.Value.ToString()!);
-            // var type = keyword.ToLLVMType();
-            // args[i] = type;
+            var keyword = KeywordExtensions.FromString(paramList[i].Type.Name);
+            var type = keyword.ToLLVMType();
+            args[i] = type;
         }
 
         var functionType = LLVM.FunctionType(LLVMTypeRef.Int32Type(), args, new LLVMBool(0));
-        var function = LLVM.AddFunction(Module, "hello", functionType);
-        var block = LLVM.AppendBasicBlock(function, "main");
+        var function = LLVM.AddFunction(Module, functionStatement.Identifier.Name, functionType);
+        var block = LLVM.AppendBasicBlock(function, "entry");
         LLVM.PositionBuilderAtEnd(Builder, block);
-        for (var i = 0; i < paramList.Length; i++)
+        for (var i = 0; i < paramList.Count; i++)
         {
-            // var argument = paramList[i];
-            // var identifier = argument.Identifier.Value.ToString();
-            // var param = LLVM.GetParam(function, (uint)i);
-            // LLVM.SetValueName(param, identifier);
+            var argument = paramList[i];
+            var identifier = argument.Identifier.Name;
+            var param = LLVM.GetParam(function, (uint)i);
+            LLVM.SetValueName(param, identifier);
         }
 
         _ = Generate(functionStatement.Statement);

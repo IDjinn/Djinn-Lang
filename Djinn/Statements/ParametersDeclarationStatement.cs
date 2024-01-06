@@ -4,7 +4,7 @@ using Djinn.Syntax;
 
 namespace Djinn.Statements;
 
-public record ParametersDeclarationStatement(IEnumerable<ParameterExpression> Parameters) : IStatement
+public record ParametersDeclarationStatement(IEnumerable<ParameterDeclaration> Parameters) : IStatement
 {
     public SyntaxKind Kind => SyntaxKind.FunctionParametersExpression;
 

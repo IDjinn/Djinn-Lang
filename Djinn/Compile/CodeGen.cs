@@ -47,7 +47,7 @@ public class CodeGen : IStatementVisitor<object>, IExpressionVisitor<object>
         return default;
     }
 
-    public object Visit(ParameterExpression expressionSyntax)
+    public object Visit(ParameterDeclaration declarationSyntax)
     {
         return default;
     }

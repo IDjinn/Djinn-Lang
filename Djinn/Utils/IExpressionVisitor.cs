@@ -8,7 +8,7 @@ public interface IExpressionVisitor<T> : IVisitor<T>
     public T Visit(ConstantNumberExpressionSyntax expressionSyntax);
     public T Visit(ConstantStringExpressionSyntax expressionSyntax);
     public T Visit(UnaryExpressionSyntax expressionSyntax);
-    public T Visit(ParameterExpression expressionSyntax);
+    public T Visit(ParameterDeclaration declarationSyntax);
     public T Visit(NoOpExpression expressionSyntax);
     public T Visit(NameExpression expressionSyntax);
     public T Visit(FunctionCallExpression expressionSyntax);
