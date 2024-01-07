@@ -1,4 +1,5 @@
 using Djinn.Statements;
+using Djinn.Syntax.Biding.Scopes;
 using Djinn.Utils;
 
 namespace Djinn.Syntax;
@@ -10,9 +11,13 @@ public record SyntaxTree
 
     public IEnumerable<T> Generate<T>(IStatementVisitor<T> statementVisitor)
     {
+        var globalScope = new Scope("global");
+        var generated = new List<T>();
         foreach (var syntaxNode in Statements)
         {
-            yield return syntaxNode.Visit(statementVisitor);
+            generated.Add(syntaxNode.Visit(statementVisitor, globalScope));
         }
+
+        return generated;
     }
 }

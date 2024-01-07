@@ -1,6 +1,7 @@
 using Djinn.Compile;
 using Djinn.Expressions;
 using Djinn.Syntax;
+using Djinn.Syntax.Biding.Scopes;
 using Djinn.Utils;
 using LLVMSharp;
 
@@ -15,14 +16,9 @@ public record FunctionDeclarationStatement(
 {
     public SyntaxKind Kind => SyntaxKind.FunctionDeclaration;
 
-    public T Visit<T>(IStatementVisitor<T> visitor)
+    public T Visit<T>(IStatementVisitor<T> visitor, Scope scope)
     {
-        return visitor.Visit(this);
-    }
-
-    public T Generate<T>(IStatementVisitor<T> visitor, CodeGen codeGen)
-    {
-        throw new NotImplementedException();
+        return visitor.Visit(this, scope);
     }
 
     // public T Generate<T>(IStatementVisitor<T> visitor, CodeGen codeGen)

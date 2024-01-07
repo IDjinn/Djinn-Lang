@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Djinn.Compile;
+using Djinn.Syntax.Biding.Scopes;
 using LLVMSharp;
 
 namespace Djinn.Syntax.Biding.Expressions;
@@ -12,7 +13,7 @@ public record BoundUnaryExpression : IBoundExpression
     public BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
     public IType Type => OperandExpression.Type;
 
-    public LLVMValueRef Evaluate(IBoundExpressionVisitor expressionVisitor)
+    public LLVMValueRef Evaluate(IBoundExpressionGenerator expressionGenerator, Scope scope)
     {
         if (Operator is not null && OperandExpression is BoundLiteralExpression boundLiteralExpression)
         {
@@ -28,8 +29,8 @@ public record BoundUnaryExpression : IBoundExpression
                 Type = boundLiteralExpression.Value.Type
             };
             var result = boundLiteralExpression with { Value =newValue };
-            return result.Evaluate(expressionVisitor);
+            return result.Evaluate(expressionGenerator, scope);
         }
-        return expressionVisitor.Visit(this);
+        return expressionGenerator.GenerateUnaryExpression(this,scope);
     }
 }

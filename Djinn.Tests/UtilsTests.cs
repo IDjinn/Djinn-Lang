@@ -21,6 +21,5 @@ public class UtilsTests
         var tree = parser.Parse();
         var binder = new Binder();
 
-        var a = binder.Visit((FunctionDeclarationStatement)tree.Statements.First());
     }
 }

@@ -1,4 +1,5 @@
 using Djinn.Syntax;
+using Djinn.Syntax.Biding.Scopes;
 using Djinn.Utils;
 
 namespace Djinn.Expressions;
@@ -12,8 +13,8 @@ public record BinaryExpressionSyntax(
     public SyntaxKind Kind => SyntaxKind.BinaryExpression;
 
 
-    public T Accept<T>(IExpressionVisitor<T> expressionVisitor)
+    public T Accept<T>(IExpressionVisitor<T> expressionVisitor, Scope scope)
     {
-        return expressionVisitor.Visit(this);
+        return expressionVisitor.VisitBinaryExpression(this,scope);
     }
 }

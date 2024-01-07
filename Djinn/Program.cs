@@ -32,7 +32,7 @@ public static class Program
 
         var source = $$"""
                        function void main(int a, int b) {
-                            ret -10 + 2 * 5;
+                            ret a + b;
                        }
                        """;
 
@@ -42,11 +42,8 @@ public static class Program
         var tree = parser.Parse();
 
         var binder = new Binder();
-        var result = binder.Bind(tree);
-
-        var compiler = new LLVMCompiler();
-        compiler.GenerateLlvm();
-        compiler.Generate(result);
+        var compiler = new LLVMCompiler(binder.Bind(tree));
+        compiler.Compile();
 
         string moduleError = "";
         LLVM.VerifyModule(compiler.Module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);

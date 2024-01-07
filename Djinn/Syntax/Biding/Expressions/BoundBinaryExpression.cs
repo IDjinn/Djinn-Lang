@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Djinn.Compile;
+using Djinn.Syntax.Biding.Scopes;
 using LLVMSharp;
 
 namespace Djinn.Syntax.Biding.Expressions;
@@ -13,17 +14,17 @@ public record BoundBinaryExpression : IBoundExpression
     public BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
     public IType Type => Operator.ResultType;
 
-    public LLVMValueRef Evaluate(IBoundExpressionVisitor expressionVisitor)
+    public LLVMValueRef Evaluate(IBoundExpressionGenerator expressionGenerator, Scope scope)
     {
-        var left = expressionVisitor.Visit(Left);
-        var right = expressionVisitor.Visit(Right);
+        var left = expressionGenerator.Generate(Left, scope);
+        var right = expressionGenerator.Generate(Right, scope);
 
         return Operator.OperatorKind switch
         {
-            BoundBinaryOperatorKind.Addition => LLVM.BuildAdd(expressionVisitor.Builder, left, right, "plus"),
-            BoundBinaryOperatorKind.Subtraction => LLVM.BuildSub(expressionVisitor.Builder, left, right, "sub"),
-            BoundBinaryOperatorKind.Division => LLVM.BuildFDiv(expressionVisitor.Builder, left, right, "div"),
-            BoundBinaryOperatorKind.Multiplication => LLVM.BuildMul(expressionVisitor.Builder, left, right, "mult"),
+            BoundBinaryOperatorKind.Addition => LLVM.BuildAdd(expressionGenerator.Builder, left, right, "plus"),
+            BoundBinaryOperatorKind.Subtraction => LLVM.BuildSub(expressionGenerator.Builder, left, right, "sub"),
+            BoundBinaryOperatorKind.Division => LLVM.BuildFDiv(expressionGenerator.Builder, left, right, "div"),
+            BoundBinaryOperatorKind.Multiplication => LLVM.BuildMul(expressionGenerator.Builder, left, right, "mult"),
             _ => throw new InvalidOperationException("Invalid operation")
         };
     }

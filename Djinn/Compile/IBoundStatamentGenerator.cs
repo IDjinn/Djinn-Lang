@@ -1,3 +1,4 @@
+using Djinn.Syntax.Biding.Scopes;
 using Djinn.Syntax.Biding.Statements;
 using LLVMSharp;
 
@@ -5,9 +6,8 @@ namespace Djinn.Compile;
 
 public interface IBoundStatementGenerator
 {
-    public LLVMValueRef Generate(BoundReturnStatement returnStatement);
-    public LLVMValueRef Generate(BoundBlockStatement blockStatement);
-    public LLVMValueRef Generate(BoundFunctionStatement functionStatement);
-
-    public LLVMValueRef Generate(IBoundStatement statement);
+    public LLVMValueRef GenerateReturnStatement(BoundReturnStatement returnStatement, Scope scope);
+    public LLVMValueRef GenerateBlockStatement(BoundBlockStatement blockStatement, Scope scope);
+    public LLVMValueRef GenerateFunctionStatement(BoundFunctionStatement functionStatement, FunctionScope scope);
+    public LLVMValueRef GenerateStatement(IBoundStatement statement, Scope scope);
 }

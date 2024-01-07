@@ -1,4 +1,5 @@
 using Djinn.Syntax;
+using Djinn.Syntax.Biding.Scopes;
 using Djinn.Utils;
 
 namespace Djinn.Expressions;
@@ -11,8 +12,8 @@ public record AssigmentExpression(
 {
     public SyntaxKind Kind => SyntaxKind.Assignment;
 
-    public T Accept<T>(IExpressionVisitor<T> expr)
+    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
     {
-        return expr.Visit(this);
+        return expr.VisitAssigmentExpression(this,scope);
     }
 }

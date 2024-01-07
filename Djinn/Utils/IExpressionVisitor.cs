@@ -1,18 +1,19 @@
 using Djinn.Expressions;
+using Djinn.Syntax.Biding.Scopes;
 
 namespace Djinn.Utils;
 
 public interface IExpressionVisitor<T> : IVisitor<T>
 {
-    public T Visit(BinaryExpressionSyntax expressionSyntax);
-    public T Visit(ConstantNumberExpressionSyntax expressionSyntax);
-    public T Visit(ConstantStringExpressionSyntax expressionSyntax);
-    public T Visit(UnaryExpressionSyntax expressionSyntax);
-    public T Visit(ParameterDeclaration declarationSyntax);
-    public T Visit(NoOpExpression expressionSyntax);
-    public T Visit(NameExpression expressionSyntax);
-    public T Visit(FunctionCallExpression expressionSyntax);
-    public T Visit(ConstantBooleanExpression expressionSyntax);
-    public T Visit(AssigmentExpression expressionSyntax);
-    public T Visit(ArgumentsExpression expressionSyntax);
+    public T VisitBinaryExpression(BinaryExpressionSyntax expressionSyntax, Scope scope);
+    public T VisitConstantNumberExpression(ConstantNumberExpressionSyntax expressionSyntax, Scope scope);
+    public T VisitConstantStringExpression(ConstantStringExpressionSyntax expressionSyntax, Scope scope);
+    public T VisitUnaryExpression(UnaryExpressionSyntax expressionSyntax, Scope scope);
+    public T VisitParameterDeclaration(ParameterDeclaration declarationSyntax, Scope scope);
+    public T VisitNoOpExpression(NoOpExpression expressionSyntax, Scope scope);
+    public T VisitIdentifierExpression(IdentifierExpression expressionSyntax, Scope scope);
+    public T VisitFunctionCallExpression(FunctionCallExpression expressionSyntax, Scope scope);
+    public T VisitConstantBooleanExpression(ConstantBooleanExpression expressionSyntax, Scope scope);
+    public T VisitAssigmentExpression(AssigmentExpression expressionSyntax, Scope scope);
+    public T VisitArgumentsExpression(ArgumentsExpression expressionSyntax, Scope scope);
 }

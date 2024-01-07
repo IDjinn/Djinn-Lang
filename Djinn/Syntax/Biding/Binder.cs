@@ -1,6 +1,7 @@
 using Djinn.Expressions;
 using Djinn.Statements;
 using Djinn.Syntax.Biding.Expressions;
+using Djinn.Syntax.Biding.Scopes;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 
@@ -15,138 +16,141 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         _reporter = new Reporter();
     }
 
-    public IBoundExpression Visit(BinaryExpressionSyntax expressionSyntax)
+    public IBoundExpression VisitBinaryExpression(BinaryExpressionSyntax expressionSyntax, Scope scope)
     {
-        return BindBinaryExpression(expressionSyntax);
+        return BindBinaryExpression(expressionSyntax,scope);
     }
 
-    public IBoundExpression Visit(ConstantNumberExpressionSyntax expressionSyntax)
+    public IBoundExpression VisitConstantNumberExpression(ConstantNumberExpressionSyntax expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundExpression Visit(ConstantStringExpressionSyntax expressionSyntax)
+    public IBoundExpression VisitConstantStringExpression(ConstantStringExpressionSyntax expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundExpression Visit(UnaryExpressionSyntax expressionSyntax)
+    public IBoundExpression VisitUnaryExpression(UnaryExpressionSyntax expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundExpression Visit(ParameterDeclaration declarationSyntax)
+    public IBoundExpression VisitParameterDeclaration(ParameterDeclaration declarationSyntax, Scope scope)
     {
-        return BindExpression(declarationSyntax);
+        return BindExpression(declarationSyntax, scope);
     }
 
-    public IBoundExpression Visit(NoOpExpression expressionSyntax)
+    public IBoundExpression VisitNoOpExpression(NoOpExpression expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundExpression Visit(NameExpression expressionSyntax)
+    public IBoundExpression VisitIdentifierExpression(IdentifierExpression expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundExpression Visit(FunctionCallExpression expressionSyntax)
+    public IBoundExpression VisitFunctionCallExpression(FunctionCallExpression expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundExpression Visit(ConstantBooleanExpression expressionSyntax)
+    public IBoundExpression VisitConstantBooleanExpression(ConstantBooleanExpression expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundExpression Visit(AssigmentExpression expressionSyntax)
+    public IBoundExpression VisitAssigmentExpression(AssigmentExpression expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundExpression Visit(ArgumentsExpression expressionSyntax)
+    public IBoundExpression VisitArgumentsExpression(ArgumentsExpression expressionSyntax, Scope scope)
     {
-        return BindExpression(expressionSyntax);
+        return BindExpression(expressionSyntax, scope);
     }
 
-    public IBoundStatement Visit(DiscardExpressionResultStatement discardExpressionResult)
+    public IBoundStatement Visit(DiscardExpressionResultStatement discardExpressionResult, Scope scope)
     {
-        return BindStatement(discardExpressionResult);
+        return BindStatement(discardExpressionResult, scope);
     }
 
-    public IBoundStatement Visit(FunctionStatement functionStatement)
+    public IBoundStatement Visit(FunctionStatement functionStatement, Scope scope)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 
-    public IBoundStatement Visit(ReturnStatement returnStatement)
+    public IBoundStatement Visit(ReturnStatement returnStatement, Scope scope)
     {
-        return BindReturnStatement(returnStatement);
+        return BindReturnStatement(returnStatement,scope);
     }
 
-    public IBoundStatement Visit(BlockStatement blockStatement)
+    public IBoundStatement Visit(BlockStatement blockStatement, Scope scope)
     {
-        return BindBlockStatement(blockStatement);
+        return BindBlockStatement(blockStatement,scope);
     }
 
-    public IBoundStatement Visit(FunctionDeclarationStatement functionDeclarationStatement)
+    public IBoundStatement Visit(FunctionDeclarationStatement functionDeclarationStatement, Scope scope)
     {
-        return BindFunctionStatement(functionDeclarationStatement);
+        return BindFunctionStatement(functionDeclarationStatement,scope);
     }
 
     public IEnumerable<IBoundStatement> Bind(SyntaxTree syntaxTree)
     {
+        var globalScope = new Scope("global");
         var statements = new List<IBoundStatement>();
         foreach (var statement in syntaxTree.Statements)
         {
-            statements.Add(BindStatement(statement));
+            statements.Add(BindStatement(statement, globalScope));
         }
 
         return statements;
     }
 
-    public IBoundStatement BindStatement(IStatement statement)
+    public IBoundStatement BindStatement(IStatement statement, Scope scope)
     {
         return statement switch
         {
-            ReturnStatement returnStatement => BindReturnStatement(returnStatement),
-            BlockStatement blockStatement => BindBlockStatement(blockStatement),
-            FunctionDeclarationStatement functionDeclaration => BindFunctionStatement(functionDeclaration),
+            ReturnStatement returnStatement => BindReturnStatement(returnStatement, scope),
+            BlockStatement blockStatement => BindBlockStatement(blockStatement,scope),
+            FunctionDeclarationStatement functionDeclaration => BindFunctionStatement(functionDeclaration, scope),
             _ => _reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
     }
 
 
-    public IEnumerable<IBoundStatement> BoundStatements(IEnumerable<IStatement> statements)
+    public IEnumerable<IBoundStatement> BoundStatements(IEnumerable<IStatement> statements, Scope scope)
     {
         // yes, we need make it foreach intentionally array because IDE doesn't support yielded return statements while debugging
         var stats = statements.ToArray();
         var bounds = new List<IBoundStatement>(stats.Length);
         foreach (var statement in stats)
         {
-            bounds.Add(BindStatement(statement));
+            bounds.Add(BindStatement(statement,scope));
         }
 
         return bounds;
     }
 
-    private BoundBlockStatement BindBlockStatement(BlockStatement blockStatement)
+    private BoundBlockStatement BindBlockStatement(BlockStatement blockStatement, Scope scope)
     {
-        return new BoundBlockStatement(BoundStatements(blockStatement.Statements));
+        var blockScope = new Scope("block-scope", scope);
+        return new BoundBlockStatement(BoundStatements(blockStatement.Statements,blockScope));
     }
 
-    private BoundReturnStatement BindReturnStatement(ReturnStatement returnStatement)
+    private BoundReturnStatement BindReturnStatement(ReturnStatement returnStatement, Scope scope)
     {
-        return new BoundReturnStatement(BindExpression(returnStatement.ExpressionSyntax));
+        return new BoundReturnStatement(BindExpression(returnStatement.ExpressionSyntax, scope));
     }
 
-    private BoundFunctionStatement BindFunctionStatement(FunctionDeclarationStatement functionDeclarationStatement)
+    private BoundFunctionStatement BindFunctionStatement(FunctionDeclarationStatement functionDeclarationStatement, Scope scope)
     {
         var functionNameIdentifier = new BoundIdentifier((string)functionDeclarationStatement.Identifier.Value);
-        var paramsDeclaration = BindFunctionParameters(functionDeclarationStatement);
-        var body = BindStatement(functionDeclarationStatement.Statement);
+        var functionScope = new FunctionScope(functionNameIdentifier.Name, scope);
+        var paramsDeclaration = BindFunctionParameters(functionDeclarationStatement, functionScope);
+        var body = BindStatement(functionDeclarationStatement.Statement,functionScope);
         return new BoundFunctionStatement(
             functionNameIdentifier,
             paramsDeclaration,
@@ -154,62 +158,77 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         );
     }
 
-    private IEnumerable<BoundParameter> BindFunctionParameters(FunctionDeclarationStatement functionDeclarationStatement)
+    private IEnumerable<BoundParameter> BindFunctionParameters(
+        FunctionDeclarationStatement functionDeclarationStatement, FunctionScope scope)
     {
         var parameters = new List<BoundParameter>(functionDeclarationStatement.Parameters.Count());
         foreach (var parameterDeclaration in functionDeclarationStatement.Parameters)
         {
-            var type = new BoundIdentifier((string)parameterDeclaration.Type.Value);
-            var identifier = new BoundIdentifier((string)parameterDeclaration.Identifier.Value);
+            var type = new BoundIdentifier((string)parameterDeclaration.Type.Value, BoundNodeKind.FunctionParameter);
+            var identifier = new BoundIdentifier((string)parameterDeclaration.Identifier.Value, BoundNodeKind.FunctionParameter);
             BoundLiteralExpression? defaultValue = null;
             if (parameterDeclaration.DefaultValue is not null)
             {
-                defaultValue = BindExpression(parameterDeclaration.DefaultValue) as BoundLiteralExpression;
+                defaultValue = BindExpression(parameterDeclaration.DefaultValue, scope) as BoundLiteralExpression;
             }
-            
-            parameters.Add(new BoundParameter(
+
+            var parameter = new BoundParameter(
                 type,
                 identifier,
                 defaultValue
-                ));
+            );
+            
+            parameters.Add(parameter);
+            scope.TryAddParameter(parameter);
         }
 
         return parameters;
     }
 
-    public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax)
+    public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax, Scope scope)
     {
         var boundBinaryOperator =
             BoundBinaryOperator.Bind(binaryExpressionSyntax.Operator.Kind, new Integer32(), new Integer32());
 
         return new BoundBinaryExpression
         {
-            Left = BindExpression(binaryExpressionSyntax.LeftExpression),
+            Left = BindExpression(binaryExpressionSyntax.LeftExpression, scope),
             Operator = boundBinaryOperator,
-            Right = BindExpression(binaryExpressionSyntax.RightExpression)
+            Right = BindExpression(binaryExpressionSyntax.RightExpression, scope)
         };
     }
 
-    public IBoundExpression BindExpression(IExpressionSyntax expressionSyntax)
+    public IBoundExpression BindExpression(IExpressionSyntax expressionSyntax, Scope scope)
     {
         return expressionSyntax switch
         {
-            BinaryExpressionSyntax binary => BindBinaryExpression(binary),
-            UnaryExpressionSyntax unary => BindUnaryExpression(unary),
-            ConstantNumberExpressionSyntax constantNumber => BindLiteralNumber(constantNumber),
-            ConstantStringExpressionSyntax constantString => BindLiteralString(constantString),
-            ConstantBooleanExpression constantBoolean => BindLiteralBoolean(constantBoolean),
-            FunctionCallExpression functionCallExpression => BindFunctionCallExpression(functionCallExpression),
+            BinaryExpressionSyntax binary => BindBinaryExpression(binary, scope),
+            UnaryExpressionSyntax unary => BindUnaryExpression(unary, scope),
+            ConstantNumberExpressionSyntax constantNumber => BindLiteralNumber(constantNumber, scope),
+            ConstantStringExpressionSyntax constantString => BindLiteralString(constantString, scope),
+            ConstantBooleanExpression constantBoolean => BindLiteralBoolean(constantBoolean, scope),
+            FunctionCallExpression functionCallExpression => BindFunctionCallExpression(functionCallExpression, scope),
+            IdentifierExpression nameExpression => BindIdentifierExpression(nameExpression, scope),
             _ => throw new NotImplementedException()
         };
     }
 
-    private IBoundExpression BindFunctionCallExpression(FunctionCallExpression functionCallExpression)
+    private IBoundExpression BindIdentifierExpression(IdentifierExpression identifierExpression, Scope scope)
+    {
+        var identifier = (string) identifierExpression.Identifier.Value;
+        var variable = scope.FindVariable(identifier);
+
+
+        return default;
+
+    }
+
+    private IBoundExpression BindFunctionCallExpression(FunctionCallExpression functionCallExpression, Scope scope)
     {
         return default;
     }
 
-    private BoundLiteralExpression BindLiteralBoolean(ConstantBooleanExpression constantBoolean)
+    private BoundLiteralExpression BindLiteralBoolean(ConstantBooleanExpression constantBoolean, Scope scope)
     {
         var boolean = constantBoolean.Bool.Value.ToString()!.Equals("true");
         return new BoundLiteralExpression
@@ -222,7 +241,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         };
     }
 
-    private BoundLiteralExpression BindLiteralString(ConstantStringExpressionSyntax constantString)
+    private BoundLiteralExpression BindLiteralString(ConstantStringExpressionSyntax constantString, Scope scope)
     {
         return new BoundLiteralExpression
         {
@@ -234,7 +253,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         };
     }
 
-    private BoundLiteralExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber)
+    private BoundLiteralExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber, Scope scope)
     {
         return new BoundLiteralExpression
         {
@@ -246,7 +265,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         };
     }
 
-    private BoundUnaryExpression BindUnaryExpression(UnaryExpressionSyntax unary)
+    private BoundUnaryExpression BindUnaryExpression(UnaryExpressionSyntax unary, Scope scope)
     {
         var boundOperator = BoundUnaryOperator.Bind(unary.Operator.Kind, new Integer32());
         if (boundOperator is null)
@@ -254,7 +273,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             // TODO REPORTING
         }
 
-        var operand = BindExpression(unary.Operand);
+        var operand = BindExpression(unary.Operand, scope);
         if (unary.Operand is not ConstantNumberExpressionSyntax cnst)
         {
             throw new NotImplementedException(); // todo: unary must be compile-time handled. (sum, minus, div, mod) and other types

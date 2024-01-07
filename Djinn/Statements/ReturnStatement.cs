@@ -1,6 +1,7 @@
 using Djinn.Compile;
 using Djinn.Expressions;
 using Djinn.Syntax;
+using Djinn.Syntax.Biding.Scopes;
 using LLVMSharp;
 
 namespace Djinn.Statements;
@@ -9,16 +10,9 @@ public record ReturnStatement(IExpressionSyntax ExpressionSyntax) : IStatement
 {
     public static ReturnStatement Void = new(new NoOpExpression());
     public SyntaxKind Kind => SyntaxKind.ReturnDeclaration;
-
-    public T Visit<T>(IStatementVisitor<T> visitor)
+    public T Visit<T>(IStatementVisitor<T> visitor, Scope scope)
     {
-        return visitor.Visit(this);
+        return visitor.Visit(this, scope);
     }
 
-    public T Generate<T>(IStatementVisitor<T> visitor, CodeGen codeGen)
-    {
-        var expressionValue = ExpressionSyntax.Accept(codeGen);
-        LLVM.BuildRet(codeGen.Builder, (LLVMValueRef)expressionValue);
-        return default;
-    }
 }

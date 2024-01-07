@@ -1,6 +1,3 @@
 ﻿namespace Djinn.Syntax.Biding;
 
-public record BoundIdentifier(string Name) : IBoundNode
-{
-    public BoundNodeKind Kind => BoundNodeKind.FunctionIdentifier;
-}
+public record BoundIdentifier(string Name, BoundNodeKind Kind = BoundNodeKind.FunctionIdentifier) : IBoundNode;

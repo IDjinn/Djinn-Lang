@@ -13,7 +13,8 @@ public enum BoundNodeKind
     ReturnStatement,
     FunctionStatement,
     FunctionIdentifier,
-    FunctionParameter
+    FunctionParameter,
+    ReadVariable
 }
 
 public static class BoundNodeKindExtensions

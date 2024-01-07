@@ -224,7 +224,7 @@ public class Parser
                 return fn;
             }
 
-            return new NameExpression(identifierToken);
+            return new IdentifierExpression(identifierToken);
         }
 
         return DiagnosticError<NoOpExpression>("Invalid expression syntax");

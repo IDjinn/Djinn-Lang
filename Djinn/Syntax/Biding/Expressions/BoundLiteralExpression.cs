@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Djinn.Compile;
+using Djinn.Syntax.Biding.Scopes;
 using LLVMSharp;
 
 namespace Djinn.Syntax.Biding.Expressions;
@@ -11,12 +12,12 @@ public record BoundLiteralExpression : IBoundExpression
     public BoundNodeKind Kind => BoundNodeKind.LiteralExpression;
     public IType Type => Value.Type;
 
-    public LLVMValueRef Evaluate(IBoundExpressionVisitor expressionVisitor)
+    public LLVMValueRef Evaluate(IBoundExpressionGenerator expressionGenerator, Scope scope)
     {
         return Type switch
         {
-            String str => String.FromValue("a", Value, expressionVisitor.Builder),
-            Integer32 integer => Integer32.FromValue("a", Value, expressionVisitor.Builder),
+            String str => String.FromValue("a", Value, expressionGenerator.Builder),
+            Integer32 integer => Integer32.FromValue("a", Value, expressionGenerator.Builder),
         };
     }
 }

@@ -1,72 +1,84 @@
 using Djinn.Syntax.Biding.Expressions;
+using Djinn.Syntax.Biding.Scopes;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 using LLVMSharp;
+using Microsoft.CodeAnalysis;
 
 namespace Djinn.Compile;
 
-public class LLVMCompiler : IBoundExpressionVisitor, IBoundStatementGenerator
+public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
 {
+    private readonly IEnumerable<IBoundStatement> _syntaxTree;
+
     public Stack<KeyValuePair<LLVMValueRef, LLVMValueRef>>
         Stack = new Stack<KeyValuePair<LLVMValueRef, LLVMValueRef>>();
 
-    public LLVMCompiler()
+    public LLVMCompiler(IEnumerable<IBoundStatement> syntaxTree)
     {
+        _syntaxTree = syntaxTree;
         Module = LLVM.ModuleCreateWithName("main");
         Builder = LLVM.CreateBuilder();
         Context = LLVM.ContextCreate();
+    }
+
+    public void Compile()
+    {
+        GenerateLlvm();
+        GenerateStatements(_syntaxTree);
     }
 
     public LLVMModuleRef Module { get; init; }
     public LLVMBuilderRef Builder { get; init; }
     public LLVMContextRef Context { get; init; }
 
-    public LLVMValueRef Visit(IBoundExpression boundExpression)
+    public LLVMValueRef Generate(IBoundExpression boundExpression, Scope scope)
     {
         return boundExpression switch
         {
-            BoundLiteralExpression literal => Visit(literal),
-            BoundUnaryExpression unary => Visit(unary),
-            BoundBinaryExpression binary => Visit(binary),
+            BoundLiteralExpression literal => GenerateLiteralExpression(literal, scope),
+            BoundUnaryExpression unary => GenerateUnaryExpression(unary, scope),
+            BoundBinaryExpression binary => GenerateBinaryExpression(binary, scope),
             _ => throw new NotImplementedException()
         };
     }
 
-    public LLVMValueRef Visit(BoundBinaryExpression boundBinaryExpression)
+    public LLVMValueRef GenerateBinaryExpression(BoundBinaryExpression boundBinaryExpression, Scope scope)
     {
-        return boundBinaryExpression.Evaluate(this);
+        return boundBinaryExpression.Evaluate(this, scope);
     }
 
-    public LLVMValueRef Visit(BoundUnaryExpression boundUnaryExpression)
+    public LLVMValueRef GenerateUnaryExpression(BoundUnaryExpression boundUnaryExpression, Scope scope)
     {
-        var value = boundUnaryExpression.Evaluate(this);
+        var value = boundUnaryExpression.Evaluate(this, scope);
         return value;
     }
 
-    public LLVMValueRef Visit(BoundLiteralExpression boundLiteralExpression)
+    public LLVMValueRef GenerateLiteralExpression(BoundLiteralExpression boundLiteralExpression, Scope scope)
     {
-        var value = boundLiteralExpression.Evaluate(this);
+        var value = boundLiteralExpression.Evaluate(this, scope);
         return value;
     }
 
-    public LLVMValueRef Generate(BoundReturnStatement returnStatement)
+
+    public LLVMValueRef GenerateReturnStatement(BoundReturnStatement returnStatement, Scope scope)
     {
-        var value = returnStatement.Expression.Evaluate(this);
+        var value = returnStatement.Expression.Evaluate(this, scope);
         return LLVM.BuildRet(Builder, value);
     }
 
-    public LLVMValueRef Generate(BoundBlockStatement blockStatement)
+    public LLVMValueRef GenerateBlockStatement(BoundBlockStatement blockStatement, Scope scope)
     {
         LLVMValueRef block = new LLVMValueRef();
         foreach (var boundStatement in blockStatement.Statements)
         {
-            block = Generate(boundStatement);
+            block = GenerateStatement(boundStatement, scope);
         }
 
         return block;
     }
 
-    public LLVMValueRef Generate(BoundFunctionStatement functionStatement)
+    public LLVMValueRef GenerateFunctionStatement(BoundFunctionStatement functionStatement, FunctionScope scope)
     {
         //var paramList = Parameters.Parameters.ToArray();
         var paramList = functionStatement.Parameters.ToList();
@@ -76,6 +88,7 @@ public class LLVMCompiler : IBoundExpressionVisitor, IBoundStatementGenerator
             var keyword = KeywordExtensions.FromString(paramList[i].Type.Name);
             var type = keyword.ToLLVMType();
             args[i] = type;
+            scope.TryAddParameter(paramList[i]);
         }
 
         var functionType = LLVM.FunctionType(LLVMTypeRef.Int32Type(), args, new LLVMBool(0));
@@ -90,17 +103,17 @@ public class LLVMCompiler : IBoundExpressionVisitor, IBoundStatementGenerator
             LLVM.SetValueName(param, identifier);
         }
 
-        _ = Generate(functionStatement.Statement);
+        _ = GenerateStatement(functionStatement.Statement, scope);
         return function;
     }
 
-    public LLVMValueRef Generate(IBoundStatement statement)
+    public LLVMValueRef GenerateStatement(IBoundStatement statement, Scope scope)
     {
         return statement switch
         {
-            BoundReturnStatement ret => Generate(ret),
-            BoundBlockStatement block => Generate(block),
-            BoundFunctionStatement function => Generate(function),
+            BoundReturnStatement ret => GenerateReturnStatement(ret, scope),
+            BoundBlockStatement block => GenerateBlockStatement(block, new Scope("block", scope)),
+            BoundFunctionStatement function => GenerateFunctionStatement(function, new FunctionScope(function.Identifier.Name, scope)),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
     }
@@ -121,11 +134,12 @@ public class LLVMCompiler : IBoundExpressionVisitor, IBoundStatementGenerator
         return Module;
     }
 
-    public void Generate(IEnumerable<IBoundStatement> statements)
+    public void GenerateStatements(IEnumerable<IBoundStatement> statements)
     {
+        var scope = new Scope("global");
         foreach (var boundStatement in statements)
         {
-            Generate(boundStatement);
+            GenerateStatement(boundStatement, scope);
         }
     }
 }
