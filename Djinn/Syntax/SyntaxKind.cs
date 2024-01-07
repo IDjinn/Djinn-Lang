@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+
 namespace Djinn.Syntax;
 
 [Flags]
@@ -115,10 +117,10 @@ public static class SyntaxKindExtensions
         _ => InvalidOperatorPrecedence
     };
 
-    public static int GetUnaryOperatorPrecedence(this SyntaxKind kind) => kind switch
+    public static Optional<int> GetUnaryOperatorPrecedence(this SyntaxKind kind) => kind switch
     {
         SyntaxKind.StarToken or SyntaxKind.SlashToken => 10,
         SyntaxKind.PlusToken or SyntaxKind.MinusToken => 20,
-        _ => InvalidOperatorPrecedence
+        _ => default(Optional<int>) 
     };
 }

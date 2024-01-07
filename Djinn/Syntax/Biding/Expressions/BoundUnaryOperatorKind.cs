@@ -16,4 +16,11 @@ public static class BoundUnaryOperatorKindExtensions
         SyntaxKind.MinusToken => BoundUnaryOperatorKind.Negation,
         _ => BoundUnaryOperatorKind.Unknown
     };
+
+    public static string UnaryOperatorKindToString(this BoundUnaryOperatorKind kind) => kind switch
+    {
+        BoundUnaryOperatorKind.Identity => "+",
+        BoundUnaryOperatorKind.Negation => "-",
+        BoundUnaryOperatorKind.LogicalNegation => "!"
+    };
 }

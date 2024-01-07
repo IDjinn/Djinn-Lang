@@ -150,7 +150,7 @@ public class Parser
             return ParameterDeclaration.BadParameters;
         }
 
-        return new ParameterDeclaration(paramIdentifier, type, null);
+        return new ParameterDeclaration(paramIdentifier, type, null); // TODO DEFAULT VALUE EXPRESSION PARSING & BINDING
     }
 
 
@@ -179,15 +179,14 @@ public class Parser
     {
         IExpressionSyntax left;
         var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
-        if (unaryOperatorPrecedence == SyntaxKindExtensions.InvalidOperatorPrecedence ||
-            parentPrecedence > unaryOperatorPrecedence)
+        if (!unaryOperatorPrecedence.HasValue  || parentPrecedence > unaryOperatorPrecedence.Value)
         {
             left = ParsePrimaryExpression();
         }
         else
         {
             var operatorToken = Consume(SyntaxKind.ArithmeticOperators);
-            var operand = ParseExpression(unaryOperatorPrecedence);
+            var operand = ParseExpression(unaryOperatorPrecedence.Value);
             left = new UnaryExpressionSyntax(operand, operatorToken);
         }
 

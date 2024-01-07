@@ -254,9 +254,15 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             // TODO REPORTING
         }
 
+        var operand = BindExpression(unary.Operand);
+        if (unary.Operand is not ConstantNumberExpressionSyntax cnst)
+        {
+            throw new NotImplementedException(); // todo: unary must be compile-time handled. (sum, minus, div, mod) and other types
+        }
+        
         return new BoundUnaryExpression()
         {
-            Operand = BindExpression(unary.Operand),
+            OperandExpression = operand,
             Operator = boundOperator,
         };
     }

@@ -39,7 +39,7 @@ public class LLVMCompiler : IBoundExpressionVisitor, IBoundStatementGenerator
 
     public LLVMValueRef Visit(BoundUnaryExpression boundUnaryExpression)
     {
-        var value = boundUnaryExpression.Operand.Evaluate(this);
+        var value = boundUnaryExpression.Evaluate(this);
         return value;
     }
 

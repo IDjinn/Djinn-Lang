@@ -1,7 +1,10 @@
+using System.Diagnostics;
+
 namespace Djinn.Syntax.Biding;
 
+[DebuggerDisplay("{Value}")]
 public record BoundValue
 {
-    public object Value { get; init; }
+    public dynamic Value { get; init; }
     public IType Type { get; init; }
 }

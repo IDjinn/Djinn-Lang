@@ -27,7 +27,8 @@ public static class Program
 //                        }
 //                        """;
 
-// var source = $$"""1+2+3+4""";
+//                            string someString = "";
+        // var source = $$"""1+2+3+4""";
 
         var source = $$"""
                        function void main(int a, int b) {
@@ -44,6 +45,7 @@ public static class Program
         var result = binder.Bind(tree);
 
         var compiler = new LLVMCompiler();
+        compiler.GenerateLlvm();
         compiler.Generate(result);
 
         string moduleError = "";
