@@ -47,6 +47,10 @@ public readonly record struct String : IType, IArray<char>
     {
         return LLVM.BuildGlobalString(builderRef, value.Value.ToString(), name);
     }
+    public static LLVMValueRef FromValue(string name, string raw_string, LLVMBuilderRef builderRef)
+    {
+        return LLVM.BuildGlobalString(builderRef, raw_string, name);
+    }
 }
 
 public readonly record struct Integer1(byte Value) : INumber

@@ -25,7 +25,7 @@ public record BoundLiteralExpression : IBoundExpression
     {
         return Type switch
         {
-            String str => String.FromValue("a", Value, ctx.Builder),
+            String str => String.FromValue("a", string.Join("",str.Values), ctx.Builder),
             Integer32 integer => Integer32.FromValue("a", Value, ctx.Builder),
         };
     }

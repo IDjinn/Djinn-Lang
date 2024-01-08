@@ -21,6 +21,8 @@ public class Parser
     private readonly IList<SyntaxToken> _tokens = new List<SyntaxToken>();
     private int _index;
 
+    public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics.AsReadOnly();
+
     public Parser(Lexer lexer)
     {
         _lexer = lexer;
@@ -65,6 +67,8 @@ public class Parser
             SyntaxKind.OpenBrace => ParseBlockStatement(),
             SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
             SyntaxKind.Identifier => ParseIdentifier(),
+            
+            SyntaxKind.BadToken or SyntaxKind.EndOfFileToken => throw new ArgumentException("EOF"),
             _ => ExpectingStatement(),
         };
     }
@@ -177,7 +181,7 @@ public class Parser
 
     public IExpressionSyntax ParseExpression(int parentPrecedence = 0)
     {
-        IExpressionSyntax left;
+        IExpressionSyntax left;        
         var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
         if (!unaryOperatorPrecedence.HasValue  || parentPrecedence > unaryOperatorPrecedence.Value)
         {
@@ -203,9 +207,13 @@ public class Parser
 
         return left;
     }
-
     public IExpressionSyntax ParsePrimaryExpression()
     {
+        if (TryMatch(SyntaxKind.EndOfFileToken, out var eof))
+            throw new Exception("eof");
+        if (TryMatch(SyntaxKind.BadToken, out var badToken))
+            throw new Exception("badtoken");
+        
         if (TryMatch(SyntaxKind.StringLiteral, out var stringToken))
             return new ConstantStringExpressionSyntax(stringToken);
         if (TryMatch(SyntaxKind.NumberLiteral, out var numberToken))
@@ -220,7 +228,7 @@ public class Parser
             if (TryMatch(SyntaxKind.OpenParenthesis, out var openParenthesisToken))
             {
                 var fn = new FunctionCallExpression(identifierToken, ParseArgumentsExpression());
-                Consume(SyntaxKind.CloseParenthesis);
+                // Consume(SyntaxKind.CloseParenthesis);
                 return fn;
             }
 
@@ -234,15 +242,14 @@ public class Parser
     {
         var args = new List<IExpressionSyntax>();
         while (!TryMatch(SyntaxKind.CloseParenthesis, out var _))
-            args.Add(ParseArgument());
+        {
+            var exp = ParsePrimaryExpression() ?? throw new Exception();
+            args.Add(exp);
+        }
 
         return args;
     }
 
-    private IExpressionSyntax ParseArgument()
-    {
-        return ParsePrimaryExpression();
-    }
 
     public bool Match(SyntaxKind kind)
     {

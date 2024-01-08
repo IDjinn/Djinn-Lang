@@ -22,6 +22,8 @@ public class BoundFunctionCallExpression(
     public LLVMValueRef Generate(CompilationContext ctx)
     {
         var function = ctx.Scope.FindFunction(TargetFunction.Name);
+        if (!function.HasValue) throw new NotImplementedException();
+        
         var args = Arguments.ToList();
         var argsV = new LLVMValueRef[Math.Max(args.Count, 1)];
         for (var i = 0; i < args.Count; ++i)

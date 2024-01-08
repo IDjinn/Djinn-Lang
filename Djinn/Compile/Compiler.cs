@@ -39,11 +39,18 @@ public static class Compiler
         var printf = LLVM.AddFunction(ctx.Module, "printf",
             LLVM.FunctionType(LLVMTypeRef.Int32Type(), printfArguments, new LLVMBool(1)));
         LLVM.SetLinkage(printf, LLVMLinkage.LLVMExternalLinkage);
+        STD.Functions["printf"] = printf;
 
         var scanfArguments = new[] { stringType };
         var scanf = LLVM.AddFunction(ctx.Module, "scanf",
             LLVM.FunctionType(LLVMTypeRef.Int32Type(), scanfArguments, new LLVMBool(0)));
         LLVM.SetLinkage(scanf, LLVMLinkage.LLVMExternalLinkage);
+        STD.Functions["scanf"] = scanf;
+
+        foreach (var (identifier, functionPointer) in STD.Functions)
+        {
+            ctx.Scope.TryCreateFunction(identifier,functionPointer);
+        }
     }
     
     public static class STD
@@ -51,6 +58,11 @@ public static class Compiler
         public static readonly IDictionary<string, CompilationType> Types = new Dictionary<string, CompilationType>
         {
             {"int32", new CompilationType()}
+        };
+
+        public static IDictionary<string, LLVMValueRef> Functions = new Dictionary<string, LLVMValueRef>
+        {
+
         };
     }
 }

@@ -15,20 +15,6 @@ public static class Program
 
     public static void Main(string[] args)
     {
-// var source = $$"""
-//                function void hello(void) {
-//                    ret printf("Hello World!");
-//                }
-//                """;
-//
-//         var source = $$"""
-//                        function void hello(int a) {
-//                            ret 1 + 2;
-//                        }
-//                        """;
-
-//                            string someString = "";
-        // var source = $$"""1+2+3+4""";
 
         var source = $$"""
                        function int32 sum(int32 a, int32 b) {
@@ -36,7 +22,7 @@ public static class Program
                        }
                        
                        function int32 main() {
-                        ret sum(1, 1);
+                        ret printf("a + b = %d", sum(1,2));
                        }
                        """;
 
@@ -44,6 +30,11 @@ public static class Program
         var lexer = new Lexer(source);
         var parser = new Parser(lexer);
         var tree = parser.Parse();
+
+        if (parser.Diagnostics.Any())
+        {
+            throw new Exception();
+        }
 
         var binder = new Binder();
         var bindResult = binder.Bind(tree);
