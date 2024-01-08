@@ -8,8 +8,8 @@ public record ConstantBooleanExpression(SyntaxToken Bool) : IExpressionSyntax
 {
     public SyntaxKind Kind => Bool.Kind;
 
-    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope)
     {
-        return expr.VisitConstantBooleanExpression(this,scope);
+        return expr.VisitConstantBooleanExpression(this,boundScope);
     }
 }

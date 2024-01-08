@@ -9,8 +9,8 @@ public record ConstantNumberExpressionSyntax(SyntaxToken NumberToken) : IExpress
     public SyntaxKind Kind => SyntaxKind.ConstantNumberExpression;
 
 
-    public T Accept<T>(IExpressionVisitor<T> expressionVisitor, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expressionVisitor, BoundScope boundScope)
     {
-        return expressionVisitor.VisitConstantNumberExpression(this,scope);
+        return expressionVisitor.VisitConstantNumberExpression(this,boundScope);
     }
 }

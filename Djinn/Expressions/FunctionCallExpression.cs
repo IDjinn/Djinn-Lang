@@ -4,12 +4,12 @@ using Djinn.Utils;
 
 namespace Djinn.Expressions;
 
-public record FunctionCallExpression(SyntaxToken Identifier, IExpressionSyntax Expression) : IExpressionSyntax
+public record FunctionCallExpression(SyntaxToken Identifier, IEnumerable<IExpressionSyntax> Arguments) : IExpressionSyntax
 {
     public SyntaxKind Kind => SyntaxKind.FunctionCallExpression;
 
-    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope)
     {
-        return expr.VisitFunctionCallExpression(this,scope);
+        return expr.VisitFunctionCallExpression(this,boundScope);
     }
 }

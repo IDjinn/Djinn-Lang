@@ -8,8 +8,8 @@ public record NoOpExpression : IExpressionSyntax
 {
     public SyntaxKind Kind => SyntaxKind.Void;
 
-    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope)
     {
-        return expr.VisitNoOpExpression(this,scope);
+        return expr.VisitNoOpExpression(this,boundScope);
     }
 }

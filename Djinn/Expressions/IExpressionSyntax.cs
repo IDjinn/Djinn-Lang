@@ -6,5 +6,5 @@ namespace Djinn.Expressions;
 
 public interface IExpressionSyntax : ISyntaxNode
 {
-    T Accept<T>(IExpressionVisitor<T> expr, Scope scope);
+    T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope);
 }

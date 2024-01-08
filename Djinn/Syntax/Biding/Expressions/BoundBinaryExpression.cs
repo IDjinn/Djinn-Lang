@@ -14,10 +14,10 @@ public record BoundBinaryExpression : IBoundExpression
     public BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
     public IType Type => Operator.ResultType;
 
-    public LLVMValueRef Evaluate(IBoundExpressionGenerator expressionGenerator, Scope scope)
+    public LLVMValueRef Evaluate(IBoundExpressionGenerator expressionGenerator, BoundScope boundScope)
     {
-        var left = expressionGenerator.Generate(Left, scope);
-        var right = expressionGenerator.Generate(Right, scope);
+        var left = expressionGenerator.Generate(Left, boundScope);
+        var right = expressionGenerator.Generate(Right, boundScope);
 
         return Operator.OperatorKind switch
         {
@@ -25,6 +25,21 @@ public record BoundBinaryExpression : IBoundExpression
             BoundBinaryOperatorKind.Subtraction => LLVM.BuildSub(expressionGenerator.Builder, left, right, "sub"),
             BoundBinaryOperatorKind.Division => LLVM.BuildFDiv(expressionGenerator.Builder, left, right, "div"),
             BoundBinaryOperatorKind.Multiplication => LLVM.BuildMul(expressionGenerator.Builder, left, right, "mult"),
+            _ => throw new InvalidOperationException("Invalid operation")
+        };
+    }
+
+    public LLVMValueRef Generate(CompilationContext ctx)
+    {
+        var left = Left.Generate(ctx);
+        var right = Right.Generate(ctx);
+
+        return Operator.OperatorKind switch
+        {
+            BoundBinaryOperatorKind.Addition => LLVM.BuildAdd(ctx.Builder, left, right, "plus"),
+            BoundBinaryOperatorKind.Subtraction => LLVM.BuildSub(ctx.Builder, left, right, "sub"),
+            BoundBinaryOperatorKind.Division => LLVM.BuildFDiv(ctx.Builder, left, right, "div"),
+            BoundBinaryOperatorKind.Multiplication => LLVM.BuildMul(ctx.Builder, left, right, "mult"),
             _ => throw new InvalidOperationException("Invalid operation")
         };
     }

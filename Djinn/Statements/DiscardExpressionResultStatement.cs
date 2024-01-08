@@ -8,9 +8,9 @@ namespace Djinn.Statements;
 public record DiscardExpressionResultStatement(IExpressionSyntax Expression) : IStatement
 {
     public SyntaxKind Kind => SyntaxKind.BlockStatement;
-    public T Visit<T>(IStatementVisitor<T> visitor, Scope scope)
+    public T Visit<T>(IStatementVisitor<T> visitor, BoundScope boundScope)
     {
-        return visitor.Visit(this, scope);
+        return visitor.Visit(this, boundScope);
     }
 
 }

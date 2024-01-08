@@ -4,9 +4,9 @@ namespace Djinn.Statements;
 
 public interface IStatementVisitor<T>
 {
-    public T Visit(DiscardExpressionResultStatement discardExpressionResult, Scope scope);
-    public T Visit(FunctionStatement functionStatement, Scope scope);
-    public T Visit(ReturnStatement returnStatement, Scope scope);
-    public T Visit(BlockStatement blockStatement, Scope scope);
-    public T Visit(FunctionDeclarationStatement functionDeclarationStatement, Scope scope);
+    public T Visit(DiscardExpressionResultStatement discardExpressionResult, BoundScope boundScope);
+    public T Visit(FunctionStatement functionStatement, BoundScope boundScope);
+    public T Visit(ReturnStatement returnStatement, BoundScope boundScope);
+    public T Visit(BlockStatement blockStatement, BoundScope boundScope);
+    public T Visit(FunctionDeclarationStatement functionDeclarationStatement, BoundScope boundScope);
 }

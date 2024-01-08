@@ -103,7 +103,7 @@ public static class KeywordExtensions
 
             Keyword.String => SyntaxKind.String,
             Keyword.Null => SyntaxKind.Null,
-            Keyword.Var => SyntaxKind.VariableDeclaration,
+            // Keyword.Var => SyntaxKind.VariableDeclaration,
 
             _ => SyntaxKind.BadToken
         };

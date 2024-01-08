@@ -18,8 +18,8 @@ public record ParameterDeclaration(
     public SyntaxKind Kind => SyntaxKind.FunctionParametersExpression;
 
 
-    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope)
     {
-        return expr.VisitParameterDeclaration(this,scope);
+        return expr.VisitParameterDeclaration(this,boundScope);
     }
 }

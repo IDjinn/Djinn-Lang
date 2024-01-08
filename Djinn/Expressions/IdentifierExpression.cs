@@ -8,8 +8,8 @@ public record IdentifierExpression(SyntaxToken Identifier) : IExpressionSyntax
 {
     public SyntaxKind Kind => SyntaxKind.Identifier;
 
-    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope)
     {
-        return expr.VisitIdentifierExpression(this,scope);
+        return expr.VisitIdentifierExpression(this,boundScope);
     }
 }

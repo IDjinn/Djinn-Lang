@@ -6,6 +6,6 @@ namespace Djinn.Statements;
 
 public interface IStatement : ISyntaxNode
 {
-    public T Visit<T>(IStatementVisitor<T> visitor, Scope scope);
+    public T Visit<T>(IStatementVisitor<T> visitor, BoundScope boundScope);
 
 }

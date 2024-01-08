@@ -8,8 +8,8 @@ public record ArgumentsExpression(IEnumerable<IExpressionSyntax> Arguments) : IE
 {
     public SyntaxKind Kind => SyntaxKind.FunctionArgumentsExpression;
 
-    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope)
     {
-        return expr.VisitArgumentsExpression(this,scope);
+        return expr.VisitArgumentsExpression(this,boundScope);
     }
 }

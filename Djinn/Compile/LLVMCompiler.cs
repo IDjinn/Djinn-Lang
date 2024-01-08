@@ -1,5 +1,6 @@
 using Djinn.Syntax.Biding.Expressions;
 using Djinn.Syntax.Biding.Scopes;
+using Djinn.Syntax.Biding.Scopes.Variables;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 using LLVMSharp;
@@ -32,55 +33,61 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
     public LLVMBuilderRef Builder { get; init; }
     public LLVMContextRef Context { get; init; }
 
-    public LLVMValueRef Generate(IBoundExpression boundExpression, Scope scope)
+    public LLVMValueRef Generate(IBoundExpression boundExpression, BoundScope boundScope)
     {
         return boundExpression switch
         {
-            BoundLiteralExpression literal => GenerateLiteralExpression(literal, scope),
-            BoundUnaryExpression unary => GenerateUnaryExpression(unary, scope),
-            BoundBinaryExpression binary => GenerateBinaryExpression(binary, scope),
+            BoundLiteralExpression literal => GenerateLiteralExpression(literal, boundScope),
+            BoundUnaryExpression unary => GenerateUnaryExpression(unary, boundScope),
+            BoundBinaryExpression binary => GenerateBinaryExpression(binary, boundScope),
+            BoundReadVariableExpression readVariableExpression => GenerateReadVariableExpression(readVariableExpression,boundScope),
             _ => throw new NotImplementedException()
         };
     }
 
-    public LLVMValueRef GenerateBinaryExpression(BoundBinaryExpression boundBinaryExpression, Scope scope)
+    private LLVMValueRef GenerateReadVariableExpression(BoundReadVariableExpression readVariableExpression, BoundScope boundScope)
     {
-        return boundBinaryExpression.Evaluate(this, scope);
+        return readVariableExpression.Evaluate(this, boundScope);
     }
 
-    public LLVMValueRef GenerateUnaryExpression(BoundUnaryExpression boundUnaryExpression, Scope scope)
+    public LLVMValueRef GenerateBinaryExpression(BoundBinaryExpression boundBinaryExpression, BoundScope boundScope)
     {
-        var value = boundUnaryExpression.Evaluate(this, scope);
+        return boundBinaryExpression.Evaluate(this, boundScope);
+    }
+
+    public LLVMValueRef GenerateUnaryExpression(BoundUnaryExpression boundUnaryExpression, BoundScope boundScope)
+    {
+        var value = boundUnaryExpression.Evaluate(this, boundScope);
         return value;
     }
 
-    public LLVMValueRef GenerateLiteralExpression(BoundLiteralExpression boundLiteralExpression, Scope scope)
+    public LLVMValueRef GenerateLiteralExpression(BoundLiteralExpression boundLiteralExpression, BoundScope boundScope)
     {
-        var value = boundLiteralExpression.Evaluate(this, scope);
+        var value = boundLiteralExpression.Evaluate(this, boundScope);
         return value;
     }
 
 
-    public LLVMValueRef GenerateReturnStatement(BoundReturnStatement returnStatement, Scope scope)
+    public LLVMValueRef GenerateReturnStatement(BoundReturnStatement returnStatement, BoundScope boundScope)
     {
-        var value = returnStatement.Expression.Evaluate(this, scope);
+        var value = returnStatement.Expression.Evaluate(this, boundScope);
         return LLVM.BuildRet(Builder, value);
     }
 
-    public LLVMValueRef GenerateBlockStatement(BoundBlockStatement blockStatement, Scope scope)
+    public LLVMValueRef GenerateBlockStatement(BoundBlockStatement blockStatement, BoundScope boundScope)
     {
+        BoundScope blockBoundScope = boundScope is BoundFunctionScope ? boundScope : new BoundScope("block-scope", boundScope);
         LLVMValueRef block = new LLVMValueRef();
         foreach (var boundStatement in blockStatement.Statements)
         {
-            block = GenerateStatement(boundStatement, scope);
+            block = GenerateStatement(boundStatement, blockBoundScope);
         }
 
         return block;
     }
 
-    public LLVMValueRef GenerateFunctionStatement(BoundFunctionStatement functionStatement, FunctionScope scope)
+    public LLVMValueRef GenerateFunctionStatement(BoundFunctionStatement functionStatement, BoundFunctionScope scope)
     {
-        //var paramList = Parameters.Parameters.ToArray();
         var paramList = functionStatement.Parameters.ToList();
         var args = new LLVMTypeRef[paramList.Count];
         for (var i = 0; i < paramList.Count; i++)
@@ -88,7 +95,6 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
             var keyword = KeywordExtensions.FromString(paramList[i].Type.Name);
             var type = keyword.ToLLVMType();
             args[i] = type;
-            scope.TryAddParameter(paramList[i]);
         }
 
         var functionType = LLVM.FunctionType(LLVMTypeRef.Int32Type(), args, new LLVMBool(0));
@@ -101,19 +107,20 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
             var identifier = argument.Identifier.Name;
             var param = LLVM.GetParam(function, (uint)i);
             LLVM.SetValueName(param, identifier);
+            // scope.AddParameter(new BoundVariable(paramList[i].Identifier.Name, scope.FindType(paramList[i].Type.Name).Value.Type, scope, param));
         }
 
         _ = GenerateStatement(functionStatement.Statement, scope);
         return function;
     }
 
-    public LLVMValueRef GenerateStatement(IBoundStatement statement, Scope scope)
+    public LLVMValueRef GenerateStatement(IBoundStatement statement, BoundScope boundScope)
     {
         return statement switch
         {
-            BoundReturnStatement ret => GenerateReturnStatement(ret, scope),
-            BoundBlockStatement block => GenerateBlockStatement(block, new Scope("block", scope)),
-            BoundFunctionStatement function => GenerateFunctionStatement(function, new FunctionScope(function.Identifier.Name, scope)),
+            BoundReturnStatement ret => GenerateReturnStatement(ret, boundScope),
+            BoundBlockStatement block => GenerateBlockStatement(block, boundScope),
+            BoundFunctionStatement function => GenerateFunctionStatement(function, new BoundFunctionScope(function.Identifier.Name, boundScope)),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
     }
@@ -136,7 +143,7 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
 
     public void GenerateStatements(IEnumerable<IBoundStatement> statements)
     {
-        var scope = new Scope("global");
+        var scope = new BoundScope("global");
         foreach (var boundStatement in statements)
         {
             GenerateStatement(boundStatement, scope);

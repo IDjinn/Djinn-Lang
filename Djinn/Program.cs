@@ -31,8 +31,12 @@ public static class Program
         // var source = $$"""1+2+3+4""";
 
         var source = $$"""
-                       function void main(int a, int b) {
+                       function int32 sum(int32 a, int32 b) {
                             ret a + b;
+                       }
+                       
+                       function int32 main() {
+                        ret sum(1, 1);
                        }
                        """;
 
@@ -42,7 +46,11 @@ public static class Program
         var tree = parser.Parse();
 
         var binder = new Binder();
-        var compiler = new LLVMCompiler(binder.Bind(tree));
+        var bindResult = binder.Bind(tree);
+        Compiler.Compile(bindResult);
+        return;
+        
+        var compiler = new LLVMCompiler(bindResult);
         compiler.Compile();
 
         string moduleError = "";

@@ -55,8 +55,9 @@ public enum SyntaxKind : long
     FunctionParametersExpression = Function | Expression | 2,
     FunctionArgumentsExpression = Function | Expression | 3,
 
-    VariableDeclaration = Variable | Declaration | 1,
-    FunctionDeclaration = Function | Declaration | 2,
+    ParameterVariableDeclaration = Variable | Declaration | 1,
+    LocalVariableDeclaration = Variable | Declaration | 2,
+    FunctionDeclaration = Function | Declaration | 3,
 
     OpenBrace = Block | 1,
     CloseBrace = Block | 2,

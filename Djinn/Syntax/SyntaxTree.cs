@@ -11,7 +11,8 @@ public record SyntaxTree
 
     public IEnumerable<T> Generate<T>(IStatementVisitor<T> statementVisitor)
     {
-        var globalScope = new Scope("global");
+        var globalScope = new BoundGlobalScope("global");
+        globalScope.Init();
         var generated = new List<T>();
         foreach (var syntaxNode in Statements)
         {

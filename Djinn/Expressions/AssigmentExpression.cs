@@ -12,8 +12,8 @@ public record AssigmentExpression(
 {
     public SyntaxKind Kind => SyntaxKind.Assignment;
 
-    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope)
     {
-        return expr.VisitAssigmentExpression(this,scope);
+        return expr.VisitAssigmentExpression(this,boundScope);
     }
 }

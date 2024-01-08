@@ -13,8 +13,8 @@ public record BinaryExpressionSyntax(
     public SyntaxKind Kind => SyntaxKind.BinaryExpression;
 
 
-    public T Accept<T>(IExpressionVisitor<T> expressionVisitor, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expressionVisitor, BoundScope boundScope)
     {
-        return expressionVisitor.VisitBinaryExpression(this,scope);
+        return expressionVisitor.VisitBinaryExpression(this,boundScope);
     }
 }

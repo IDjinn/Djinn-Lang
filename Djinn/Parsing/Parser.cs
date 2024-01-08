@@ -60,7 +60,6 @@ public class Parser
     {
         return Current.Kind switch
         {
-            SyntaxKind.VariableDeclaration => ParseVariableDeclaration(),
             SyntaxKind.VariableAssignmentExpression => ParseVariableAssignmentExpression(),
             SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(),
             SyntaxKind.OpenBrace => ParseBlockStatement(),
@@ -75,7 +74,8 @@ public class Parser
         var expression = ParsePrimaryExpression();
         return expression switch
         {
-            FunctionCallExpression call => new DiscardExpressionResultStatement(call)
+            FunctionCallExpression call => new DiscardExpressionResultStatement(call),
+            _ => throw new NotImplementedException(expression.GetType().Name)
         };
     }
 
@@ -167,7 +167,7 @@ public class Parser
 
     public IExpressionSyntax ParseAssignmentExpression()
     {
-        Consume(SyntaxKind.VariableDeclaration);
+        // TODO Consume(SyntaxKind.VariableDeclaration);
         var identifier = Consume(SyntaxKind.Identifier);
         var operatorToken = Consume(SyntaxKind.LogicalOperators);
         var expression = ParseExpression();
@@ -230,13 +230,13 @@ public class Parser
         return DiagnosticError<NoOpExpression>("Invalid expression syntax");
     }
 
-    private ArgumentsExpression ParseArgumentsExpression()
+    private IEnumerable<IExpressionSyntax> ParseArgumentsExpression()
     {
         var args = new List<IExpressionSyntax>();
         while (!TryMatch(SyntaxKind.CloseParenthesis, out var _))
             args.Add(ParseArgument());
 
-        return new ArgumentsExpression(args);
+        return args;
     }
 
     private IExpressionSyntax ParseArgument()

@@ -16,9 +16,9 @@ public record FunctionDeclarationStatement(
 {
     public SyntaxKind Kind => SyntaxKind.FunctionDeclaration;
 
-    public T Visit<T>(IStatementVisitor<T> visitor, Scope scope)
+    public T Visit<T>(IStatementVisitor<T> visitor, BoundScope boundScope)
     {
-        return visitor.Visit(this, scope);
+        return visitor.Visit(this, boundScope);
     }
 
     // public T Generate<T>(IStatementVisitor<T> visitor, CodeGen codeGen)

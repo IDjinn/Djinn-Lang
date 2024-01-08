@@ -6,9 +6,9 @@ namespace Djinn.Expressions;
 
 public record UnaryExpressionSyntax(IExpressionSyntax Operand, SyntaxToken Operator) : IExpressionSyntax
 {
-    public T Accept<T>(IExpressionVisitor<T> expr, Scope scope)
+    public T Accept<T>(IExpressionVisitor<T> expr, BoundScope boundScope)
     {
-        return expr.VisitUnaryExpression(this,scope);
+        return expr.VisitUnaryExpression(this,boundScope);
     }
 
     public SyntaxKind Kind => SyntaxKind.UnaryExpression;

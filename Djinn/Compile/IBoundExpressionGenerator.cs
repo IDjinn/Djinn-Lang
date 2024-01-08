@@ -8,8 +8,9 @@ public interface IBoundExpressionGenerator
 {
     public LLVMBuilderRef Builder { get; init; }
     public LLVMContextRef Context { get; init; }
-    public LLVMValueRef Generate(IBoundExpression boundExpression, Scope scope);
-    public LLVMValueRef GenerateBinaryExpression(BoundBinaryExpression boundBinaryExpression, Scope scope);
-    public LLVMValueRef GenerateUnaryExpression(BoundUnaryExpression boundUnaryExpression, Scope scope);
-    public LLVMValueRef GenerateLiteralExpression(BoundLiteralExpression boundLiteralExpression, Scope scope);
+    public LLVMModuleRef Module { get; init; }
+    public LLVMValueRef Generate(IBoundExpression boundExpression, BoundScope boundScope);
+    public LLVMValueRef GenerateBinaryExpression(BoundBinaryExpression boundBinaryExpression, BoundScope boundScope);
+    public LLVMValueRef GenerateUnaryExpression(BoundUnaryExpression boundUnaryExpression, BoundScope boundScope);
+    public LLVMValueRef GenerateLiteralExpression(BoundLiteralExpression boundLiteralExpression, BoundScope boundScope);
 }

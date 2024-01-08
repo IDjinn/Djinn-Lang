@@ -5,15 +5,15 @@ namespace Djinn.Utils;
 
 public interface IExpressionVisitor<T> : IVisitor<T>
 {
-    public T VisitBinaryExpression(BinaryExpressionSyntax expressionSyntax, Scope scope);
-    public T VisitConstantNumberExpression(ConstantNumberExpressionSyntax expressionSyntax, Scope scope);
-    public T VisitConstantStringExpression(ConstantStringExpressionSyntax expressionSyntax, Scope scope);
-    public T VisitUnaryExpression(UnaryExpressionSyntax expressionSyntax, Scope scope);
-    public T VisitParameterDeclaration(ParameterDeclaration declarationSyntax, Scope scope);
-    public T VisitNoOpExpression(NoOpExpression expressionSyntax, Scope scope);
-    public T VisitIdentifierExpression(IdentifierExpression expressionSyntax, Scope scope);
-    public T VisitFunctionCallExpression(FunctionCallExpression expressionSyntax, Scope scope);
-    public T VisitConstantBooleanExpression(ConstantBooleanExpression expressionSyntax, Scope scope);
-    public T VisitAssigmentExpression(AssigmentExpression expressionSyntax, Scope scope);
-    public T VisitArgumentsExpression(ArgumentsExpression expressionSyntax, Scope scope);
+    public T VisitBinaryExpression(BinaryExpressionSyntax expressionSyntax, BoundScope boundScope);
+    public T VisitConstantNumberExpression(ConstantNumberExpressionSyntax expressionSyntax, BoundScope boundScope);
+    public T VisitConstantStringExpression(ConstantStringExpressionSyntax expressionSyntax, BoundScope boundScope);
+    public T VisitUnaryExpression(UnaryExpressionSyntax expressionSyntax, BoundScope boundScope);
+    public T VisitParameterDeclaration(ParameterDeclaration declarationSyntax, BoundScope boundScope);
+    public T VisitNoOpExpression(NoOpExpression expressionSyntax, BoundScope boundScope);
+    public T VisitIdentifierExpression(IdentifierExpression expressionSyntax, BoundScope boundScope);
+    public T VisitFunctionCallExpression(FunctionCallExpression expressionSyntax, BoundScope boundScope);
+    public T VisitConstantBooleanExpression(ConstantBooleanExpression expressionSyntax, BoundScope boundScope);
+    public T VisitAssigmentExpression(AssigmentExpression expressionSyntax, BoundScope boundScope);
+    public T VisitArgumentsExpression(ArgumentsExpression expressionSyntax, BoundScope boundScope);
 }
