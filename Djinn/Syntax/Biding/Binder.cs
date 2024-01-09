@@ -10,12 +10,8 @@ namespace Djinn.Syntax.Biding;
 
 public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBoundExpression>
 {
-    private Reporter _reporter;
+    public readonly Reporter Reporter = new ();
 
-    public Binder()
-    {
-        _reporter = new Reporter();
-    }
 
     public IBoundExpression VisitBinaryExpression(BinaryExpressionSyntax expressionSyntax, BoundScope boundScope)
     {
@@ -117,7 +113,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             ReturnStatement returnStatement => BindReturnStatement(returnStatement, boundScope),
             BlockStatement blockStatement => BindBlockStatement(blockStatement,boundScope),
             FunctionDeclarationStatement functionDeclaration => BindFunctionStatement(functionDeclaration, boundScope),
-            _ => _reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
+            _ => Reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
     }
@@ -172,7 +168,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         {
             var type = new BoundIdentifier((string)parameterDeclaration.Type.Value, BoundNodeKind.FunctionParameter);
             var identifier = new BoundIdentifier((string)parameterDeclaration.Identifier.Value, BoundNodeKind.FunctionParameter);
-            BoundLiteralExpression? defaultValue = null;
+            BoundConstantNumberLiteralExpression? defaultValue = null;
             // if (parameterDeclaration.DefaultValue is not null)
             // {
             //     defaultValue = BindExpression(parameterDeclaration.DefaultValue, scope) as BoundLiteralExpression;
@@ -251,41 +247,20 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return ret;
     }
 
-    private BoundLiteralExpression BindLiteralBoolean(ConstantBooleanExpression constantBoolean, BoundScope boundScope)
+    private BoundConstantBooleanLiteralExpression BindLiteralBoolean(ConstantBooleanExpression constantBoolean, BoundScope boundScope)
     {
         var boolean = constantBoolean.Bool.Value.ToString()!.Equals("true");
-        return new BoundLiteralExpression
-        {
-            Value = new BoundValue()
-            {
-                Type = new Bool(boolean),
-                Value = new Bool(boolean)
-            }
-        };
+        return new BoundConstantBooleanLiteralExpression(new Bool(boolean));
     }
 
-    private BoundLiteralExpression BindLiteralString(ConstantStringExpressionSyntax constantString, BoundScope boundScope)
+    private BoundConstantStringExpression BindLiteralString(ConstantStringExpressionSyntax constantString, BoundScope boundScope)
     {
-        return new BoundLiteralExpression
-        {
-            Value = new BoundValue()
-            {
-                Value = new String(constantString.StringToken.Value.ToString()!),
-                Type = new String(constantString.StringToken.Value.ToString()!)
-            }
-        };
+        return new BoundConstantStringExpression("sahdjuashdf", new String(constantString.StringToken.Value.ToString()!));
     }
 
-    private BoundLiteralExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber, BoundScope boundScope)
+    private BoundConstantNumberLiteralExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber, BoundScope boundScope)
     {
-        return new BoundLiteralExpression
-        {
-            Value = new BoundValue()
-            {
-                Value = new Integer32((int)constantNumber.NumberToken.Value),
-                Type = new Integer32((int)constantNumber.NumberToken.Value)
-            }
-        };
+        return new BoundConstantNumberLiteralExpression(new Integer32((int)constantNumber.NumberToken.Value));
     }
 
     private BoundUnaryExpression BindUnaryExpression(UnaryExpressionSyntax unary, BoundScope boundScope)

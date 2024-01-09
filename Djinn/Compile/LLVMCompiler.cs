@@ -37,7 +37,7 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
     {
         return boundExpression switch
         {
-            BoundLiteralExpression literal => GenerateLiteralExpression(literal, boundScope),
+            BoundConstantNumberLiteralExpression literal => GenerateLiteralExpression(literal, boundScope),
             BoundUnaryExpression unary => GenerateUnaryExpression(unary, boundScope),
             BoundBinaryExpression binary => GenerateBinaryExpression(binary, boundScope),
             BoundReadVariableExpression readVariableExpression => GenerateReadVariableExpression(readVariableExpression,boundScope),
@@ -61,10 +61,20 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
         return value;
     }
 
-    public LLVMValueRef GenerateLiteralExpression(BoundLiteralExpression boundLiteralExpression, BoundScope boundScope)
+    public LLVMValueRef GenerateLiteralExpression(BoundConstantNumberLiteralExpression boundConstantNumberLiteralExpression, BoundScope boundScope)
     {
-        var value = boundLiteralExpression.Evaluate(this, boundScope);
+        var value = boundConstantNumberLiteralExpression.Evaluate(this, boundScope);
         return value;
+    }
+
+    public LLVMValueRef GenerateLiteralExpression(BoundConstantBooleanLiteralExpression booleanExpression, BoundScope boundScope)
+    {
+        return booleanExpression.Evaluate(this, boundScope);
+    }
+
+    public LLVMValueRef GenerateLiteralExpression(BoundConstantStringExpression stringExpression, BoundScope boundScope)
+    {
+        return stringExpression.Evaluate(this, boundScope);
     }
 
 

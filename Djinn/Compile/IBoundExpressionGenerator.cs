@@ -12,5 +12,7 @@ public interface IBoundExpressionGenerator
     public LLVMValueRef Generate(IBoundExpression boundExpression, BoundScope boundScope);
     public LLVMValueRef GenerateBinaryExpression(BoundBinaryExpression boundBinaryExpression, BoundScope boundScope);
     public LLVMValueRef GenerateUnaryExpression(BoundUnaryExpression boundUnaryExpression, BoundScope boundScope);
-    public LLVMValueRef GenerateLiteralExpression(BoundLiteralExpression boundLiteralExpression, BoundScope boundScope);
+    public LLVMValueRef GenerateLiteralExpression(BoundConstantNumberLiteralExpression constantNumberLiteralExpression, BoundScope boundScope);
+    public LLVMValueRef GenerateLiteralExpression(BoundConstantBooleanLiteralExpression booleanExpression, BoundScope boundScope);
+    public LLVMValueRef GenerateLiteralExpression(BoundConstantStringExpression stringExpression, BoundScope boundScope);
 }

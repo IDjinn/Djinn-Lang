@@ -5,7 +5,7 @@ namespace Djinn.Syntax.Biding.Statements;
 public record BoundParameter(
     BoundIdentifier Type,
     BoundIdentifier Identifier,
-    BoundLiteralExpression? ValueExpression = null
+    BoundConstantNumberLiteralExpression? ValueExpression = null
     ) :IBoundStatement
 {
     public BoundNodeKind Kind => BoundNodeKind.FunctionParameter;

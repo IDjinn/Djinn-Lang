@@ -21,8 +21,14 @@ public static class Program
                             ret a + b;
                        }
                        
+                       function int1 retTrue() {
+                            ret 1;
+                       }
+                       
                        function int32 main() {
-                        ret printf("a + b = %d", sum(1,2));
+                            printf("a + b = %d", sum(1,2));
+                            printf("bool = %d", retTrue());
+                            ret 0;
                        }
                        """;
 
@@ -38,6 +44,10 @@ public static class Program
 
         var binder = new Binder();
         var bindResult = binder.Bind(tree);
+        if (binder.Reporter.Diagnostics.Any())
+        {
+            throw new Exception();
+        }
         Compiler.Compile(bindResult);
         return;
         

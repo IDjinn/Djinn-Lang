@@ -15,20 +15,15 @@ public record BoundUnaryExpression : IBoundExpression
 
     public LLVMValueRef Evaluate(IBoundExpressionGenerator expressionGenerator, BoundScope boundScope)
     {
-        if (Operator is not null && OperandExpression is BoundLiteralExpression boundLiteralExpression)
+        if (Operator is not null && OperandExpression is BoundConstantNumberLiteralExpression boundLiteralExpression)
         {
-            var newValue = new BoundValue()
+            var newValue = Operator.OperatorKind switch
             {
-                Value = Operator.OperatorKind switch
-                {
-                    BoundUnaryOperatorKind.Identity => new Integer32(+boundLiteralExpression.Value.Value.Value),
-                    BoundUnaryOperatorKind.Negation => new Integer32(-boundLiteralExpression.Value.Value.Value),
-                    _=> throw new NotImplementedException()
-                    
-                },
-                Type = boundLiteralExpression.Value.Type
+                BoundUnaryOperatorKind.Identity => +(Integer32)boundLiteralExpression.Number,
+                BoundUnaryOperatorKind.Negation => -(Integer32)boundLiteralExpression.Number,
+                _ => throw new NotImplementedException()
             };
-            var result = boundLiteralExpression with { Value =newValue };
+            var result = boundLiteralExpression with { Number =newValue };
             return result.Evaluate(expressionGenerator, boundScope);
         }
         return expressionGenerator.GenerateUnaryExpression(this,boundScope);
@@ -36,20 +31,16 @@ public record BoundUnaryExpression : IBoundExpression
 
     public LLVMValueRef Generate(CompilationContext ctx)
     {
-        if (Operator is not null && OperandExpression is BoundLiteralExpression boundLiteralExpression)
+        if (Operator is not null && OperandExpression is BoundConstantNumberLiteralExpression boundLiteralExpression)
         {
-            var newValue = new BoundValue()
+            var newValue = Operator.OperatorKind switch
             {
-                Value = Operator.OperatorKind switch
-                {
-                    BoundUnaryOperatorKind.Identity => new Integer32(+boundLiteralExpression.Value.Value.Value),
-                    BoundUnaryOperatorKind.Negation => new Integer32(-boundLiteralExpression.Value.Value.Value),
-                    _=> throw new NotImplementedException()
-                    
-                },
-                Type = boundLiteralExpression.Value.Type
+                BoundUnaryOperatorKind.Identity => +(Integer32)boundLiteralExpression.Number,
+                BoundUnaryOperatorKind.Negation => -(Integer32)boundLiteralExpression.Number,
+                _ => throw new NotImplementedException()
+
             };
-            var result = boundLiteralExpression with { Value =newValue };
+            var result = boundLiteralExpression with { Number =newValue };
             return result.Generate(ctx);
         }
 
