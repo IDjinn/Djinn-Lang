@@ -93,6 +93,11 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindFunctionStatement(functionDeclarationStatement,boundScope);
     }
 
+    public IBoundStatement Visit(IfStatement functionDeclarationStatement, BoundScope boundScope)
+    {
+        throw new NotImplementedException();
+    }
+
     public IEnumerable<IBoundStatement> Bind(SyntaxTree syntaxTree)
     {
         var globalScope = new BoundGlobalScope("global");
@@ -113,9 +118,23 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             ReturnStatement returnStatement => BindReturnStatement(returnStatement, boundScope),
             BlockStatement blockStatement => BindBlockStatement(blockStatement,boundScope),
             FunctionDeclarationStatement functionDeclaration => BindFunctionStatement(functionDeclaration, boundScope),
+            DiscardExpressionResultStatement discartExpressionResult => BindDiscartExpressionResult(discartExpressionResult, boundScope),
+            IfStatement ifStatement => BindIfStatement(ifStatement, boundScope),
             _ => Reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
+    }
+
+    private IBoundStatement BindIfStatement(IfStatement ifStatement, BoundScope boundScope)
+    {
+        var ifScope = new BoundScope("if", boundScope);
+        return new BoundIfStatement(BindExpression(ifStatement.Conditional, ifScope),
+            BindStatement(ifStatement.Block, ifScope));
+    }
+
+    private IBoundStatement BindDiscartExpressionResult(DiscardExpressionResultStatement discartExpressionResult, BoundScope boundScope)
+    {
+        return new BoundDiscardStatement(BindExpression(discartExpressionResult.Expression, boundScope));
     }
 
 

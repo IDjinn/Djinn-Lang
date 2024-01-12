@@ -95,6 +95,10 @@ public readonly record struct Integer1(byte Value) : INumber
     {
         return new Integer1((byte)-a.Value);
     }
+    public static explicit operator Integer1(byte value)
+    {
+        return new Integer1(value);
+    }
 }
 
 public readonly record struct Integer32(int Value) : INumber

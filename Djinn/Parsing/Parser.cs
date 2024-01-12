@@ -75,6 +75,16 @@ public class Parser
 
     private IStatement ParseIdentifier()
     {
+        var keyword = KeywordExtensions.FromString((string)Current.Value);
+        switch (keyword)
+        {  
+            case Keyword.If:
+                return ParseIfStatement();
+            case Keyword.Else:
+                return ParseElseStatement();
+        }
+        
+        
         var expression = ParsePrimaryExpression();
         return expression switch
         {
@@ -95,7 +105,7 @@ public class Parser
         return new ReturnStatement(expression);
     }
 
-    private IStatement ParseBlockStatement()
+    private BlockStatement ParseBlockStatement()
     {
         Consume(SyntaxKind.OpenBrace);
         var statements = new List<IStatement>();
@@ -225,17 +235,56 @@ public class Parser
 
         if (TryMatch(SyntaxKind.Identifier, out var identifierToken))
         {
-            if (TryMatch(SyntaxKind.OpenParenthesis, out var openParenthesisToken))
+            switch (KeywordExtensions.FromString((string)identifierToken.Value))
             {
-                var fn = new FunctionCallExpression(identifierToken, ParseArgumentsExpression());
-                // Consume(SyntaxKind.CloseParenthesis);
-                return fn;
-            }
+                // case Keyword.If:
+                //     return ParseIfStatement();
+                // case Keyword.Else:
+                //     return ParseElseStatement();
 
-            return new IdentifierExpression(identifierToken);
+                case Keyword.Try:
+                case Keyword.Catch:
+                case Keyword.Finally:
+                    throw new NotImplementedException();
+
+                default:
+                    if (TryMatch(SyntaxKind.OpenParenthesis, out var _))
+                        return new FunctionCallExpression(identifierToken, ParseArgumentsExpression());
+
+                    return new IdentifierExpression(identifierToken);
+            }
         }
 
         return DiagnosticError<NoOpExpression>("Invalid expression syntax");
+    }
+
+    private IStatement ParseElseStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    private IfStatement ParseIfStatement()
+    {
+        Consume(SyntaxKind.Identifier);
+        Consume(SyntaxKind.OpenParenthesis);
+        var conditional = ParseBooleanExpression();
+        Consume(SyntaxKind.CloseParenthesis);
+        var body = ParseBlockStatement();
+
+        return new IfStatement(
+            conditional,
+            body
+        );
+    }
+
+    private IExpressionSyntax ParseBooleanExpression()
+    {
+        var expression = ParsePrimaryExpression();
+        if (expression is not null)
+        {
+            return expression;
+        }
+        return DiagnosticError<ConstantBooleanExpression>("Invalid expression syntax");
     }
 
     private IEnumerable<IExpressionSyntax> ParseArgumentsExpression()

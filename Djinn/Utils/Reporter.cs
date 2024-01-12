@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Djinn.Utils;
@@ -27,6 +28,7 @@ public class Reporter
 
     public void Diagnostic(string message, DiagnosticSeverity severity)
     {
+        Debug.Fail(message);
         _diagnostics.Add(new Diagnostic(new Position(), message, severity));
     }
 }

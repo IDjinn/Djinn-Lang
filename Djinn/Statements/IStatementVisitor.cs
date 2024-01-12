@@ -9,4 +9,5 @@ public interface IStatementVisitor<T>
     public T Visit(ReturnStatement returnStatement, BoundScope boundScope);
     public T Visit(BlockStatement blockStatement, BoundScope boundScope);
     public T Visit(FunctionDeclarationStatement functionDeclarationStatement, BoundScope boundScope);
+    public T Visit(IfStatement functionDeclarationStatement, BoundScope boundScope);
 }

@@ -1,5 +1,6 @@
 ﻿using Djinn.Compile.Scopes;
 using Djinn.Compile.Variables;
+using Djinn.Syntax;
 using Djinn.Syntax.Biding.Scopes;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
@@ -16,8 +17,37 @@ public static class CompileStatements
             BoundReturnStatement ret => GenerateReturnStatement(ctx, ret),
             BoundBlockStatement block => GenerateBlockStatement(ctx, block),
             BoundFunctionStatement function => GenerateFunctionStatement(ctx, function),
+            BoundDiscardStatement discard => GenerateDiscardStatement(ctx,discard),
+            BoundIfStatement ifStatement => GenerateIfStatement(ctx, ifStatement),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
+    }
+
+    private static LLVMValueRef GenerateIfStatement(CompilationContext ctx, BoundIfStatement ifStatement)
+    {
+        var functionPointer = ctx.Stack.Pop();
+        var ifBlock = LLVM.AppendBasicBlock(functionPointer, "if_block");
+        var elseBlock = LLVM.AppendBasicBlock(functionPointer, "else_block");
+        var cnd = ifStatement.Condition.Generate(ctx);
+        var condition = LLVM.BuildICmp(ctx.Builder,
+            LLVMIntPredicate.LLVMIntEQ,
+            cnd,
+            Integer1.GenerateFromValue((Integer1)1),
+            "cmp");
+        
+        LLVM.BuildCondBr(ctx.Builder, condition, ifBlock,elseBlock);
+        LLVM.PositionBuilderAtEnd(ctx.Builder, ifBlock);
+        GenerateStatement(ctx, ifStatement.Block);
+
+        LLVM.PositionBuilderAtEnd(ctx.Builder, elseBlock);
+        // LLVM.BuildRet(ctx.Builder, LLVM.ConstInt(LLVMTypeRef.Int1Type(), (ulong)0, new LLVMBool(0) ));
+        return ifBlock;
+    }
+
+    private static LLVMValueRef GenerateDiscardStatement(CompilationContext ctx, BoundDiscardStatement discard)
+    {
+        var value = discard.Expression.Generate(ctx);
+        return default;
     }
 
     public static LLVMValueRef GenerateReturnStatement(CompilationContext ctx, BoundReturnStatement returnStatement)
@@ -44,12 +74,12 @@ public static class CompileStatements
         var functionSignature = LLVM.FunctionType(LLVMTypeRef.Int32Type(), parameterTypes, new LLVMBool(0)); // TODO: RETURN TYPE BY DECLARATION
         var function = LLVM.AddFunction(ctx.Module, functionStatement.Identifier.Name, functionSignature);
         var block = LLVM.AppendBasicBlock(function, "entry");
+        ctx.Stack.Push(function);
         LLVM.PositionBuilderAtEnd(ctx.Builder, block);
         
         var parameterPointers = GenerateFunctionParameterNames(newCtx, functionStatement, function);
         var functionBody = GenerateBlockStatement(newCtx, (BoundBlockStatement)functionStatement.Statement);
         LLVM.VerifyFunction(function, LLVMVerifierFailureAction.LLVMPrintMessageAction);
-        ctx.Stack.Push(function);
         ctx.Scope.TryCreateFunction(functionStatement.Identifier.Name,function);
         return function;
     }

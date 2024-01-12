@@ -25,10 +25,11 @@ public class BoundFunctionCallExpression(
         if (!function.HasValue) throw new NotImplementedException();
         
         var args = Arguments.ToList();
-        var argsV = new LLVMValueRef[Math.Max(args.Count, 1)];
+        var argsV = new LLVMValueRef[Math.Max(args.Count, 0)];
         for (var i = 0; i < args.Count; ++i)
         {
-            argsV[i] = args[i].Generate(ctx);
+            var argValue = args[i].Generate(ctx);
+            argsV[i] = argValue; //args[i] is BoundFunctionCallExpression fnCall ? LLVM.BuildLoad(ctx.Builder, argValue, "rsfgrwf") : argValue ;
         }
 
         return LLVM.BuildCall(ctx.Builder, function.Value, argsV, TargetFunction.Name + "_call");

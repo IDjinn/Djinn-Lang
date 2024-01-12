@@ -73,6 +73,9 @@ public static class KeywordExtensions
             "float64" => Keyword.Float64,
             "float80" => Keyword.Float80,
             "float128" or "decimal" => Keyword.Float128,
+            
+            "if" => Keyword.If,
+            "else" => Keyword.Else,
             _ => Keyword.Unknown
         };
     }

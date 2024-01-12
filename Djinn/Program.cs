@@ -17,18 +17,11 @@ public static class Program
     {
 
         var source = $$"""
-                       function int32 sum(int32 a, int32 b) {
-                            ret a + b;
-                       }
-                       
-                       function int1 retTrue() {
+                       function int1 main() {
+                            if (true) {
+                                ret 2;
+                            }
                             ret 1;
-                       }
-                       
-                       function int32 main() {
-                            printf("a + b = %d", sum(1,2));
-                            printf("bool = %d", retTrue());
-                            ret 0;
                        }
                        """;
 

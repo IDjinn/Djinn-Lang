@@ -99,7 +99,8 @@ public enum SyntaxKind : long
     AmpersendAmpersandToken,
     PipeToken,
     PipePipeToken,
-    BangEqualsToken
+    BangEqualsToken,
+    IfStatement
 }
 
 public static class SyntaxKindExtensions
