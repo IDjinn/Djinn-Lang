@@ -55,8 +55,13 @@ public static class CompileStatements
         LLVM.PositionBuilderAtEnd(ctx.Builder, ifBlock);
         GenerateStatement(ctx, ifStatement.Block);
 
+        if (ifStatement.ElseBlock is IBoundStatement elseBranch)
+        {
+            LLVM.PositionBuilderAtEnd(ctx.Builder, elseBlock);
+            GenerateStatement(ctx, elseBranch);
+        }
+        
         LLVM.PositionBuilderAtEnd(ctx.Builder, elseBlock);
-        // LLVM.BuildRet(ctx.Builder, LLVM.ConstInt(LLVMTypeRef.Int1Type(), (ulong)0, new LLVMBool(0) ));
         return ifBlock;
     }
 

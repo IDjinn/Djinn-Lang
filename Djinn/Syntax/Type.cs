@@ -67,7 +67,7 @@ public readonly record struct Integer1(byte Value) : INumber
 
     public static LLVMValueRef GenerateFromValue(Integer1 integer)
     {
-        return LLVM.ConstInt(LLVMTypeRef.Int32Type(), integer.Value, new LLVMBool(0));
+        return LLVM.ConstInt(LLVMTypeRef.Int1Type(), integer.Value, new LLVMBool(0));
     }
     
     public static Integer1 operator +(Integer1 a, Integer1 b)
