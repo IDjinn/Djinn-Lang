@@ -7,5 +7,7 @@ public static class Setup
     [ModuleInitializer]
     public static void InitializeVerify()
     {
+        if (!Directory.Exists("./temp"))
+            Directory.CreateDirectory("./temp");
     }
 }

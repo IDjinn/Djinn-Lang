@@ -83,12 +83,18 @@ public class Parser
     private bool TryParseVariableDeclaration([NotNullWhen(true)] out VariableDeclarationStatement? statement)
     {
         statement = default;
-        var type = Consume(SyntaxKind.Type);
-        if (!TryMatch(SyntaxKind.Identifier, out var identifier))
+        var type = TryPeek(SyntaxKind.Type);
+        if (type is null)
+            return false;
+        
+        var identifier = TryPeek(SyntaxKind.Identifier,1);
+        if (identifier is null)
+            return false;
+        
+        var equals = TryPeek(SyntaxKind.EqualsOperator,2);
+        if (equals is null)
             return false;
 
-        if (!TryMatch(SyntaxKind.EqualsOperator, out var _))
-            return false;
 
         var expression = ParsePrimaryExpression();
         statement = new VariableDeclarationStatement(
@@ -97,6 +103,15 @@ public class Parser
             expression
             );
         return true;
+    }
+
+    private SyntaxToken? TryPeek(SyntaxKind kind, int offset = 0)
+    {
+        var peek = Peek(offset);
+        if (peek.Kind == kind)
+            return peek;
+
+        return default;
     }
 
     private bool CurrentIsType()

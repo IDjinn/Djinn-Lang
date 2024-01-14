@@ -87,9 +87,6 @@ namespace Djinn.Tools
         public static async Task<string> ClangCompileAsync(Compiler.CompilationResult compilationResult,
             Compiler.CompilerOptions options)
         {
-            if (!Directory.Exists("./temp"))
-                Directory.CreateDirectory("./temp");
-
             Compiler.WriteToFile(compilationResult, options);
             return await RunClangAsync([$"{options.OutputFileName}.ll", "-o", $"{options.OutputFileName}.exe"]);
         }
