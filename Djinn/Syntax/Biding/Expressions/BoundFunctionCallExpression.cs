@@ -21,8 +21,12 @@ public class BoundFunctionCallExpression(
 
     public LLVMValueRef Generate(CompilationContext ctx)
     {
-        var function = ctx.Scope.FindFunction(TargetFunction.Name);
-        if (!function.HasValue) throw new NotImplementedException();
+        LLVM.FindFunction(ctx.ExecutionEngine, TargetFunction.Name, out var functionPointer);
+        if (functionPointer.Pointer == IntPtr.Zero)
+        {
+            var function = ctx.Scope.FindFunction(TargetFunction.Name);
+            functionPointer = function.HasValue ? function.Value : throw new NotImplementedException();
+        }
         
         var args = Arguments.ToList();
         var argsV = new LLVMValueRef[Math.Max(args.Count, 0)];
@@ -32,6 +36,6 @@ public class BoundFunctionCallExpression(
             argsV[i] = argValue; //args[i] is BoundFunctionCallExpression fnCall ? LLVM.BuildLoad(ctx.Builder, argValue, "rsfgrwf") : argValue ;
         }
 
-        return LLVM.BuildCall(ctx.Builder, function.Value, argsV, TargetFunction.Name + "_call");
+        return LLVM.BuildCall(ctx.Builder, functionPointer, argsV, TargetFunction.Name + "_call");
     }
 }

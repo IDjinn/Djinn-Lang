@@ -98,6 +98,11 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         throw new NotImplementedException();
     }
 
+    public IBoundStatement Visit(ImportStatement importStatement, BoundScope boundScope)
+    {
+        throw new NotImplementedException();
+    }
+
     public IEnumerable<IBoundStatement> Bind(SyntaxTree syntaxTree)
     {
         var globalScope = new BoundGlobalScope("global");
@@ -120,9 +125,16 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             FunctionDeclarationStatement functionDeclaration => BindFunctionStatement(functionDeclaration, boundScope),
             DiscardExpressionResultStatement discartExpressionResult => BindDiscartExpressionResult(discartExpressionResult, boundScope),
             IfStatement ifStatement => BindIfStatement(ifStatement, boundScope),
+           ImportStatement importStatement => BindImportStatement(importStatement,boundScope),
             _ => Reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
+    }
+
+    private IBoundStatement BindImportStatement(ImportStatement importStatement, BoundScope boundScope)
+    {
+        // TODO: RESOLVE LIBRARY BY SCOPE
+        return new BoundImportStatement((string)importStatement.Library.Value);
     }
 
     private IBoundStatement BindIfStatement(IfStatement ifStatement, BoundScope boundScope)
@@ -274,7 +286,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     private BoundConstantStringExpression BindLiteralString(ConstantStringExpressionSyntax constantString, BoundScope boundScope)
     {
-        return new BoundConstantStringExpression("sahdjuashdf", new String(constantString.StringToken.Value.ToString()!));
+        return new BoundConstantStringExpression("constString", new String(constantString.StringToken.Value.ToString()!));
     }
 
     private BoundConstantNumberLiteralExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber, BoundScope boundScope)

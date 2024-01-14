@@ -9,12 +9,26 @@ public static class Compiler
 {
     public static void Compile(IEnumerable<IBoundStatement> syntaxTree)
     {
+        // LLVM.InitializeAllTargets();
+        LLVM.InitializeX86Target();
+        LLVM.InitializeX86AsmParser();
+        LLVM.InitializeX86TargetMC();
+        LLVM.InitializeX86TargetInfo();
+        LLVM.InitializeX86AsmPrinter();
+        LLVM.InitializeX86AsmParser();
+        
         var globalScope = new CompilationScope("global");
+        var module = LLVM.ModuleCreateWithName("main");
+        var builder = LLVM.CreateBuilder();
+        var context = LLVM.ContextCreate();
+
+        var engine = InitializeJIT(module);
         var ctx = new CompilationContext(
             globalScope,
-            LLVM.ModuleCreateWithName("main"),
-            LLVM.CreateBuilder(),
-            LLVM.ContextCreate()
+            module,
+            builder,
+            context,
+            engine
         );
         
         SetupLLVMUtils(ctx);
@@ -22,16 +36,32 @@ public static class Compiler
         {
             CompileStatements.GenerateStatement(ctx, statement);
         }
-        string moduleError = "";
-        LLVM.VerifyModule(ctx.Module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);
-        Console.WriteLine(moduleError);
+        
+        LLVM.VerifyModule(ctx.Module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out var error);
+        Console.WriteLine(error);
 
-        string error = "";
         LLVM.DumpModule(ctx.Module);
         LLVM.PrintModuleToFile(ctx.Module, "test.ll", out error);
         Console.WriteLine(error);
     }
-    
+
+    private static LLVMExecutionEngineRef InitializeJIT(LLVMModuleRef module)
+    {
+        LLVMExecutionEngineRef engine;
+        LLVM.LinkInMCJIT();
+        var options = new LLVMMCJITCompilerOptions();
+        LLVM.InitializeMCJITCompilerOptions(options);
+        LLVM.CreateMCJITCompilerForModule(out engine, module, options, out var error);
+        
+        if (error != null)
+            throw new Exception($"Error creating JIT compiler: {error}");
+
+        if (engine.Pointer == IntPtr.Zero)
+            throw new Exception();
+
+        return engine;
+    }
+
     public static void SetupLLVMUtils(CompilationContext ctx)
     {
         var stringType = LLVMTypeRef.PointerType(LLVMTypeRef.Int8Type(), 0);

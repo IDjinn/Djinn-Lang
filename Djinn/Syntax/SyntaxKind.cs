@@ -100,7 +100,9 @@ public enum SyntaxKind : long
     PipeToken,
     PipePipeToken,
     BangEqualsToken,
-    IfStatement
+    IfStatement,
+    ImportStatement,
+    Import
 }
 
 public static class SyntaxKindExtensions

@@ -46,6 +46,7 @@ public enum Keyword
     Record,
     Function,
     Var,
+    Import,
 }
 
 public static class KeywordExtensions
@@ -76,6 +77,9 @@ public static class KeywordExtensions
             
             "if" => Keyword.If,
             "else" => Keyword.Else,
+            
+            "import" => Keyword.Import,
+            
             _ => Keyword.Unknown
         };
     }
@@ -107,6 +111,7 @@ public static class KeywordExtensions
             Keyword.String => SyntaxKind.String,
             Keyword.Null => SyntaxKind.Null,
             // Keyword.Var => SyntaxKind.VariableDeclaration,
+            Keyword.Import => SyntaxKind.Import,
 
             _ => SyntaxKind.BadToken
         };
@@ -141,7 +146,7 @@ public static class KeywordExtensions
             Keyword.Null => LLVMTypeRef.VoidType(), //LLVMTypeRef.ConstNull(LLVMTypeRef.VoidType()),
             // Keyword.Var => LLVMTypeRef.var,
 
-            _ => LLVMTypeRef.VoidType()
+            _ => throw new Exception($"Unsupported keyword type: {keyword}")
         };
     }
 }

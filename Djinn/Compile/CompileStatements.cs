@@ -19,8 +19,24 @@ public static class CompileStatements
             BoundFunctionStatement function => GenerateFunctionStatement(ctx, function),
             BoundDiscardStatement discard => GenerateDiscardStatement(ctx,discard),
             BoundIfStatement ifStatement => GenerateIfStatement(ctx, ifStatement),
+            BoundImportStatement importStatement => GenerateImportStatement(ctx, importStatement),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
+    }
+
+    private static LLVMValueRef GenerateImportStatement(CompilationContext ctx, BoundImportStatement importStatement)
+    {
+        LLVM.CreateMemoryBufferWithContentsOfFile("other.ll", out var buff, out var error);
+        if (error is not null)
+            throw new Exception(error);
+        LLVM.ParseIRInContext(LLVM.GetGlobalContext(), buff, out var otherModule, out error);
+        if (error is not null)
+            throw new Exception(error);
+       
+        LLVM.SetDataLayout(otherModule, LLVM.GetDataLayout(ctx.Module));
+        LLVM.LinkModules2(ctx.Module, otherModule);
+
+        return default;
     }
 
     private static LLVMValueRef GenerateIfStatement(CompilationContext ctx, BoundIfStatement ifStatement)

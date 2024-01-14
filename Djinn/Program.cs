@@ -17,11 +17,11 @@ public static class Program
     {
 
         var source = $$"""
+                       import "other.ll";
+                       
                        function int1 main() {
-                            if (true) {
-                                ret 2;
-                            }
-                            ret 1;
+                            printf("justTrue = %d", justTrue());
+                            ret 0;
                        }
                        """;
 

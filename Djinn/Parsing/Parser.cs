@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Djinn.Expressions;
 using Djinn.Lexing;
@@ -63,14 +64,22 @@ public class Parser
         return Current.Kind switch
         {
             SyntaxKind.VariableAssignmentExpression => ParseVariableAssignmentExpression(),
-            SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(),
+            SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(), // TODO: IS THIS USED?
             SyntaxKind.OpenBrace => ParseBlockStatement(),
             SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
             SyntaxKind.Identifier => ParseIdentifier(),
+            SyntaxKind.Import => ParseImport(),
             
             SyntaxKind.BadToken or SyntaxKind.EndOfFileToken => throw new ArgumentException("EOF"),
             _ => ExpectingStatement(),
         };
+    }
+
+    private IStatement ParseImport()
+    {
+        var importKeyword = Consume(SyntaxKind.Import);
+        var targetLibrary = Consume(SyntaxKind.StringLiteral);
+        return new ImportStatement(importKeyword, targetLibrary);
     }
 
     private IStatement ParseIdentifier()
@@ -95,7 +104,9 @@ public class Parser
 
     private IStatement ExpectingStatement()
     {
-        return DiagnosticError<BlockStatement>("Expecting statement.");
+        var aux = DiagnosticError<BlockStatement>("Expecting statement.");
+        Debug.Fail("Expecting statement.");
+        return aux;
     }
 
     private IStatement ParseReturnStatement()
