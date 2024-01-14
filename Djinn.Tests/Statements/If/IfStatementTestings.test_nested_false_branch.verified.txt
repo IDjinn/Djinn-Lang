@@ -8,11 +8,17 @@ declare i32 @scanf(i8*)
 
 define i32 @main() {
 entry:
-  br i1 false, label %if_block, label %else_block
+  br i1 true, label %if_block, label %else_block
 
 if_block:                                         ; preds = %entry
-  ret i32 -1
+  br i1 false, label %if_block1, label %else_block2
 
 else_block:                                       ; preds = %entry
+  ret i32 -2
+
+if_block1:                                        ; preds = %if_block
+  ret i32 -1
+
+else_block2:                                      ; preds = %if_block
   ret i32 1
 }

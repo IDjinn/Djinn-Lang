@@ -41,7 +41,7 @@ public static class CompileStatements
 
     private static LLVMValueRef GenerateIfStatement(CompilationContext ctx, BoundIfStatement ifStatement)
     {
-        var functionPointer = ctx.Stack.Pop();
+        var functionPointer = ctx.Stack.Peek();
         var ifBlock = LLVM.AppendBasicBlock(functionPointer, "if_block");
         var elseBlock = LLVM.AppendBasicBlock(functionPointer, "else_block");
         var cnd = ifStatement.Condition.Generate(ctx);
