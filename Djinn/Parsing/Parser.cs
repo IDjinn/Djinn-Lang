@@ -95,7 +95,9 @@ public class Parser
         if (equals is null)
             return false;
 
-
+        Consume(SyntaxKind.Type);
+        Consume(SyntaxKind.Identifier);
+        Consume(SyntaxKind.EqualsOperator);
         var expression = ParsePrimaryExpression();
         statement = new VariableDeclarationStatement(
             type,
@@ -108,7 +110,7 @@ public class Parser
     private SyntaxToken? TryPeek(SyntaxKind kind, int offset = 0)
     {
         var peek = Peek(offset);
-        if (peek.Kind == kind)
+        if (peek.Kind.HasFlag(kind))
             return peek;
 
         return default;
