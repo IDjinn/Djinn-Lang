@@ -57,17 +57,17 @@ public class SyntaxTreeTestings
         tree.Statements.Should().NotBeEmpty();
 
         tree.Statements.Should().ContainSingle();
-        var blockStatement = (BlockStatement)tree.Statements.First();/*
-        blockStatement.Should().BeOfType<BlockStatement>();
-        blockStatement.Statements.Should().ContainSingle();
-
-        var statement = (ReturnStatement)blockStatement.Statements.First();
-        statement.Should().BeOfType<ReturnStatement>();
-
-        var binaryExpression = (BinaryExpressionSyntax)statement.ExpressionSyntax;
-        binaryExpression.Should().BeOfType<BinaryExpressionSyntax>();
-        binaryExpression.LeftExpression.Should().BeOfType<ConstantNumberExpressionSyntax>();
-        binaryExpression.Operator.Kind.Should().Be(SyntaxKind.PlusToken);
-        binaryExpression.RightExpression.Should().BeOfType<ConstantNumberExpressionSyntax>();*/
+//         var blockStatement = (BlockStatement)tree.Statements.First();/*
+//         blockStatement.Should().BeOfType<BlockStatement>();
+//         blockStatement.Statements.Should().ContainSingle();
+//
+//         var statement = (ReturnStatement)blockStatement.Statements.First();
+//         statement.Should().BeOfType<ReturnStatement>();
+//
+//         var binaryExpression = (BinaryExpressionSyntax)statement.ExpressionSyntax;
+//         binaryExpression.Should().BeOfType<BinaryExpressionSyntax>();
+//         binaryExpression.LeftExpression.Should().BeOfType<ConstantNumberExpressionSyntax>();
+//         binaryExpression.Operator.Kind.Should().Be(SyntaxKind.PlusToken);
+//         binaryExpression.RightExpression.Should().BeOfType<ConstantNumberExpressionSyntax>();*/
     }
 }

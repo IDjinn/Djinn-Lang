@@ -1,20 +1,41 @@
 ﻿[
   {
+    Identifier: {
+      Name: hello,
+      Kind: FunctionIdentifier
+    },
+    Parameters: [
+      {
+        Type: {
+          Name: void,
+          Kind: FunctionParameter
+        },
+        Identifier: {
+          Name: void,
+          Kind: FunctionParameter
+        },
+        Kind: FunctionParameter
+      }
+    ],
     Statement: {
+      count: 1,
+      values: BoundReturnStatement,
       Statements: [
         {
           Expression: {
-            OperatorKind: Addition,
-            Operand: {
-              Value: {
+            Operator: {
+              SyntaxKind: PlusToken,
+              OperatorKind: Identity,
+              OperandType: INumber,
+              ResultType: INumber
+            },
+            OperandExpression: {
+              Number: {
                 Value: 1,
-                Type: {
-                  Value: 1,
-                  IsFloat: false,
-                  SizeOf: 4,
-                  IsHeap: false,
-                  IsReadOnly: false
-                }
+                IsFloat: false,
+                SizeOf: 4,
+                IsHeap: false,
+                IsReadOnly: false
               },
               Kind: LiteralExpression,
               Type: {

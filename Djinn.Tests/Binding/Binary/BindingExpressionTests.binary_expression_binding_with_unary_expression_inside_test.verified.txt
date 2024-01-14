@@ -1,19 +1,35 @@
 ﻿[
   {
+    Identifier: {
+      Name: hello,
+      Kind: FunctionIdentifier
+    },
+    Parameters: [
+      {
+        Type: {
+          Name: void,
+          Kind: FunctionParameter
+        },
+        Identifier: {
+          Name: void,
+          Kind: FunctionParameter
+        },
+        Kind: FunctionParameter
+      }
+    ],
     Statement: {
+      count: 1,
+      values: BoundReturnStatement,
       Statements: [
         {
           Expression: {
             Left: {
-              Value: {
+              Number: {
                 Value: 1,
-                Type: {
-                  Value: 1,
-                  IsFloat: false,
-                  SizeOf: 4,
-                  IsHeap: false,
-                  IsReadOnly: false
-                }
+                IsFloat: false,
+                SizeOf: 4,
+                IsHeap: false,
+                IsReadOnly: false
               },
               Kind: LiteralExpression,
               Type: {
@@ -24,19 +40,36 @@
                 IsReadOnly: false
               }
             },
-            OperatorKind: Addiction,
+            Operator: {
+              SyntaxKind: PlusToken,
+              OperatorKind: Addition,
+              OperandType: {
+                IsFloat: false,
+                SizeOf: 4,
+                IsHeap: false,
+                IsReadOnly: false
+              },
+              ResultType: {
+                IsFloat: false,
+                SizeOf: 4,
+                IsHeap: false,
+                IsReadOnly: false
+              }
+            },
             Right: {
-              OperatorKind: Subtraction,
-              Operand: {
-                Value: {
+              Operator: {
+                SyntaxKind: MinusToken,
+                OperatorKind: Negation,
+                OperandType: INumber,
+                ResultType: INumber
+              },
+              OperandExpression: {
+                Number: {
                   Value: 2,
-                  Type: {
-                    Value: 2,
-                    IsFloat: false,
-                    SizeOf: 4,
-                    IsHeap: false,
-                    IsReadOnly: false
-                  }
+                  IsFloat: false,
+                  SizeOf: 4,
+                  IsHeap: false,
+                  IsReadOnly: false
                 },
                 Kind: LiteralExpression,
                 Type: {
@@ -56,7 +89,13 @@
                 IsReadOnly: false
               }
             },
-            Kind: BinaryExpression
+            Kind: BinaryExpression,
+            Type: {
+              IsFloat: false,
+              SizeOf: 4,
+              IsHeap: false,
+              IsReadOnly: false
+            }
           },
           Kind: ReturnStatement
         }
