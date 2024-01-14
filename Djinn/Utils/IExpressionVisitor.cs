@@ -16,4 +16,5 @@ public interface IExpressionVisitor<T> : IVisitor<T>
     public T VisitConstantBooleanExpression(ConstantBooleanExpression expressionSyntax, BoundScope boundScope);
     public T VisitAssigmentExpression(AssigmentExpression expressionSyntax, BoundScope boundScope);
     public T VisitArgumentsExpression(ArgumentsExpression expressionSyntax, BoundScope boundScope);
+    public T VisitReadVariableExpression(ReadVariableExpression readVariableExpression, BoundScope boundScope);
 }

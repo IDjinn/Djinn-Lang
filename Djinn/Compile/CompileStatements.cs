@@ -22,8 +22,17 @@ public static class CompileStatements
             BoundIfStatement ifStatement => GenerateIfStatement(ctx, ifStatement),
             BoundImportStatement importStatement => GenerateImportStatement(ctx, importStatement),
             BoundSwitchStatement switchStatement => GenerateSwitchStatement(ctx,switchStatement),
+            BoundVariableStatement variableStatement => GenerateVariableStatement(ctx, variableStatement),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
+    }
+
+    private static LLVMValueRef GenerateVariableStatement(CompilationContext ctx, BoundVariableStatement variableStatement)
+    {
+        var value = variableStatement.Value.Generate(ctx);
+        var pointer = LLVM.BuildAlloca(ctx.Builder, LLVM.Int32Type(),variableStatement.Name);
+        ctx.Scope.TryCreateVariable(new LocalVariable(variableStatement.Name, ctx.Scope, value, pointer, new LLVMValueRef()));
+        return LLVM.BuildStore(ctx.Builder, value, pointer);
     }
 
     private static LLVMValueRef GenerateSwitchStatement(CompilationContext ctx, BoundSwitchStatement switchStatement)

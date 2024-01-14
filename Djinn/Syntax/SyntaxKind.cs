@@ -105,7 +105,12 @@ public enum SyntaxKind : long
     Import,
     Switch,
     Case,
-    Default
+    Default,
+    For,
+    While,
+    Do,
+    ForEach,
+    ReadVariable
 }
 
 public static class SyntaxKindExtensions

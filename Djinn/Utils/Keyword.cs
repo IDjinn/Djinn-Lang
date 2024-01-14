@@ -50,7 +50,8 @@ public enum Keyword
     
     Switch,
     Case,
-    Default
+    Default,
+    ForEach
 }
 
 public static class KeywordExtensions
@@ -86,6 +87,11 @@ public static class KeywordExtensions
             "switch" => Keyword.Switch,
             "case" => Keyword.Case,
             "default" => Keyword.Default,
+            
+            "do" => Keyword.Do,
+            "while" => Keyword.While,
+            "for" => Keyword.For,
+            "foreach" => Keyword.ForEach,
             _ => Keyword.Unknown
         };
     }
@@ -121,6 +127,11 @@ public static class KeywordExtensions
             Keyword.Switch => SyntaxKind.Switch,
             Keyword.Case =>  SyntaxKind.Case,
             Keyword.Default =>  SyntaxKind.Default,
+            
+            Keyword.For => SyntaxKind.For,
+            Keyword.While => SyntaxKind.While,
+            Keyword.Do => SyntaxKind.Do,
+            Keyword.ForEach => SyntaxKind.ForEach,
             
             
             _ => SyntaxKind.BadToken

@@ -6,6 +6,8 @@ using Djinn.Statements;
 using Djinn.Syntax;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using BinaryExpressionSyntax = Djinn.Expressions.BinaryExpressionSyntax;
 
 namespace Djinn.Parsing;
 
@@ -62,9 +64,10 @@ public class Parser
 
     public IStatement ParseStatement()
     {
+        if (CurrentIsType() && TryParseVariableDeclaration(out var statement)) return statement;
+        
         return Current.Kind switch
         {
-            SyntaxKind.VariableAssignmentExpression => ParseVariableAssignmentExpression(),
             SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(), // TODO: IS THIS USED?
             SyntaxKind.OpenBrace => ParseBlockStatement(),
             SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
@@ -75,6 +78,30 @@ public class Parser
             SyntaxKind.BadToken or SyntaxKind.EndOfFileToken => throw new ArgumentException("EOF"),
             _ => ExpectingStatement(),
         };
+    }
+
+    private bool TryParseVariableDeclaration([NotNullWhen(true)] out VariableDeclarationStatement? statement)
+    {
+        statement = default;
+        var type = Consume(SyntaxKind.Type);
+        if (!TryMatch(SyntaxKind.Identifier, out var identifier))
+            return false;
+
+        if (!TryMatch(SyntaxKind.EqualsOperator, out var _))
+            return false;
+
+        var expression = ParsePrimaryExpression();
+        statement = new VariableDeclarationStatement(
+            type,
+            identifier,
+            expression
+            );
+        return true;
+    }
+
+    private bool CurrentIsType()
+    {
+        return Current.Kind.HasFlag(SyntaxKind.Type);
     }
 
     private SwitchStatement ParseSwitchStatement()

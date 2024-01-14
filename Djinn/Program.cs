@@ -18,12 +18,8 @@ public static class Program
 
         var source = $$"""
                        function int1 main() {
-                           switch (2) {
-                              case 1: {
-                                  ret -1;
-                              }
-                          }
-                          ret 1;
+                            int32 storage = 34;
+                            ret storage;
                        }
                        """;
 

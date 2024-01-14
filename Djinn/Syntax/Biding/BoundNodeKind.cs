@@ -20,7 +20,8 @@ public enum BoundNodeKind
     If,
     Import,
     Switch,
-    Case
+    Case,
+    DeclareVariable
 }
 
 public static class BoundNodeKindExtensions

@@ -69,6 +69,11 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindExpression(expressionSyntax, boundScope);
     }
 
+    public IBoundExpression VisitReadVariableExpression(ReadVariableExpression readVariableExpression, BoundScope boundScope)
+    {
+        return BindExpression(readVariableExpression, boundScope);
+    }
+
     public IBoundStatement Visit(DiscardExpressionResultStatement discardExpressionResult, BoundScope boundScope)
     {
         return BindStatement(discardExpressionResult, boundScope);
@@ -109,6 +114,11 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         throw new NotImplementedException();
     }
 
+    public IBoundStatement Visit(VariableDeclarationStatement variableDeclaration, BoundScope boundScope)
+    {
+        throw new NotImplementedException();
+    }
+
     public IEnumerable<IBoundStatement> Bind(SyntaxTree syntaxTree)
     {
         var globalScope = new BoundGlobalScope("global");
@@ -133,9 +143,28 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             IfStatement ifStatement => BindIfStatement(ifStatement, boundScope),
            ImportStatement importStatement => BindImportStatement(importStatement,boundScope),
             SwitchStatement switchStatement => BindSwitchStatement(switchStatement, boundScope),
+            VariableDeclarationStatement variableDeclarationStatement => BindVariableDeclarationStatement(variableDeclarationStatement, boundScope),
             _ => Reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
+    }
+
+    private IBoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement, BoundScope boundScope)
+    {
+        var identifier = (string)variableDeclarationStatement.Identifier.Value;
+        if (boundScope.FindVariable(identifier).HasValue)
+            throw new NotImplementedException("Shadow variables doesn't supported yet.");
+
+        var type = boundScope.FindType((string)variableDeclarationStatement.Type.Value);
+        if (!type.HasValue)
+            throw new NotImplementedException("Not supported custom types yet.");
+        
+        boundScope.CreateVariable(new BoundVariable(identifier, type.Value.Type, boundScope));
+        return new BoundVariableStatement(
+            type.Value,
+            identifier,
+            BindExpression(variableDeclarationStatement.Expression, boundScope)
+            );
     }
 
     private BoundSwitchStatement BindSwitchStatement(SwitchStatement switchStatement, BoundScope boundScope)
@@ -267,6 +296,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             ConstantBooleanExpression constantBoolean => BindLiteralBoolean(constantBoolean, boundScope),
             FunctionCallExpression functionCallExpression => BindFunctionCallExpression(functionCallExpression, boundScope),
             IdentifierExpression nameExpression => BindIdentifierExpression(nameExpression, boundScope),
+            ReadVariableExpression readVariableExpression => throw new NotImplementedException(),
             _ => throw new NotImplementedException()
         };
     }
@@ -276,6 +306,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         var identifier = (string) identifierExpression.Identifier.Value;
         var variable = boundScope.FindVariable(identifier);
 
+        if (!variable.HasValue)
+            throw new NotImplementedException();
 
         return new BoundReadVariableExpression(variable.Value);
 

@@ -12,7 +12,7 @@ public interface IScope
     public IReadOnlyDictionary<string, CompilationType> Types { get; }
     public IReadOnlyDictionary<string, LLVMValueRef> Functions { get; }
 
-    public TVariable? FindVariable<TVariable>(string identifier) where TVariable : IVariable;
+    public Optional<TVariable> FindVariable<TVariable>(string identifier) where TVariable : IVariable;
     public Optional<LLVMValueRef> FindFunction(string identifier);
     public void TryCreateVariable(IVariable variable);
     public void TryCreateFunction(string identifier, LLVMValueRef functionPointer);

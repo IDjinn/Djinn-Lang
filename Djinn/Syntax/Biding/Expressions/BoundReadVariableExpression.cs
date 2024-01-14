@@ -14,13 +14,6 @@ public record BoundReadVariableExpression(BoundVariable BoundVariable) : IBoundE
 
     public LLVMValueRef Evaluate(IBoundExpressionGenerator expressionGenerator, BoundScope boundScope)
     {
-        var boundVariable = boundScope.FindVariable(BoundVariable.Identifier);
-        if(!boundVariable.HasValue)  throw new NotImplementedException();
-
-        var variable = boundVariable.Value;
-        // var a = LLVM.GetNamedFunction(expressionGenerator.Module,"main");
-        // var b = LLVM.BuildLoad(expressionGenerator.Builder,variable.Pointer.Value, "olocomeu");
-        // var test =LLVM.BuildAdd(expressionGenerator.Builder, LLVM.GetParam(function, (uint)0), LLVM.GetParam(function, (uint)1),"test")
         return default;
     }
 
@@ -29,10 +22,14 @@ public record BoundReadVariableExpression(BoundVariable BoundVariable) : IBoundE
         if (ctx.Scope is CompilationFunctionScope fnScope)
         {
             var parameter = fnScope.FindVariable<ParameterVariable>(BoundVariable.Identifier);
-
-
-            return parameter.Pointer;
+            if (parameter.HasValue)
+                return parameter.Value.Pointer;
         }
+
+        var variable = ctx.Scope.FindVariable<LocalVariable>(BoundVariable.Identifier);
+        if (variable.HasValue)
+            return LLVM.BuildLoad(ctx.Builder, variable.Value.Pointer, "read");
+        
         throw new NotImplementedException();
     }
 }

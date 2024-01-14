@@ -20,12 +20,10 @@ public record CompilationScope(
     public IReadOnlyDictionary<string, CompilationType> Types => _types.AsReadOnly();
     public IReadOnlyDictionary<string, LLVMValueRef> Functions => _functions.AsReadOnly();
 
-    public TVariable? FindVariable<TVariable>(string identifier) where TVariable : IVariable
+    public Optional<TVariable> FindVariable<TVariable>(string identifier) where TVariable : IVariable
     {
         if (_variables.TryGetValue(identifier, out var variable))
-        {
-            return (TVariable)variable;
-        }
+            return variable is TVariable tVar ? tVar : default(Optional<TVariable>);
 
         return default;
     }
