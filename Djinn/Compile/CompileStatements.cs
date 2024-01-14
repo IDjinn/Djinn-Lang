@@ -1,4 +1,5 @@
-﻿using Djinn.Compile.Scopes;
+﻿using System.Diagnostics;
+using Djinn.Compile.Scopes;
 using Djinn.Compile.Variables;
 using Djinn.Syntax;
 using Djinn.Syntax.Biding.Scopes;
@@ -20,8 +21,50 @@ public static class CompileStatements
             BoundDiscardStatement discard => GenerateDiscardStatement(ctx,discard),
             BoundIfStatement ifStatement => GenerateIfStatement(ctx, ifStatement),
             BoundImportStatement importStatement => GenerateImportStatement(ctx, importStatement),
+            BoundSwitchStatement switchStatement => GenerateSwitchStatement(ctx,switchStatement),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
+    }
+
+    private static LLVMValueRef GenerateSwitchStatement(CompilationContext ctx, BoundSwitchStatement switchStatement)
+    {
+        var expression = switchStatement.Expression.Generate(ctx);
+        Debug.Assert(expression.Pointer != IntPtr.Zero);
+
+        var functionPointer = ctx.Stack.Peek();
+        var defaultSwitch = LLVM.AppendBasicBlock(functionPointer, "default_switch_branch");
+        var afterSwitch = LLVM.AppendBasicBlock(functionPointer, "resume_switch");
+        var swticher = LLVM.BuildSwitch(ctx.Builder, expression, defaultSwitch, (uint)switchStatement.Cases.Count());
+        foreach (var switchStatementCase in switchStatement.Cases)
+        {
+            if (switchStatementCase.Expression is not null)
+            {
+                var caseBlock = LLVM.AppendBasicBlock(functionPointer, "case");
+                LLVM.PositionBuilderAtEnd(ctx.Builder, caseBlock);
+                foreach (var statement in switchStatementCase.Block.Statements)
+                {
+                    GenerateStatement(ctx, statement);
+                }
+
+                LLVM.BuildBr(ctx.Builder, afterSwitch);
+                swticher.AddCase(switchStatementCase.Expression.Generate(ctx), caseBlock);
+            }
+        }
+
+        {
+            LLVM.PositionBuilderAtEnd(ctx.Builder, defaultSwitch);
+            var defaultCase = switchStatement.Cases.FirstOrDefault(x => x.Expression is null);
+            Debug.Assert(defaultCase is not null);
+            foreach (var statement in defaultCase.Block.Statements)
+            {
+                GenerateStatement(ctx, statement);
+            }
+
+            LLVM.BuildBr(ctx.Builder, afterSwitch);
+        }
+        
+        LLVM.PositionBuilderAtEnd(ctx.Builder, afterSwitch);
+        return afterSwitch;
     }
 
     private static LLVMValueRef GenerateImportStatement(CompilationContext ctx, BoundImportStatement importStatement)

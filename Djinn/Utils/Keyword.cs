@@ -47,6 +47,10 @@ public enum Keyword
     Function,
     Var,
     Import,
+    
+    Switch,
+    Case,
+    Default
 }
 
 public static class KeywordExtensions
@@ -79,7 +83,9 @@ public static class KeywordExtensions
             "else" => Keyword.Else,
             
             "import" => Keyword.Import,
-            
+            "switch" => Keyword.Switch,
+            "case" => Keyword.Case,
+            "default" => Keyword.Default,
             _ => Keyword.Unknown
         };
     }
@@ -112,7 +118,11 @@ public static class KeywordExtensions
             Keyword.Null => SyntaxKind.Null,
             // Keyword.Var => SyntaxKind.VariableDeclaration,
             Keyword.Import => SyntaxKind.Import,
-
+            Keyword.Switch => SyntaxKind.Switch,
+            Keyword.Case =>  SyntaxKind.Case,
+            Keyword.Default =>  SyntaxKind.Default,
+            
+            
             _ => SyntaxKind.BadToken
         };
     }

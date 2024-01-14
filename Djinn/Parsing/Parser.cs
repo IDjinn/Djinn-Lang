@@ -4,6 +4,7 @@ using Djinn.Expressions;
 using Djinn.Lexing;
 using Djinn.Statements;
 using Djinn.Syntax;
+using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 
 namespace Djinn.Parsing;
@@ -69,10 +70,39 @@ public class Parser
             SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
             SyntaxKind.Identifier => ParseIdentifier(),
             SyntaxKind.Import => ParseImport(),
+            SyntaxKind.Switch => ParseSwitchStatement(),
             
             SyntaxKind.BadToken or SyntaxKind.EndOfFileToken => throw new ArgumentException("EOF"),
             _ => ExpectingStatement(),
         };
+    }
+
+    private SwitchStatement ParseSwitchStatement()
+    {
+        Consume(SyntaxKind.Switch);
+        Consume(SyntaxKind.OpenParenthesis);
+        var switching = ParsePrimaryExpression();
+        Consume(SyntaxKind.CloseParenthesis);
+        Consume(SyntaxKind.OpenBrace);
+        var cases = new List<SwitchCaseStatement>();
+        while (!TryMatch(SyntaxKind.CloseBrace, out _))
+        {
+            var caseOrDefault = ConsumeOptional(SyntaxKind.Case) ?? ConsumeOptional(SyntaxKind.Default);
+            if (caseOrDefault is null)
+            {
+                DiagnosticError<bool>("Expecting case or default statement of switch expression.");
+                continue;
+            }
+
+            if (caseOrDefault.Kind == SyntaxKind.Default)
+            {
+                cases.Add(new SwitchCaseStatement(null, ParseBlockStatement()));
+                continue;
+            }
+            
+            cases.Add(new SwitchCaseStatement(ParsePrimaryExpression(), ParseBlockStatement()));
+        }
+        return new SwitchStatement(switching, cases);
     }
 
     private IStatement ParseImport()
@@ -120,7 +150,7 @@ public class Parser
     {
         Consume(SyntaxKind.OpenBrace);
         var statements = new List<IStatement>();
-        while (HasCurrent && !TryMatchExact(SyntaxKind.CloseBrace, out _))
+        while (HasCurrent && !TryMatchExact(SyntaxKind.CloseBrace, out var test))
         {
             statements.Add(ParseStatement()!);
         }
@@ -360,6 +390,7 @@ public class Parser
         var skip = _index + offset;
         if (skip >= _tokens.Count)
         {
+            Debug.Fail($"Out of bounds to peek offset {offset} token");
             DiagnosticError<SyntaxToken>($"Out of bounds to peek offset {offset} token");
             return SyntaxToken.BadToken;
         }
@@ -382,6 +413,7 @@ public class Parser
         var token = Peek(offset);
         if (!token.Kind.HasFlag(kind) && token.Kind != kind)
         {
+            Debug.Fail($"Expected token of kind '{kind}' but got '{token?.Kind}'");
             DiagnosticError<SyntaxToken>($"Expected token of kind '{kind}' but got '{token?.Kind}'");
             return SyntaxToken.BadToken;
         }
@@ -409,6 +441,7 @@ public class Parser
 
     public T Diagnostic<T>(DiagnosticSeverity severity, string message)
     {
+        Debug.Fail(message);
         _diagnostics.Add(new Diagnostic(new Position(_index), message, severity));
         _index++;
         return default!;

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Djinn.Expressions;
 using Djinn.Statements;
 using Djinn.Syntax.Biding.Expressions;
@@ -103,6 +104,11 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         throw new NotImplementedException();
     }
 
+    public IBoundStatement Visit(SwitchStatement switchStatement, BoundScope boundScope)
+    {
+        throw new NotImplementedException();
+    }
+
     public IEnumerable<IBoundStatement> Bind(SyntaxTree syntaxTree)
     {
         var globalScope = new BoundGlobalScope("global");
@@ -126,9 +132,27 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             DiscardExpressionResultStatement discartExpressionResult => BindDiscartExpressionResult(discartExpressionResult, boundScope),
             IfStatement ifStatement => BindIfStatement(ifStatement, boundScope),
            ImportStatement importStatement => BindImportStatement(importStatement,boundScope),
+            SwitchStatement switchStatement => BindSwitchStatement(switchStatement, boundScope),
             _ => Reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
+    }
+
+    private BoundSwitchStatement BindSwitchStatement(SwitchStatement switchStatement, BoundScope boundScope)
+    {
+        var switching = BindExpression(switchStatement.Expression, boundScope);
+        var cases = new List<BoundSwitchCase>();
+        foreach (var switchCase in switchStatement.Cases)
+        {
+            IBoundExpression? expression = null;
+            if (switchCase.Expression is not null)
+                expression = BindExpression(switchStatement.Expression, boundScope);
+            
+            var block = BindBlockStatement(switchCase.Block, boundScope);
+            cases.Add(new BoundSwitchCase(expression, block));
+        }
+
+        return new BoundSwitchStatement(switching, cases);
     }
 
     private IBoundStatement BindImportStatement(ImportStatement importStatement, BoundScope boundScope)

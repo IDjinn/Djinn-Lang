@@ -1,4 +1,5 @@
 using Djinn.Syntax.Biding.Scopes;
+using Djinn.Syntax.Biding.Statements;
 
 namespace Djinn.Statements;
 
@@ -11,4 +12,5 @@ public interface IStatementVisitor<T>
     public T Visit(FunctionDeclarationStatement functionDeclarationStatement, BoundScope boundScope);
     public T Visit(IfStatement functionDeclarationStatement, BoundScope boundScope);
     public T Visit(ImportStatement importStatement, BoundScope boundScope);
+    public T Visit(SwitchStatement switchStatement, BoundScope boundScope);
 }

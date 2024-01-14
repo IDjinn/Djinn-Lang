@@ -102,7 +102,10 @@ public enum SyntaxKind : long
     BangEqualsToken,
     IfStatement,
     ImportStatement,
-    Import
+    Import,
+    Switch,
+    Case,
+    Default
 }
 
 public static class SyntaxKindExtensions

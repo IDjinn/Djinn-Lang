@@ -18,7 +18,9 @@ public enum BoundNodeKind
     FunctionCall,
     Discard,
     If,
-    Import
+    Import,
+    Switch,
+    Case
 }
 
 public static class BoundNodeKindExtensions

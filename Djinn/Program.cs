@@ -17,12 +17,18 @@ public static class Program
     {
 
         var source = $$"""
-                       import "other.ll";
-                       
-                       function int1 main() {
-                            printf("justTrue = %d", justTrue());
+                        function void main() {
+                            switch (3) {
+                                case 3: {
+                                    printf("yey");
+                                }
+                                
+                                default: {
+                                    printf("fail");
+                                }
+                            }
                             ret 0;
-                       }
+                        }
                        """;
 
         // await CompilerTools.CompileAsync(source);
