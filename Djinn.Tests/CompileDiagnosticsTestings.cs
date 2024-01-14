@@ -28,7 +28,7 @@ public class CompileDiagnosticsTestings : TestsUtilities
         Assert.Empty(tree.Diagnostics);
         Assert.Empty(binder.Reporter.Diagnostics);
 
-        var compilerOptions = new Compiler.CompilerOptions(nameof(should_just_compile_no_errors));
+        var compilerOptions = new Compiler.CompilerOptions(nameof(should_just_compile_no_errors), nameof(should_just_compile_no_errors));
         var ir = CompilerTools.GenerateIR(source);
         var compileResult = await CompilerTools.ClangCompileAsync(ir, compilerOptions);
         var ran = await CompilerTools.RunAsync(compilerOptions.OutputFileName);

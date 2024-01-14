@@ -1,0 +1,25 @@
+﻿; ModuleID = 'test_true_branch_switch'
+source_filename = "test_true_branch_switch"
+target datalayout = "e-m:w-i64:64-f80:128-n8:16:32:64-S128"
+
+declare i32 @printf(i8*, ...)
+
+declare i32 @scanf(i8*)
+
+define i32 @main() {
+entry:
+  switch i32 1, label %default_switch_branch [
+    i32 1, label %case
+  ]
+
+default_switch_branch:                            ; preds = %entry
+  ret i32 -1
+  br label %exit
+
+exit:                                             ; preds = %default_switch_branch, %case
+  ret i32 -2
+
+case:                                             ; preds = %entry
+  ret i32 1
+  br label %exit
+}

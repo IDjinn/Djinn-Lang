@@ -12,7 +12,8 @@ namespace Djinn.Compile;
 public static class Compiler
 {
     public readonly record struct CompilerOptions(
-        string OutputFileName
+        string OutputFileName,
+        string ModuleName
     );
     public readonly record struct CompilationResult(
         string? Ir,
@@ -46,7 +47,7 @@ public static class Compiler
         LLVM.InitializeX86AsmParser();
         
         var globalScope = new CompilationScope("global");
-        var module = LLVM.ModuleCreateWithName("main");
+        var module = LLVM.ModuleCreateWithName(options.ModuleName);
         var builder = LLVM.CreateBuilder();
         var context = LLVM.ContextCreate();
 

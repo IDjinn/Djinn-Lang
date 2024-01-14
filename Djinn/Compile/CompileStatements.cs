@@ -33,7 +33,7 @@ public static class CompileStatements
 
         var functionPointer = ctx.Stack.Peek();
         var defaultSwitch = LLVM.AppendBasicBlock(functionPointer, "default_switch_branch");
-        var afterSwitch = LLVM.AppendBasicBlock(functionPointer, "resume_switch");
+        var exitSwitch = LLVM.AppendBasicBlock(functionPointer, "exit");
         var swticher = LLVM.BuildSwitch(ctx.Builder, expression, defaultSwitch, (uint)switchStatement.Cases.Count());
         foreach (var switchStatementCase in switchStatement.Cases)
         {
@@ -46,7 +46,7 @@ public static class CompileStatements
                     GenerateStatement(ctx, statement);
                 }
 
-                LLVM.BuildBr(ctx.Builder, afterSwitch);
+                LLVM.BuildBr(ctx.Builder, exitSwitch);
                 swticher.AddCase(switchStatementCase.Expression.Generate(ctx), caseBlock);
             }
         }
@@ -54,17 +54,20 @@ public static class CompileStatements
         {
             LLVM.PositionBuilderAtEnd(ctx.Builder, defaultSwitch);
             var defaultCase = switchStatement.Cases.FirstOrDefault(x => x.Expression is null);
-            Debug.Assert(defaultCase is not null);
-            foreach (var statement in defaultCase.Block.Statements)
+            if (defaultCase is not null)
             {
-                GenerateStatement(ctx, statement);
+                Debug.Assert(defaultCase is not null);
+                foreach (var statement in defaultCase.Block.Statements)
+                {
+                    GenerateStatement(ctx, statement);
+                }
             }
 
-            LLVM.BuildBr(ctx.Builder, afterSwitch);
+            LLVM.BuildBr(ctx.Builder, exitSwitch);
         }
         
-        LLVM.PositionBuilderAtEnd(ctx.Builder, afterSwitch);
-        return afterSwitch;
+        LLVM.PositionBuilderAtEnd(ctx.Builder, exitSwitch);
+        return exitSwitch;
     }
 
     private static LLVMValueRef GenerateImportStatement(CompilationContext ctx, BoundImportStatement importStatement)

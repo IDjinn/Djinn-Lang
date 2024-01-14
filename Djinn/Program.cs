@@ -17,24 +17,20 @@ public static class Program
     {
 
         var source = $$"""
-                        function void main() {
-                            switch (3) {
-                                case 3: {
-                                    printf("yey");
-                                }
-                                
-                                default: {
-                                    printf("fail");
-                                }
-                            }
-                            ret 0;
-                        }
+                       function int1 main() {
+                           switch (2) {
+                              case 1: {
+                                  ret -1;
+                              }
+                          }
+                          ret 1;
+                       }
                        """;
 
         // await CompilerTools.CompileAsync(source);
         // return;
 
-        var options = new Compiler.CompilerOptions("test");
+        var options = new Compiler.CompilerOptions("test", "test");
        var result = Compiler.Compile(source, options);
        Compiler.WriteToFile(result, options);
     }

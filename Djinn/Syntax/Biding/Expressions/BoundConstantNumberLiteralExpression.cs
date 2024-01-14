@@ -5,7 +5,6 @@ using LLVMSharp;
 
 namespace Djinn.Syntax.Biding.Expressions;
 
-[DebuggerDisplay("Literal => '{Number.Value}' of type '{Type.GetType().Name}'")]
 public record BoundConstantNumberLiteralExpression(
     INumber Number
     ) : IBoundExpression 

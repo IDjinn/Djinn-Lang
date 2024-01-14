@@ -79,9 +79,9 @@ namespace Djinn.Tools
             }
         }
 
-        public static Compiler.CompilationResult GenerateIR(string source)
+        public static Compiler.CompilationResult GenerateIR(string source, Compiler.CompilerOptions? options = null)
         {
-            return Compiler.Compile(source, new Compiler.CompilerOptions("test"));
+            return Compiler.Compile(source, options ?? new Compiler.CompilerOptions("test", "test"));
         }
 
         public static async Task<string> ClangCompileAsync(Compiler.CompilationResult compilationResult,
@@ -105,8 +105,8 @@ namespace Djinn.Tools
         );
         public static async Task<CompileAndRunResult> CompileAndRun(string source, [CallerMemberName] string caller = null)
         {
-            var compilerOptions = new Compiler.CompilerOptions($"./temp/{caller}");
-            var ir = GenerateIR(source);
+            var compilerOptions = new Compiler.CompilerOptions($"./temp/{caller}", caller);
+            var ir = GenerateIR(source, compilerOptions);
             await ClangCompileAsync(ir, compilerOptions);
             await RunAsync(compilerOptions.OutputFileName);
             return new(ir.Ir,await RunErrorLevelCommand(compilerOptions.OutputFileName));

@@ -146,7 +146,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         {
             IBoundExpression? expression = null;
             if (switchCase.Expression is not null)
-                expression = BindExpression(switchStatement.Expression, boundScope);
+                expression = BindExpression(switchCase.Expression, boundScope);
             
             var block = BindBlockStatement(switchCase.Block, boundScope);
             cases.Add(new BoundSwitchCase(expression, block));
