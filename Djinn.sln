@@ -6,9 +6,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extra", "Extra", "{2668AD51
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		Readme.md = Readme.md
+		.gitattributes = .gitattributes
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Djinn.Tests", "Djinn.Tests\Djinn.Tests.csproj", "{FAF44232-FA32-427D-8A39-A49C9649227E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Djinn.Tools", "Djinn.Tools\Djinn.Tools.csproj", "{C42319E9-8D41-410C-83ED-8A16FCE358B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +27,9 @@ Global
 		{FAF44232-FA32-427D-8A39-A49C9649227E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAF44232-FA32-427D-8A39-A49C9649227E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAF44232-FA32-427D-8A39-A49C9649227E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C42319E9-8D41-410C-83ED-8A16FCE358B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C42319E9-8D41-410C-83ED-8A16FCE358B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C42319E9-8D41-410C-83ED-8A16FCE358B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C42319E9-8D41-410C-83ED-8A16FCE358B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

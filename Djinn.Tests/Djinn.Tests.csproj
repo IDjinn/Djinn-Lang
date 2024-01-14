@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -31,7 +31,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Djinn.Tools\Djinn.Tools.csproj" />
         <ProjectReference Include="..\Djinn\Djinn.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Statements\If\IfStatementTestings.test_true_branch.verified.txt">
+        <ParentFile>IfStatementTestings</ParentFile>
+      </None>
     </ItemGroup>
 
 </Project>

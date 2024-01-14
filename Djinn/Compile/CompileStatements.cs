@@ -26,7 +26,7 @@ public static class CompileStatements
 
     private static LLVMValueRef GenerateImportStatement(CompilationContext ctx, BoundImportStatement importStatement)
     {
-        LLVM.CreateMemoryBufferWithContentsOfFile("other.ll", out var buff, out var error);
+        LLVM.CreateMemoryBufferWithContentsOfFile(importStatement.TargetLibrary, out var buff, out var error);
         if (error is not null)
             throw new Exception(error);
         LLVM.ParseIRInContext(LLVM.GetGlobalContext(), buff, out var otherModule, out error);

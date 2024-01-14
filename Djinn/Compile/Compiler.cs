@@ -1,5 +1,9 @@
-﻿using Djinn.Compile.Scopes;
+﻿using System.Runtime.InteropServices;
+using Djinn.Compile.Scopes;
 using Djinn.Compile.Types;
+using Djinn.Lexing;
+using Djinn.Parsing;
+using Djinn.Syntax.Biding;
 using Djinn.Syntax.Biding.Statements;
 using LLVMSharp;
 
@@ -7,8 +11,32 @@ namespace Djinn.Compile;
 
 public static class Compiler
 {
-    public static void Compile(IEnumerable<IBoundStatement> syntaxTree)
+    public readonly record struct CompilerOptions(
+        string OutputFileName
+    );
+    public readonly record struct CompilationResult(
+        string? Ir,
+        CompilationContext Context
+    );
+    
+    public static CompilationResult Compile(string sourceCode, CompilerOptions options)
     {
+        var lexer = new Lexer(sourceCode);
+        var parser = new Parser(lexer);
+        var tree = parser.Parse();
+
+        if (parser.Diagnostics.Any())
+        {
+            throw new Exception();
+        }
+
+        var binder = new Binder();
+        var syntaxTree = binder.Bind(tree);
+        if (binder.Reporter.Diagnostics.Any())
+        {
+            throw new Exception();
+        }
+        
         // LLVM.InitializeAllTargets();
         LLVM.InitializeX86Target();
         LLVM.InitializeX86AsmParser();
@@ -39,9 +67,15 @@ public static class Compiler
         
         LLVM.VerifyModule(ctx.Module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out var error);
         Console.WriteLine(error);
+        
+        var moduleIrResult = LLVM.PrintModuleToString(ctx.Module);
+        return new(Marshal.PtrToStringAnsi(moduleIrResult), ctx);
+    }
 
-        LLVM.DumpModule(ctx.Module);
-        LLVM.PrintModuleToFile(ctx.Module, "test.ll", out error);
+    public static void WriteToFile(CompilationResult compilationResult, CompilerOptions options)
+    {
+        LLVM.DumpModule(compilationResult.Context.Module);
+        LLVM.PrintModuleToFile(compilationResult.Context.Module, $"{options.OutputFileName}.ll", out var error);
         Console.WriteLine(error);
     }
 

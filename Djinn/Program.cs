@@ -13,7 +13,7 @@ public static class Program
     public static extern int printf(string format, params object[] args);
 
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
 
         var source = $$"""
@@ -25,36 +25,11 @@ public static class Program
                        }
                        """;
 
+        // await CompilerTools.CompileAsync(source);
+        // return;
 
-        var lexer = new Lexer(source);
-        var parser = new Parser(lexer);
-        var tree = parser.Parse();
-
-        if (parser.Diagnostics.Any())
-        {
-            throw new Exception();
-        }
-
-        var binder = new Binder();
-        var bindResult = binder.Bind(tree);
-        if (binder.Reporter.Diagnostics.Any())
-        {
-            throw new Exception();
-        }
-        Compiler.Compile(bindResult);
-        return;
-        
-        var compiler = new LLVMCompiler(bindResult);
-        compiler.Compile();
-
-        string moduleError = "";
-        LLVM.VerifyModule(compiler.Module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out moduleError);
-        Console.WriteLine(moduleError);
-
-        string error = "";
-        LLVM.DumpModule(compiler.Module);
-        LLVM.PrintModuleToFile(compiler.Module, "test.ll", out error);
-        Console.WriteLine(error);
-        return;
+        var options = new Compiler.CompilerOptions("test");
+       var result = Compiler.Compile(source, options);
+       Compiler.WriteToFile(result, options);
     }
 }
