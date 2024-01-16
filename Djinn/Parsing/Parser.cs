@@ -6,7 +6,6 @@ using Djinn.Statements;
 using Djinn.Syntax;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using BinaryExpressionSyntax = Djinn.Expressions.BinaryExpressionSyntax;
 
 namespace Djinn.Parsing;
@@ -25,8 +24,6 @@ public class Parser
     private readonly IList<SyntaxToken> _tokens = new List<SyntaxToken>();
     private int _index;
 
-    public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics.AsReadOnly();
-
     public Parser(Lexer lexer)
     {
         _lexer = lexer;
@@ -39,6 +36,8 @@ public class Parser
             _tokens.Add(token);
         }
     }
+
+    public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics.AsReadOnly();
 
     private bool IsEOF => _index >= _tokens.Count;
 
@@ -65,7 +64,7 @@ public class Parser
     public IStatement ParseStatement()
     {
         if (CurrentIsType() && TryParseVariableDeclaration(out var statement)) return statement;
-        
+
         return Current.Kind switch
         {
             SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(), // TODO: IS THIS USED?
@@ -75,7 +74,7 @@ public class Parser
             SyntaxKind.Import => ParseImport(),
             SyntaxKind.Switch => ParseSwitchStatement(),
             SyntaxKind.While => ParseWhileStatement(),
-            
+
             SyntaxKind.BadToken or SyntaxKind.EndOfFileToken => throw new ArgumentException("EOF"),
             _ => ExpectingStatement(),
         };
@@ -98,12 +97,12 @@ public class Parser
         var type = TryPeek(SyntaxKind.Type);
         if (type is null)
             return false;
-        
-        var identifier = TryPeek(SyntaxKind.Identifier,1);
+
+        var identifier = TryPeek(SyntaxKind.Identifier, 1);
         if (identifier is null)
             return false;
-        
-        var equals = TryPeek(SyntaxKind.EqualsOperator,2);
+
+        var equals = TryPeek(SyntaxKind.EqualsOperator, 2);
         if (equals is null)
             return false;
 
@@ -115,7 +114,7 @@ public class Parser
             type,
             identifier,
             expression
-            );
+        );
         return true;
     }
 
@@ -155,9 +154,10 @@ public class Parser
                 cases.Add(new SwitchCaseStatement(null, ParseBlockStatement()));
                 continue;
             }
-            
+
             cases.Add(new SwitchCaseStatement(ParsePrimaryExpression(), ParseBlockStatement()));
         }
+
         return new SwitchStatement(switching, cases);
     }
 
@@ -172,18 +172,18 @@ public class Parser
     {
         var keyword = KeywordExtensions.FromString((string)Current.Value);
         switch (keyword)
-        {  
+        {
             case Keyword.If:
                 return ParseIfStatement();
             case Keyword.Else:
                 return ParseElseStatement();
         }
-        
+
         var expression = ParsePrimaryExpression();
         return expression switch
         {
             FunctionCallExpression call => new DiscardExpressionResultStatement(call),
-            
+
             // if it is a variable, it will be catch here.
             IdentifierExpression identifier => ParseVariableStatement(identifier),
             _ => throw new NotImplementedException(expression.GetType().Name)
@@ -193,7 +193,7 @@ public class Parser
     private IStatement ParseVariableStatement(IdentifierExpression identifier)
     {
         var arithmetic = TryPeek(SyntaxKind.ArithmeticOperators);
-        if (arithmetic is not null )
+        if (arithmetic is not null)
         {
             Advance();
             return arithmetic.Kind switch
@@ -202,14 +202,14 @@ public class Parser
                     identifier.Identifier,
                     identifier.Identifier, // TODO REMOVE ME
                     new BinaryExpressionSyntax(
-                        identifier, 
-                        arithmetic, 
+                        identifier,
+                        arithmetic,
                         new ConstantNumberExpressionSyntax(arithmetic)))
                 ),
                 _ => throw new NotImplementedException($"Kind '{arithmetic.Kind}' is not implemented yet.")
             };
         }
-        
+
         throw new NotImplementedException();
     }
 
@@ -260,6 +260,7 @@ public class Parser
         {
             parameters.Add(ParseParameterExpression());
         }
+
         Consume(SyntaxKind.CloseParenthesis);
 
         return parameters;
@@ -313,9 +314,9 @@ public class Parser
 
     public IExpressionSyntax ParseExpression(int parentPrecedence = 0)
     {
-        IExpressionSyntax left;        
+        IExpressionSyntax left;
         var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
-        if (!unaryOperatorPrecedence.HasValue  || parentPrecedence > unaryOperatorPrecedence.Value)
+        if (!unaryOperatorPrecedence.HasValue || parentPrecedence > unaryOperatorPrecedence.Value)
         {
             left = ParsePrimaryExpression();
         }
@@ -339,13 +340,14 @@ public class Parser
 
         return left;
     }
+
     public IExpressionSyntax ParsePrimaryExpression()
     {
         if (TryMatch(SyntaxKind.EndOfFileToken, out var eof))
             throw new Exception("eof");
         if (TryMatch(SyntaxKind.BadToken, out var badToken))
             throw new Exception("badtoken");
-        
+
         if (TryMatch(SyntaxKind.StringLiteral, out var stringToken))
             return new ConstantStringExpressionSyntax(stringToken);
         if (TryMatch(SyntaxKind.NumberLiteral, out var numberToken))
@@ -406,6 +408,7 @@ public class Parser
         {
             return expression;
         }
+
         return DiagnosticError<ConstantBooleanExpression>("Invalid expression syntax");
     }
 

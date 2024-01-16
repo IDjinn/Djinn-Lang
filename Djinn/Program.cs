@@ -1,9 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using Djinn.Compile;
-using Djinn.Lexing;
-using Djinn.Parsing;
-using Djinn.Syntax.Biding;
-using LLVMSharp;
 
 namespace Djinn;
 
@@ -15,7 +11,6 @@ public static class Program
 
     public static async Task Main(string[] args)
     {
-
         var source = $$"""
                        function int1 main() {
                             int32 counter = 0;
@@ -31,7 +26,7 @@ public static class Program
         // return;
 
         var options = new Compiler.CompilerOptions("test", "test");
-       var result = Compiler.Compile(source, options);
-       Compiler.WriteToFile(result, options);
+        var result = Compiler.Compile(source, options);
+        Compiler.WriteToFile(result, options);
     }
 }

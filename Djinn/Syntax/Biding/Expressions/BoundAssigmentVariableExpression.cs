@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata;
-using Djinn.Compile;
+﻿using Djinn.Compile;
 using Djinn.Syntax.Biding.Scopes;
 using Djinn.Syntax.Biding.Scopes.Variables;
 using LLVMSharp;
@@ -10,10 +9,11 @@ namespace Djinn.Syntax.Biding.Expressions;
 public record BoundAssigmentVariableExpression(
     BoundVariable Variable,
     IBoundExpression Expression
-    ) : IBoundExpression
+) : IBoundExpression
 {
     public BoundNodeKind Kind => BoundNodeKind.AssigmentVariable;
     public IType Type { get; }
+
     public LLVMValueRef Evaluate(IBoundExpressionGenerator expressionGenerator, BoundScope boundScope)
     {
         throw new NotImplementedException();
@@ -26,7 +26,7 @@ public record BoundAssigmentVariableExpression(
         {
             throw new NotImplementedException();
         }
-        
+
         var value = Expression.Generate(ctx);
         return LLVM.BuildStore(ctx.Builder, value, variable.Value.Pointer);
     }

@@ -1,7 +1,5 @@
-using Djinn.Compile;
 using Djinn.Syntax;
 using Djinn.Syntax.Biding.Scopes;
-using LLVMSharp;
 
 namespace Djinn.Statements;
 
@@ -17,6 +15,7 @@ public record BlockStatement : IStatement
     public IEnumerable<IStatement> Statements => _statements.ToArray();
     public static BlockStatement Empty => new BlockStatement(new IStatement[] { });
     public SyntaxKind Kind => SyntaxKind.BlockStatement;
+
     public T Visit<T>(IStatementVisitor<T> visitor, BoundScope boundScope)
     {
         return visitor.Visit(this, boundScope);

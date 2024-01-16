@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Djinn.Syntax.Biding.Scopes.Types;
 using Djinn.Syntax.Biding.Scopes.Variables;
-using LLVMSharp;
 using Microsoft.CodeAnalysis;
 
 namespace Djinn.Syntax.Biding.Scopes;
@@ -11,8 +10,8 @@ namespace Djinn.Syntax.Biding.Scopes;
 [DebuggerDisplay("Scope=[{Namespace}]")]
 public record BoundScope
 {
-    public string Namespace { get; private init; }
-    public Optional<BoundScope> ParentScope { get; private init; }
+    private IDictionary<string, BoundType> _types = new ConcurrentDictionary<string, BoundType>();
+    private IDictionary<string, BoundVariable> _variables = new ConcurrentDictionary<string, BoundVariable>();
 
     public BoundScope(string nameSpace, Optional<BoundScope> parentScope = default)
     {
@@ -20,11 +19,12 @@ public record BoundScope
         ParentScope = parentScope;
     }
 
-    private IDictionary<string, BoundType> _types = new ConcurrentDictionary<string, BoundType>();
-    private IDictionary<string, BoundVariable> _variables = new ConcurrentDictionary<string, BoundVariable>();
+    public string Namespace { get; private init; }
+    public Optional<BoundScope> ParentScope { get; private init; }
 
     public ReadOnlyDictionary<string, BoundVariable> Variables => _variables.AsReadOnly();
     public ReadOnlyDictionary<string, BoundType> Types => _types.AsReadOnly();
+
     public void CreateVariable(BoundVariable boundVariable)
     {
         _variables.Add(boundVariable.Identifier, boundVariable);

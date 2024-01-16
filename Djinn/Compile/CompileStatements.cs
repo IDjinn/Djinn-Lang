@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics;
-using System.Linq.Expressions;
 using Djinn.Compile.Scopes;
 using Djinn.Compile.Variables;
 using Djinn.Syntax;
 using Djinn.Syntax.Biding.Expressions;
-using Djinn.Syntax.Biding.Scopes;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 using LLVMSharp;
@@ -20,10 +18,10 @@ public static class CompileStatements
             BoundReturnStatement ret => GenerateReturnStatement(ctx, ret),
             BoundBlockStatement block => GenerateBlockStatement(ctx, block),
             BoundFunctionStatement function => GenerateFunctionStatement(ctx, function),
-            BoundDiscardStatement discard => GenerateDiscardStatement(ctx,discard),
+            BoundDiscardStatement discard => GenerateDiscardStatement(ctx, discard),
             BoundIfStatement ifStatement => GenerateIfStatement(ctx, ifStatement),
             BoundImportStatement importStatement => GenerateImportStatement(ctx, importStatement),
-            BoundSwitchStatement switchStatement => GenerateSwitchStatement(ctx,switchStatement),
+            BoundSwitchStatement switchStatement => GenerateSwitchStatement(ctx, switchStatement),
             BoundVariableStatement variableStatement => GenerateVariableStatement(ctx, variableStatement),
             BoundWhileStatement whileStatement => GenerateWhileStatement(ctx, whileStatement),
             _ => throw new NotImplementedException(statement.GetType().FullName)
@@ -43,15 +41,16 @@ public static class CompileStatements
 
         LLVM.BuildBr(ctx.Builder, whileCheck);
         LLVM.PositionBuilderAtEnd(ctx.Builder, whileCheck);
-  
+
         LLVMValueRef comparison;
         // TODO: THIS MUST BE DYNAMIC.
-        if (whileStatement.Expression.Type.GetType().IsInstanceOfType(new Bool()) && whileStatement.Expression is BoundBinaryExpression bin) // THIS IS A LOGICAL EXPRESSION
+        if (whileStatement.Expression.Type.GetType().IsInstanceOfType(new Bool()) &&
+            whileStatement.Expression is BoundBinaryExpression bin) // THIS IS A LOGICAL EXPRESSION
         {
-           var left= bin.Left.Generate(ctx);
-           var op = bin.Operator.OperatorKind.ToLLVMIntPredicate();
-           var right= bin.Right.Generate(ctx);
-            comparison= LLVM.BuildICmp(ctx.Builder,
+            var left = bin.Left.Generate(ctx);
+            var op = bin.Operator.OperatorKind.ToLLVMIntPredicate();
+            var right = bin.Right.Generate(ctx);
+            comparison = LLVM.BuildICmp(ctx.Builder,
                 op,
                 left,
                 right,
@@ -60,7 +59,7 @@ public static class CompileStatements
         else
         {
             var expression = whileStatement.Expression.Generate(ctx);
-            comparison= LLVM.BuildICmp(ctx.Builder,
+            comparison = LLVM.BuildICmp(ctx.Builder,
                 LLVMIntPredicate.LLVMIntEQ,
                 expression,
                 Integer1.GenerateFromValue((Integer1)1),
@@ -68,16 +67,18 @@ public static class CompileStatements
         }
 
         LLVM.BuildCondBr(ctx.Builder, comparison, whileBlock, whileExit);
-        
+
         LLVM.PositionBuilderAtEnd(ctx.Builder, whileExit);
         return whileExit;
     }
 
-    private static LLVMValueRef GenerateVariableStatement(CompilationContext ctx, BoundVariableStatement variableStatement)
+    private static LLVMValueRef GenerateVariableStatement(CompilationContext ctx,
+        BoundVariableStatement variableStatement)
     {
         var value = variableStatement.Value.Generate(ctx);
-        var pointer = LLVM.BuildAlloca(ctx.Builder, LLVM.Int32Type(),variableStatement.Name);
-        ctx.Scope.TryCreateVariable(new LocalVariable(variableStatement.Name, ctx.Scope, value, pointer, new LLVMValueRef()));
+        var pointer = LLVM.BuildAlloca(ctx.Builder, LLVM.Int32Type(), variableStatement.Name);
+        ctx.Scope.TryCreateVariable(new LocalVariable(variableStatement.Name, ctx.Scope, value, pointer,
+            new LLVMValueRef()));
         return LLVM.BuildStore(ctx.Builder, value, pointer);
     }
 
@@ -120,7 +121,7 @@ public static class CompileStatements
 
             LLVM.BuildBr(ctx.Builder, exitSwitch);
         }
-        
+
         LLVM.PositionBuilderAtEnd(ctx.Builder, exitSwitch);
         return exitSwitch;
     }
@@ -133,7 +134,7 @@ public static class CompileStatements
         LLVM.ParseIRInContext(LLVM.GetGlobalContext(), buff, out var otherModule, out error);
         if (error is not null)
             throw new Exception(error);
-       
+
         LLVM.SetDataLayout(otherModule, LLVM.GetDataLayout(ctx.Module));
         LLVM.LinkModules2(ctx.Module, otherModule);
 
@@ -151,8 +152,8 @@ public static class CompileStatements
             cnd,
             Integer1.GenerateFromValue((Integer1)1),
             "cmp");
-        
-        LLVM.BuildCondBr(ctx.Builder, condition, ifBlock,elseBlock);
+
+        LLVM.BuildCondBr(ctx.Builder, condition, ifBlock, elseBlock);
         LLVM.PositionBuilderAtEnd(ctx.Builder, ifBlock);
         GenerateStatement(ctx, ifStatement.Block);
 
@@ -161,7 +162,7 @@ public static class CompileStatements
             LLVM.PositionBuilderAtEnd(ctx.Builder, elseBlock);
             GenerateStatement(ctx, elseBranch);
         }
-        
+
         LLVM.PositionBuilderAtEnd(ctx.Builder, elseBlock);
         return ifBlock;
     }
@@ -187,22 +188,25 @@ public static class CompileStatements
         return block;
     }
 
-    public static LLVMValueRef GenerateFunctionStatement(CompilationContext ctx, BoundFunctionStatement functionStatement)
+    public static LLVMValueRef GenerateFunctionStatement(CompilationContext ctx,
+        BoundFunctionStatement functionStatement)
     {
-        var functionScope = new CompilationFunctionScope(functionStatement.Identifier.Name,ctx.Scope);
+        var functionScope = new CompilationFunctionScope(functionStatement.Identifier.Name, ctx.Scope);
         var newCtx = ctx with { Scope = functionScope };
 
         var parameterTypes = GenerateFunctionParameterTypes(newCtx, functionStatement);
-        var functionSignature = LLVM.FunctionType(LLVMTypeRef.Int32Type(), parameterTypes, new LLVMBool(0)); // TODO: RETURN TYPE BY DECLARATION
+        var functionSignature =
+            LLVM.FunctionType(LLVMTypeRef.Int32Type(), parameterTypes,
+                new LLVMBool(0)); // TODO: RETURN TYPE BY DECLARATION
         var function = LLVM.AddFunction(ctx.Module, functionStatement.Identifier.Name, functionSignature);
         var block = LLVM.AppendBasicBlock(function, "entry");
         ctx.Stack.Push(function);
         LLVM.PositionBuilderAtEnd(ctx.Builder, block);
-        
+
         var parameterPointers = GenerateFunctionParameterNames(newCtx, functionStatement, function);
         var functionBody = GenerateBlockStatement(newCtx, (BoundBlockStatement)functionStatement.Statement);
         LLVM.VerifyFunction(function, LLVMVerifierFailureAction.LLVMPrintMessageAction);
-        ctx.Scope.TryCreateFunction(functionStatement.Identifier.Name,function);
+        ctx.Scope.TryCreateFunction(functionStatement.Identifier.Name, function);
         return function;
     }
 
@@ -217,6 +221,7 @@ public static class CompileStatements
             var type = keyword.ToLLVMType();
             parametersResult[i] = type;
         }
+
         return parametersResult;
     }
 
@@ -224,11 +229,11 @@ public static class CompileStatements
         CompilationContext ctx,
         BoundFunctionStatement function,
         LLVMValueRef functionPointer
-        )
+    )
     {
         if (ctx.Scope is not CompilationFunctionScope fnScope)
             throw new ArgumentException("Invalid call, must be used just for function declarations.");
-        
+
         var parameters = function.Parameters.ToList();
         var parameterPointers = new LLVMValueRef[parameters.Count];
         for (var i = 0; i < parameters.Count; i++)
@@ -243,11 +248,12 @@ public static class CompileStatements
                 Identifier = identifier,
                 FunctionPointer = functionPointer,
                 Pointer = parameterPointer,
-                Scope = ctx.Scope, 
+                Scope = ctx.Scope,
             });
-            
+
             ctx.Stack.Push(parameterPointer);
         }
+
         return parameterPointers;
     }
 }

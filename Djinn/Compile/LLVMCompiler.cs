@@ -1,10 +1,8 @@
 using Djinn.Syntax.Biding.Expressions;
 using Djinn.Syntax.Biding.Scopes;
-using Djinn.Syntax.Biding.Scopes.Variables;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 using LLVMSharp;
-using Microsoft.CodeAnalysis;
 
 namespace Djinn.Compile;
 
@@ -23,12 +21,6 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
         Context = LLVM.ContextCreate();
     }
 
-    public void Compile()
-    {
-        GenerateLlvm();
-        GenerateStatements(_syntaxTree);
-    }
-
     public LLVMModuleRef Module { get; init; }
     public LLVMBuilderRef Builder { get; init; }
     public LLVMContextRef Context { get; init; }
@@ -40,14 +32,10 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
             BoundConstantNumberLiteralExpression literal => GenerateLiteralExpression(literal, boundScope),
             BoundUnaryExpression unary => GenerateUnaryExpression(unary, boundScope),
             BoundBinaryExpression binary => GenerateBinaryExpression(binary, boundScope),
-            BoundReadVariableExpression readVariableExpression => GenerateReadVariableExpression(readVariableExpression,boundScope),
+            BoundReadVariableExpression readVariableExpression => GenerateReadVariableExpression(readVariableExpression,
+                boundScope),
             _ => throw new NotImplementedException()
         };
-    }
-
-    private LLVMValueRef GenerateReadVariableExpression(BoundReadVariableExpression readVariableExpression, BoundScope boundScope)
-    {
-        return readVariableExpression.Evaluate(this, boundScope);
     }
 
     public LLVMValueRef GenerateBinaryExpression(BoundBinaryExpression boundBinaryExpression, BoundScope boundScope)
@@ -61,13 +49,15 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
         return value;
     }
 
-    public LLVMValueRef GenerateLiteralExpression(BoundConstantNumberLiteralExpression boundConstantNumberLiteralExpression, BoundScope boundScope)
+    public LLVMValueRef GenerateLiteralExpression(
+        BoundConstantNumberLiteralExpression boundConstantNumberLiteralExpression, BoundScope boundScope)
     {
         var value = boundConstantNumberLiteralExpression.Evaluate(this, boundScope);
         return value;
     }
 
-    public LLVMValueRef GenerateLiteralExpression(BoundConstantBooleanLiteralExpression booleanExpression, BoundScope boundScope)
+    public LLVMValueRef GenerateLiteralExpression(BoundConstantBooleanLiteralExpression booleanExpression,
+        BoundScope boundScope)
     {
         return booleanExpression.Evaluate(this, boundScope);
     }
@@ -86,7 +76,8 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
 
     public LLVMValueRef GenerateBlockStatement(BoundBlockStatement blockStatement, BoundScope boundScope)
     {
-        BoundScope blockBoundScope = boundScope is BoundFunctionScope ? boundScope : new BoundScope("block-scope", boundScope);
+        BoundScope blockBoundScope =
+            boundScope is BoundFunctionScope ? boundScope : new BoundScope("block-scope", boundScope);
         LLVMValueRef block = new LLVMValueRef();
         foreach (var boundStatement in blockStatement.Statements)
         {
@@ -130,9 +121,22 @@ public class LLVMCompiler : IBoundExpressionGenerator, IBoundStatementGenerator
         {
             BoundReturnStatement ret => GenerateReturnStatement(ret, boundScope),
             BoundBlockStatement block => GenerateBlockStatement(block, boundScope),
-            BoundFunctionStatement function => GenerateFunctionStatement(function, new BoundFunctionScope(function.Identifier.Name, boundScope)),
+            BoundFunctionStatement function => GenerateFunctionStatement(function,
+                new BoundFunctionScope(function.Identifier.Name, boundScope)),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
+    }
+
+    public void Compile()
+    {
+        GenerateLlvm();
+        GenerateStatements(_syntaxTree);
+    }
+
+    private LLVMValueRef GenerateReadVariableExpression(BoundReadVariableExpression readVariableExpression,
+        BoundScope boundScope)
+    {
+        return readVariableExpression.Evaluate(this, boundScope);
     }
 
     public LLVMModuleRef GenerateLlvm()

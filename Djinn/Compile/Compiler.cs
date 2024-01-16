@@ -4,22 +4,12 @@ using Djinn.Compile.Types;
 using Djinn.Lexing;
 using Djinn.Parsing;
 using Djinn.Syntax.Biding;
-using Djinn.Syntax.Biding.Statements;
 using LLVMSharp;
 
 namespace Djinn.Compile;
 
 public static class Compiler
 {
-    public readonly record struct CompilerOptions(
-        string OutputFileName,
-        string ModuleName
-    );
-    public readonly record struct CompilationResult(
-        string? Ir,
-        CompilationContext Context
-    );
-    
     public static CompilationResult Compile(string sourceCode, CompilerOptions options)
     {
         var lexer = new Lexer(sourceCode);
@@ -37,7 +27,7 @@ public static class Compiler
         {
             throw new Exception();
         }
-        
+
         // LLVM.InitializeAllTargets();
         LLVM.InitializeX86Target();
         LLVM.InitializeX86AsmParser();
@@ -45,7 +35,7 @@ public static class Compiler
         LLVM.InitializeX86TargetInfo();
         LLVM.InitializeX86AsmPrinter();
         LLVM.InitializeX86AsmParser();
-        
+
         var globalScope = new CompilationScope("global");
         var module = LLVM.ModuleCreateWithName(options.ModuleName);
         var builder = LLVM.CreateBuilder();
@@ -59,16 +49,16 @@ public static class Compiler
             context,
             engine
         );
-        
+
         SetupLLVMUtils(ctx);
         foreach (var statement in syntaxTree)
         {
             CompileStatements.GenerateStatement(ctx, statement);
         }
-        
+
         LLVM.VerifyModule(ctx.Module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out var error);
         Console.WriteLine(error);
-        
+
         var moduleIrResult = LLVM.PrintModuleToString(ctx.Module);
         return new(Marshal.PtrToStringAnsi(moduleIrResult), ctx);
     }
@@ -87,7 +77,7 @@ public static class Compiler
         var options = new LLVMMCJITCompilerOptions();
         LLVM.InitializeMCJITCompilerOptions(options);
         LLVM.CreateMCJITCompilerForModule(out engine, module, options, out var error);
-        
+
         if (error != null)
             throw new Exception($"Error creating JIT compiler: {error}");
 
@@ -114,20 +104,29 @@ public static class Compiler
 
         foreach (var (identifier, functionPointer) in STD.Functions)
         {
-            ctx.Scope.TryCreateFunction(identifier,functionPointer);
+            ctx.Scope.TryCreateFunction(identifier, functionPointer);
         }
     }
-    
+
+    public readonly record struct CompilerOptions(
+        string OutputFileName,
+        string ModuleName
+    );
+
+    public readonly record struct CompilationResult(
+        string? Ir,
+        CompilationContext Context
+    );
+
     public static class STD
     {
         public static readonly IDictionary<string, CompilationType> Types = new Dictionary<string, CompilationType>
         {
-            {"int32", new CompilationType()}
+            { "int32", new CompilationType() }
         };
 
         public static IDictionary<string, LLVMValueRef> Functions = new Dictionary<string, LLVMValueRef>
         {
-
         };
     }
 }

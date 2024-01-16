@@ -1,8 +1,5 @@
-using Djinn.Expressions;
 using Djinn.Lexing;
 using Djinn.Parsing;
-using Djinn.Statements;
-using Djinn.Syntax;
 using FluentAssertions;
 
 namespace Djinn.Tests;
@@ -27,7 +24,7 @@ public class SyntaxTreeTestings
         tree.Diagnostics.Should().BeEmpty();
         tree.Statements.Should().NotBeEmpty();
 
-        tree.Statements.Should().ContainSingle();/*
+        tree.Statements.Should().ContainSingle(); /*
         var blockStatement = (BlockStatement)tree.Statements.First();
         blockStatement.Should().BeOfType<BlockStatement>();
         blockStatement.Statements.Should().ContainSingle();

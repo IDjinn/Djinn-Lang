@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Djinn.Syntax.Biding.Scopes.Types;
 using Djinn.Syntax.Biding.Scopes.Variables;
-using Djinn.Syntax.Biding.Statements;
 using Microsoft.CodeAnalysis;
 
 namespace Djinn.Syntax.Biding.Scopes;
@@ -20,12 +19,12 @@ public record BoundFunctionScope(
     {
         return base.FindType(identifier);
     }
-    
+
 
     public override Optional<BoundVariable> FindVariable(string identifier)
     {
         if (_parameters.TryGetValue(identifier, out var param)) return param;
-        
+
         return base.FindVariable(identifier);
     }
 

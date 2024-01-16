@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Djinn.Expressions;
 using Djinn.Statements;
 using Djinn.Syntax.Biding.Expressions;
@@ -11,20 +10,22 @@ namespace Djinn.Syntax.Biding;
 
 public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBoundExpression>
 {
-    public readonly Reporter Reporter = new ();
+    public readonly Reporter Reporter = new();
 
 
     public IBoundExpression VisitBinaryExpression(BinaryExpressionSyntax expressionSyntax, BoundScope boundScope)
     {
-        return BindBinaryExpression(expressionSyntax,boundScope);
+        return BindBinaryExpression(expressionSyntax, boundScope);
     }
 
-    public IBoundExpression VisitConstantNumberExpression(ConstantNumberExpressionSyntax expressionSyntax, BoundScope boundScope)
+    public IBoundExpression VisitConstantNumberExpression(ConstantNumberExpressionSyntax expressionSyntax,
+        BoundScope boundScope)
     {
         return BindExpression(expressionSyntax, boundScope);
     }
 
-    public IBoundExpression VisitConstantStringExpression(ConstantStringExpressionSyntax expressionSyntax, BoundScope boundScope)
+    public IBoundExpression VisitConstantStringExpression(ConstantStringExpressionSyntax expressionSyntax,
+        BoundScope boundScope)
     {
         return BindExpression(expressionSyntax, boundScope);
     }
@@ -54,7 +55,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindExpression(expressionSyntax, boundScope);
     }
 
-    public IBoundExpression VisitConstantBooleanExpression(ConstantBooleanExpression expressionSyntax, BoundScope boundScope)
+    public IBoundExpression VisitConstantBooleanExpression(ConstantBooleanExpression expressionSyntax,
+        BoundScope boundScope)
     {
         return BindExpression(expressionSyntax, boundScope);
     }
@@ -69,7 +71,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindExpression(expressionSyntax, boundScope);
     }
 
-    public IBoundExpression VisitReadVariableExpression(ReadVariableExpression readVariableExpression, BoundScope boundScope)
+    public IBoundExpression VisitReadVariableExpression(ReadVariableExpression readVariableExpression,
+        BoundScope boundScope)
     {
         return BindExpression(readVariableExpression, boundScope);
     }
@@ -86,17 +89,17 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     public IBoundStatement Visit(ReturnStatement returnStatement, BoundScope boundScope)
     {
-        return BindReturnStatement(returnStatement,boundScope);
+        return BindReturnStatement(returnStatement, boundScope);
     }
 
     public IBoundStatement Visit(BlockStatement blockStatement, BoundScope boundScope)
     {
-        return BindBlockStatement(blockStatement,boundScope);
+        return BindBlockStatement(blockStatement, boundScope);
     }
 
     public IBoundStatement Visit(FunctionDeclarationStatement functionDeclarationStatement, BoundScope boundScope)
     {
-        return BindFunctionStatement(functionDeclarationStatement,boundScope);
+        return BindFunctionStatement(functionDeclarationStatement, boundScope);
     }
 
     public IBoundStatement Visit(IfStatement functionDeclarationStatement, BoundScope boundScope)
@@ -142,14 +145,16 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return statement switch
         {
             ReturnStatement returnStatement => BindReturnStatement(returnStatement, boundScope),
-            BlockStatement blockStatement => BindBlockStatement(blockStatement,boundScope),
+            BlockStatement blockStatement => BindBlockStatement(blockStatement, boundScope),
             FunctionDeclarationStatement functionDeclaration => BindFunctionStatement(functionDeclaration, boundScope),
-            DiscardExpressionResultStatement discartExpressionResult => BindDiscartExpressionResult(discartExpressionResult, boundScope),
+            DiscardExpressionResultStatement discartExpressionResult => BindDiscartExpressionResult(
+                discartExpressionResult, boundScope),
             IfStatement ifStatement => BindIfStatement(ifStatement, boundScope),
-           ImportStatement importStatement => BindImportStatement(importStatement,boundScope),
+            ImportStatement importStatement => BindImportStatement(importStatement, boundScope),
             SwitchStatement switchStatement => BindSwitchStatement(switchStatement, boundScope),
-            VariableDeclarationStatement variableDeclarationStatement => BindVariableDeclarationStatement(variableDeclarationStatement, boundScope),
-          WhileStatement whileStatement => BindWhileStatement(whileStatement, boundScope),
+            VariableDeclarationStatement variableDeclarationStatement => BindVariableDeclarationStatement(
+                variableDeclarationStatement, boundScope),
+            WhileStatement whileStatement => BindWhileStatement(whileStatement, boundScope),
             _ => Reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
@@ -161,7 +166,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             BindBlockStatement(whileStatement.Block, boundScope));
     }
 
-    private IBoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement, BoundScope boundScope)
+    private IBoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement,
+        BoundScope boundScope)
     {
         var identifier = (string)variableDeclarationStatement.Identifier.Value;
         if (boundScope.FindVariable(identifier).HasValue)
@@ -170,13 +176,13 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         var type = boundScope.FindType((string)variableDeclarationStatement.Type.Value);
         if (!type.HasValue)
             throw new NotImplementedException("Not supported custom types yet.");
-        
+
         boundScope.CreateVariable(new BoundVariable(identifier, type.Value.Type, boundScope));
         return new BoundVariableStatement(
             type.Value,
             identifier,
             BindExpression(variableDeclarationStatement.Expression, boundScope)
-            );
+        );
     }
 
     private BoundSwitchStatement BindSwitchStatement(SwitchStatement switchStatement, BoundScope boundScope)
@@ -188,7 +194,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             IBoundExpression? expression = null;
             if (switchCase.Expression is not null)
                 expression = BindExpression(switchCase.Expression, boundScope);
-            
+
             var block = BindBlockStatement(switchCase.Block, boundScope);
             cases.Add(new BoundSwitchCase(expression, block));
         }
@@ -209,7 +215,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             BindStatement(ifStatement.Block, ifScope));
     }
 
-    private IBoundStatement BindDiscartExpressionResult(DiscardExpressionResultStatement discartExpressionResult, BoundScope boundScope)
+    private IBoundStatement BindDiscartExpressionResult(DiscardExpressionResultStatement discartExpressionResult,
+        BoundScope boundScope)
     {
         return new BoundDiscardStatement(BindExpression(discartExpressionResult.Expression, boundScope));
     }
@@ -222,7 +229,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         var bounds = new List<IBoundStatement>(stats.Length);
         foreach (var statement in stats)
         {
-            bounds.Add(BindStatement(statement,boundScope));
+            bounds.Add(BindStatement(statement, boundScope));
         }
 
         return bounds;
@@ -230,12 +237,13 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     private BoundBlockStatement BindBlockStatement(BlockStatement blockStatement, BoundScope boundScope)
     {
-        BoundScope blockBoundScope = boundScope;   
+        BoundScope blockBoundScope = boundScope;
         if (boundScope is not BoundFunctionScope fnScope)
         {
             blockBoundScope = new BoundScope("block-scope", boundScope);
         }
-        return new BoundBlockStatement(BoundStatements(blockStatement.Statements,blockBoundScope));
+
+        return new BoundBlockStatement(BoundStatements(blockStatement.Statements, blockBoundScope));
     }
 
     private BoundReturnStatement BindReturnStatement(ReturnStatement returnStatement, BoundScope boundScope)
@@ -243,12 +251,13 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return new BoundReturnStatement(BindExpression(returnStatement.ExpressionSyntax, boundScope));
     }
 
-    private BoundFunctionStatement BindFunctionStatement(FunctionDeclarationStatement functionDeclarationStatement, BoundScope boundScope)
+    private BoundFunctionStatement BindFunctionStatement(FunctionDeclarationStatement functionDeclarationStatement,
+        BoundScope boundScope)
     {
         var functionNameIdentifier = new BoundIdentifier((string)functionDeclarationStatement.Identifier.Value);
         var functionScope = new BoundFunctionScope(functionNameIdentifier.Name, boundScope);
         var paramsDeclaration = BindFunctionParameters(functionDeclarationStatement, functionScope);
-        var body = BindStatement(functionDeclarationStatement.Statement,functionScope);
+        var body = BindStatement(functionDeclarationStatement.Statement, functionScope);
         return new BoundFunctionStatement(
             functionNameIdentifier,
             paramsDeclaration,
@@ -263,7 +272,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         foreach (var parameterDeclaration in functionDeclarationStatement.Parameters)
         {
             var type = new BoundIdentifier((string)parameterDeclaration.Type.Value, BoundNodeKind.FunctionParameter);
-            var identifier = new BoundIdentifier((string)parameterDeclaration.Identifier.Value, BoundNodeKind.FunctionParameter);
+            var identifier = new BoundIdentifier((string)parameterDeclaration.Identifier.Value,
+                BoundNodeKind.FunctionParameter);
             BoundConstantNumberLiteralExpression? defaultValue = null;
             // if (parameterDeclaration.DefaultValue is not null)
             // {
@@ -275,7 +285,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
                 identifier,
                 defaultValue
             );
-            
+
             parameters.Add(parameter);
             var typePtr = scope.FindType(type.Name);
             scope.AddParameter(new BoundVariable(identifier.Name, typePtr.Value.Type, scope));
@@ -284,7 +294,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return parameters;
     }
 
-    public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax, BoundScope boundScope)
+    public BoundBinaryExpression BindBinaryExpression(BinaryExpressionSyntax binaryExpressionSyntax,
+        BoundScope boundScope)
     {
         var boundBinaryOperator =
             BoundBinaryOperator.Bind(binaryExpressionSyntax.Operator.Kind, new Integer32(), new Integer32());
@@ -306,9 +317,10 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             ConstantNumberExpressionSyntax constantNumber => BindLiteralNumber(constantNumber, boundScope),
             ConstantStringExpressionSyntax constantString => BindLiteralString(constantString, boundScope),
             ConstantBooleanExpression constantBoolean => BindLiteralBoolean(constantBoolean, boundScope),
-            FunctionCallExpression functionCallExpression => BindFunctionCallExpression(functionCallExpression, boundScope),
+            FunctionCallExpression functionCallExpression => BindFunctionCallExpression(functionCallExpression,
+                boundScope),
             IdentifierExpression nameExpression => BindIdentifierExpression(nameExpression, boundScope),
-            AssigmentExpression assigmentExpression => BindAssigmentExpression(assigmentExpression, boundScope), 
+            AssigmentExpression assigmentExpression => BindAssigmentExpression(assigmentExpression, boundScope),
             _ => throw new NotImplementedException()
         };
     }
@@ -323,49 +335,56 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
 
     private IBoundExpression BindIdentifierExpression(IdentifierExpression identifierExpression, BoundScope boundScope)
     {
-        var identifier = (string) identifierExpression.Identifier.Value;
+        var identifier = (string)identifierExpression.Identifier.Value;
         var variable = boundScope.FindVariable(identifier);
 
         if (!variable.HasValue)
             throw new NotImplementedException();
 
         return new BoundReadVariableExpression(variable.Value);
-
     }
 
-    private IBoundExpression BindFunctionCallExpression(FunctionCallExpression functionCallExpression, BoundScope boundScope)
+    private IBoundExpression BindFunctionCallExpression(FunctionCallExpression functionCallExpression,
+        BoundScope boundScope)
     {
         if (boundScope is not BoundFunctionScope fnScope)
             throw new ArgumentException();
-        
-        return new BoundFunctionCallExpression(new BoundIdentifier((string)functionCallExpression.Identifier.Value), BindExpressions(functionCallExpression.Arguments, boundScope))
+
+        return new BoundFunctionCallExpression(new BoundIdentifier((string)functionCallExpression.Identifier.Value),
+            BindExpressions(functionCallExpression.Arguments, boundScope))
         {
             Type = new Integer32() // TODO: BINDING
         };
     }
 
-    private IEnumerable<IBoundExpression> BindExpressions(IEnumerable<IExpressionSyntax> arguments, BoundScope boundScope)
+    private IEnumerable<IBoundExpression> BindExpressions(IEnumerable<IExpressionSyntax> arguments,
+        BoundScope boundScope)
     {
         var ret = new List<IBoundExpression>();
         foreach (var argument in arguments)
         {
             ret.Add(BindExpression(argument, boundScope));
         }
+
         return ret;
     }
 
-    private BoundConstantBooleanLiteralExpression BindLiteralBoolean(ConstantBooleanExpression constantBoolean, BoundScope boundScope)
+    private BoundConstantBooleanLiteralExpression BindLiteralBoolean(ConstantBooleanExpression constantBoolean,
+        BoundScope boundScope)
     {
         var boolean = constantBoolean.Bool.Value.ToString()!.Equals("true");
         return new BoundConstantBooleanLiteralExpression(new Bool(boolean));
     }
 
-    private BoundConstantStringExpression BindLiteralString(ConstantStringExpressionSyntax constantString, BoundScope boundScope)
+    private BoundConstantStringExpression BindLiteralString(ConstantStringExpressionSyntax constantString,
+        BoundScope boundScope)
     {
-        return new BoundConstantStringExpression("constString", new String(constantString.StringToken.Value.ToString()!));
+        return new BoundConstantStringExpression("constString",
+            new String(constantString.StringToken.Value.ToString()!));
     }
 
-    private BoundConstantNumberLiteralExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber, BoundScope boundScope)
+    private BoundConstantNumberLiteralExpression BindLiteralNumber(ConstantNumberExpressionSyntax constantNumber,
+        BoundScope boundScope)
     {
         return new BoundConstantNumberLiteralExpression(new Integer32((int)constantNumber.NumberToken.Value));
     }
@@ -381,9 +400,10 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         var operand = BindExpression(unary.Operand, boundScope);
         if (unary.Operand is not ConstantNumberExpressionSyntax cnst)
         {
-            throw new NotImplementedException(); // todo: unary must be compile-time handled. (sum, minus, div, mod) and other types
+            throw
+                new NotImplementedException(); // todo: unary must be compile-time handled. (sum, minus, div, mod) and other types
         }
-        
+
         return new BoundUnaryExpression()
         {
             OperandExpression = operand,

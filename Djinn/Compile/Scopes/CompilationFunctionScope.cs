@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Djinn.Compile.Types;
 using Djinn.Compile.Variables;
-using LLVMSharp;
 using Microsoft.CodeAnalysis;
 
 namespace Djinn.Compile.Scopes;
@@ -9,12 +7,12 @@ namespace Djinn.Compile.Scopes;
 public record CompilationFunctionScope(
     string MangledName,
     IScope? Parent
-    ) : CompilationScope(MangledName, Parent)
+) : CompilationScope(MangledName, Parent)
 {
-    public IReadOnlyDictionary<string, ParameterVariable> Parameters => _parameters.AsReadOnly();
-
     private readonly IDictionary<string, ParameterVariable> _parameters =
         new ConcurrentDictionary<string, ParameterVariable>();
+
+    public IReadOnlyDictionary<string, ParameterVariable> Parameters => _parameters.AsReadOnly();
 
     public void AddParameter(ParameterVariable parameter)
     {

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Djinn.Compile;
 using Djinn.Syntax.Biding.Scopes;
 using LLVMSharp;
@@ -7,7 +6,7 @@ namespace Djinn.Syntax.Biding.Expressions;
 
 public record BoundConstantNumberLiteralExpression(
     INumber Number
-    ) : IBoundExpression 
+) : IBoundExpression
 {
     public BoundNodeKind Kind => BoundNodeKind.LiteralExpression;
     public IType Type => Number;

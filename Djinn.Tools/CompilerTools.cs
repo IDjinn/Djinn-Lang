@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using Djinn.Compile;
-using Microsoft.CodeAnalysis;
 
 namespace Djinn.Tools
 {
@@ -96,18 +95,20 @@ namespace Djinn.Tools
             return await RunCommandAsync([$"{exeFile}.exe"]);
         }
 
-        public readonly record struct CompileAndRunResult(
-            string IR,
-            int ErrorLevel
-        );
-        public static async Task<CompileAndRunResult> CompileAndRun(string source, [CallerMemberName] string caller = null)
+        public static async Task<CompileAndRunResult> CompileAndRun(string source,
+            [CallerMemberName] string caller = null)
         {
             var compilerOptions = new Compiler.CompilerOptions($"./temp/{caller}", caller);
             var ir = GenerateIR(source, compilerOptions);
             await ClangCompileAsync(ir, compilerOptions);
             await RunAsync(compilerOptions.OutputFileName);
-            return new(ir.Ir,await RunErrorLevelCommand(compilerOptions.OutputFileName));
+            return new(ir.Ir, await RunErrorLevelCommand(compilerOptions.OutputFileName));
         }
+
+        public readonly record struct CompileAndRunResult(
+            string IR,
+            int ErrorLevel
+        );
     }
 
     public static class ProcessExtensions
