@@ -53,4 +53,20 @@ public class VariableManipulationExpressions
         compileResult.ErrorLevel.Should().Be(1);
         await Verify(compileResult.IR);
     }
+
+    [Fact]
+    public async Task test_variable_decrement()
+    {
+        var source = """
+                     function void main(){
+                        int32 a = 2;
+                        a--;
+                        ret a;
+                     }
+                     """;
+
+        var compileResult = await CompilerTools.CompileAndRun(source);
+        compileResult.ErrorLevel.Should().Be(1);
+        await Verify(compileResult.IR);
+    }
 }

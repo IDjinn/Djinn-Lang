@@ -14,7 +14,7 @@ public enum BoundBinaryOperatorKind
     LogicalOr,
     Equals,
     NotEquals,
-    
+
     LessThan,
     LessThanEqual,
     GreaterThan,
@@ -30,17 +30,17 @@ public static class BoundBinaryOperatorExtensions
         BoundBinaryOperatorKind.LessThan => LLVMIntPredicate.LLVMIntULT,
         BoundBinaryOperatorKind.LessThanEqual => LLVMIntPredicate.LLVMIntULE,
         BoundBinaryOperatorKind.GreaterThan => LLVMIntPredicate.LLVMIntSGT,
-        BoundBinaryOperatorKind.GreaterThanEqual => LLVMIntPredicate.LLVMIntSLE,
+        BoundBinaryOperatorKind.GreaterThanEqual => LLVMIntPredicate.LLVMIntSGE,
         _ => throw new ArgumentOutOfRangeException(nameof(@operator), @operator, null)
     };
-    
+
     public static BoundBinaryOperatorKind BindBinaryOperatorKind(this SyntaxKind kind) => kind switch
     {
         SyntaxKind.PlusToken => BoundBinaryOperatorKind.Addition,
         SyntaxKind.MinusToken => BoundBinaryOperatorKind.Subtraction,
         SyntaxKind.StarToken => BoundBinaryOperatorKind.Multiplication,
         SyntaxKind.SlashToken => BoundBinaryOperatorKind.Division,
-        SyntaxKind.LessThanOperator => BoundBinaryOperatorKind.LessThan, 
+        SyntaxKind.LessThanOperator => BoundBinaryOperatorKind.LessThan,
         SyntaxKind.LessThanEqualsOperator => BoundBinaryOperatorKind.LessThanEqual,
         SyntaxKind.GreaterThanOperator => BoundBinaryOperatorKind.GreaterThan,
         SyntaxKind.GreaterThanEqualsOperator => BoundBinaryOperatorKind.GreaterThanEqual,

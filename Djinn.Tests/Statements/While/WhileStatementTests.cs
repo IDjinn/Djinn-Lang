@@ -16,11 +16,11 @@ public class WhileStatementTests
                             printf(".");
                             counter++;
                            }
-                           ret 1;
+                           ret counter;
                        }
                        """;
         var compileResult = await CompilerTools.CompileAndRun(source);
-        compileResult.ErrorLevel.Should().Be(1);
+        compileResult.ErrorLevel.Should().Be(10);
         await Verify(compileResult.IR);
     }
 
@@ -34,11 +34,11 @@ public class WhileStatementTests
                             printf(".");
                             counter++;
                            }
-                           ret 1;
+                           ret counter;
                        }
                        """;
         var compileResult = await CompilerTools.CompileAndRun(source);
-        compileResult.ErrorLevel.Should().Be(1);
+        compileResult.ErrorLevel.Should().Be(11);
         await Verify(compileResult.IR);
     }
 
@@ -48,11 +48,11 @@ public class WhileStatementTests
         var source = $$"""
                        function int1 main() {
                            int32 counter = 10;
-                           while(counter > 0){
+                           while(counter > 1){
                             printf(".");
                             counter--;
                            }
-                           ret 1;
+                           ret counter;
                        }
                        """;
         var compileResult = await CompilerTools.CompileAndRun(source);
@@ -66,11 +66,11 @@ public class WhileStatementTests
         var source = $$"""
                        function int1 main() {
                            int32 counter = 10;
-                           while(counter >= 0){
+                           while(counter >= 2){
                             printf(".");
                             counter--;
                            }
-                           ret 1;
+                           ret counter;
                        }
                        """;
         var compileResult = await CompilerTools.CompileAndRun(source);

@@ -14,11 +14,11 @@ public static class Program
         var source = $$"""
                        function int1 main() {
                            int32 counter = 10;
-                           while(counter > 0){
+                           while(counter >= 1){
                             printf(".");
                             counter--;
                            }
-                           ret 1;
+                           ret counter;
                        }
                        """;
 

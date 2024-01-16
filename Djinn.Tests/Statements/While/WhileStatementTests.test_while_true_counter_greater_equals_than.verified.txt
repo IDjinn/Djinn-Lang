@@ -17,15 +17,16 @@ entry:
 while:                                            ; preds = %while_check, %entry
   %printf_call = call i32 (i8*, ...) @printf([2 x i8]* @constString)
   %read = load i32, i32* %counter
-  %plus = add i32 %read, 1
+  %plus = add i32 %read, -1
   store i32 %plus, i32* %counter
   br label %while_check
 
 while_check:                                      ; preds = %while
   %read1 = load i32, i32* %counter
-  %cmp = icmp sle i32 %read1, 0
+  %cmp = icmp sge i32 %read1, 2
   br i1 %cmp, label %while, label %while_exit
 
 while_exit:                                       ; preds = %while_check
-  ret i32 1
+  %read2 = load i32, i32* %counter
+  ret i32 %read2
 }

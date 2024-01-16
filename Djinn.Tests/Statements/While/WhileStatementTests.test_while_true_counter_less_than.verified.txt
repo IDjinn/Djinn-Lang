@@ -27,5 +27,6 @@ while_check:                                      ; preds = %while
   br i1 %cmp, label %while, label %while_exit
 
 while_exit:                                       ; preds = %while_check
-  ret i32 1
+  %read2 = load i32, i32* %counter
+  ret i32 %read2
 }
