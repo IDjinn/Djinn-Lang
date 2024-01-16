@@ -14,10 +14,10 @@ if_block:                                         ; preds = %entry
   br i1 false, label %if_block1, label %else_block2
 
 else_block:                                       ; preds = %entry
-  ret i32 -2
+  ret i32 2
 
 if_block1:                                        ; preds = %if_block
-  ret i32 -1
+  ret i32 1
 
 else_block2:                                      ; preds = %if_block
   ret i32 1

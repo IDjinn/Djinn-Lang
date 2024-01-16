@@ -11,7 +11,7 @@ entry:
   br i1 false, label %if_block, label %else_block
 
 if_block:                                         ; preds = %entry
-  ret i32 -1
+  ret i32 1
 
 else_block:                                       ; preds = %entry
   ret i32 1

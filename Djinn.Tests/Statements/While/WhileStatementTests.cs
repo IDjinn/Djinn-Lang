@@ -11,13 +11,16 @@ public class WhileStatementTests
     {
         var source = $$"""
                        function int1 main() {
-                           while(true){
+                           int32 counter = 0;
+                           while(counter < 10){
                             printf(".");
+                            counter++;
                            }
+                           ret 1;
                        }
                        """;
         var compileResult = await CompilerTools.CompileAndRun(source);
-        compileResult.ErrorLevel.Should().Be(0);
+        compileResult.ErrorLevel.Should().Be(1);
         await Verify(compileResult.IR);
     }
 }

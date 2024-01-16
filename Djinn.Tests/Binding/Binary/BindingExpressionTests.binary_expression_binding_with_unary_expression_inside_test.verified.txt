@@ -57,30 +57,14 @@
               }
             },
             Right: {
-              Operator: {
-                SyntaxKind: MinusToken,
-                OperatorKind: Negation,
-                OperandType: INumber,
-                ResultType: INumber
+              Number: {
+                Value: 2,
+                IsFloat: false,
+                SizeOf: 4,
+                IsHeap: false,
+                IsReadOnly: false
               },
-              OperandExpression: {
-                Number: {
-                  Value: 2,
-                  IsFloat: false,
-                  SizeOf: 4,
-                  IsHeap: false,
-                  IsReadOnly: false
-                },
-                Kind: LiteralExpression,
-                Type: {
-                  Value: 2,
-                  IsFloat: false,
-                  SizeOf: 4,
-                  IsHeap: false,
-                  IsReadOnly: false
-                }
-              },
-              Kind: UnaryExpression,
+              Kind: LiteralExpression,
               Type: {
                 Value: 2,
                 IsFloat: false,

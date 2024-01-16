@@ -14,5 +14,5 @@ if_block:                                         ; preds = %entry
   ret i32 1
 
 else_block:                                       ; preds = %entry
-  ret i32 -1
+  ret i32 1
 }
