@@ -300,6 +300,9 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         var boundBinaryOperator =
             BoundBinaryOperator.Bind(binaryExpressionSyntax.Operator.Kind, new Integer32(), new Integer32());
 
+        if (boundBinaryOperator is null)
+            throw new NotImplementedException();
+
         return new BoundBinaryExpression
         {
             Left = BindExpression(binaryExpressionSyntax.LeftExpression, boundScope),

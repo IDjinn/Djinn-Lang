@@ -40,10 +40,6 @@ public record BoundBinaryExpression : IBoundExpression
             BoundBinaryOperatorKind.Subtraction => LLVM.BuildSub(ctx.Builder, left, right, "sub"),
             BoundBinaryOperatorKind.Division => LLVM.BuildFDiv(ctx.Builder, left, right, "div"),
             BoundBinaryOperatorKind.Multiplication => LLVM.BuildMul(ctx.Builder, left, right, "mult"),
-            
-            BoundBinaryOperatorKind.LessThan => LLVM.BuildMul(ctx.Builder, left, right, "lessthan"),
-           
-            
             _ => throw new InvalidOperationException("Invalid operation")
         };
     }

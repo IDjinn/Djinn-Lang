@@ -198,16 +198,30 @@ public class Parser
             Advance();
             return arithmetic.Kind switch
             {
-                SyntaxKind.IncrementOperator => new DiscardExpressionResultStatement(new AssigmentExpression(
-                    identifier.Identifier,
-                    identifier.Identifier, // TODO REMOVE ME
-                    new BinaryExpressionSyntax(
-                        identifier,
-                        arithmetic,
-                        new ConstantNumberExpressionSyntax(arithmetic)))
+                SyntaxKind.IncrementOperator or SyntaxKind.DecrementOperator => new DiscardExpressionResultStatement(
+                    new AssigmentExpression(
+                        identifier.Identifier,
+                        identifier.Identifier, // TODO REMOVE ME
+                        new BinaryExpressionSyntax(
+                            identifier,
+                            arithmetic,
+                            new ConstantNumberExpressionSyntax(arithmetic)))
                 ),
                 _ => throw new NotImplementedException($"Kind '{arithmetic.Kind}' is not implemented yet.")
             };
+        }
+
+        if (HasCurrent && Current.Kind.HasFlag(SyntaxKind.EqualsOperator))
+        {
+            var op = Consume(SyntaxKind.EqualsOperator);
+            var expression = ParsePrimaryExpression();
+            return new DiscardExpressionResultStatement(
+                new AssigmentExpression(
+                    identifier.Identifier,
+                    op,
+                    expression
+                )
+            );
         }
 
         throw new NotImplementedException();

@@ -60,9 +60,10 @@ public record Lexer(string Source)
                 }
                 case '-':
                     if (Peek(1) == '-')
-                        return new SyntaxToken(SyntaxKind.DecrementOperator, current, new Position(Advance(2), 2));
+                        return new SyntaxToken(SyntaxKind.DecrementOperator, -1, new Position(Advance(2), 2));
                     if (Peek(1) == '=')
-                        return new SyntaxToken(SyntaxKind.MinusAssignmentOperator, current, new Position(Advance(2), 2));
+                        return new SyntaxToken(SyntaxKind.MinusAssignmentOperator, current,
+                            new Position(Advance(2), 2));
                     if (char.IsNumber(Peek(1))) // this is a negative number 
                     {
                         Advance();
@@ -73,12 +74,13 @@ public record Lexer(string Source)
                 case '<':
                     if (Peek(1) == '=')
                         return new SyntaxToken(SyntaxKind.LessThanEqualsOperator, current, new Position(Advance(2), 1));
-                    
+
                     return new SyntaxToken(SyntaxKind.LessThanOperator, current, new Position(Advance(), 1));
-                
+
                 case '>':
                     if (Peek(1) == '=')
-                        return new SyntaxToken(SyntaxKind.GreaterThanEqualsOperator, current, new Position(Advance(2), 1));
+                        return new SyntaxToken(SyntaxKind.GreaterThanEqualsOperator, current,
+                            new Position(Advance(2), 1));
 
                     return new SyntaxToken(SyntaxKind.GreaterThanOperator, current, new Position(Advance(), 1));
 

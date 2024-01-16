@@ -39,6 +39,18 @@
       <None Update="Statements\If\IfStatementTestings.test_true_branch.verified.txt">
         <ParentFile>IfStatementTestings</ParentFile>
       </None>
+        <None Update="Expressions\CompileTime\CompileTimeExpressions.test_unary_plus_on_constant_integers.verified.txt">
+            <ParentFile>CompileTimeExpressions</ParentFile>
+            <DependentUpon>CompileTimeExpressions.cs</DependentUpon>
+        </None>
+        <None Update="Expressions\CompileTime\CompileTimeExpressions.test_unary_mixed_on_constant_integers.verified.txt">
+            <ParentFile>CompileTimeExpressions</ParentFile>
+            <DependentUpon>CompileTimeExpressions.cs</DependentUpon>
+        </None>
+        <None Update="Expressions\CompileTime\CompileTimeExpressions.test_unary_minus_on_constant_integers.verified.txt">
+            <ParentFile>CompileTimeExpressions</ParentFile>
+            <DependentUpon>CompileTimeExpressions.cs</DependentUpon>
+        </None>
     </ItemGroup>
 
 </Project>
