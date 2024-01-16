@@ -74,10 +74,22 @@ public class Parser
             SyntaxKind.Identifier => ParseIdentifier(),
             SyntaxKind.Import => ParseImport(),
             SyntaxKind.Switch => ParseSwitchStatement(),
+            SyntaxKind.While => ParseWhileStatement(),
             
             SyntaxKind.BadToken or SyntaxKind.EndOfFileToken => throw new ArgumentException("EOF"),
             _ => ExpectingStatement(),
         };
+    }
+
+    private IStatement ParseWhileStatement()
+    {
+        Consume(SyntaxKind.While);
+        Consume(SyntaxKind.OpenParenthesis);
+        var expression = ParseExpression();
+        Consume(SyntaxKind.CloseParenthesis);
+        var block = ParseBlockStatement();
+
+        return new WhileStatement(expression, block);
     }
 
     private bool TryParseVariableDeclaration([NotNullWhen(true)] out VariableDeclarationStatement? statement)
@@ -167,13 +179,38 @@ public class Parser
                 return ParseElseStatement();
         }
         
-        
         var expression = ParsePrimaryExpression();
         return expression switch
         {
             FunctionCallExpression call => new DiscardExpressionResultStatement(call),
+            
+            // if it is a variable, it will be catch here.
+            IdentifierExpression identifier => ParseVariableStatement(identifier),
             _ => throw new NotImplementedException(expression.GetType().Name)
         };
+    }
+
+    private IStatement ParseVariableStatement(IdentifierExpression identifier)
+    {
+        var arithmetic = TryPeek(SyntaxKind.ArithmeticOperators);
+        if (arithmetic is not null )
+        {
+            Advance();
+            return arithmetic.Kind switch
+            {
+                SyntaxKind.IncrementOperator => new DiscardExpressionResultStatement(new AssigmentExpression(
+                    identifier.Identifier,
+                    identifier.Identifier, // TODO REMOVE ME
+                    new BinaryExpressionSyntax(
+                        identifier, 
+                        arithmetic, 
+                        new ConstantNumberExpressionSyntax(arithmetic)))
+                ),
+                _ => throw new NotImplementedException($"Kind '{arithmetic.Kind}' is not implemented yet.")
+            };
+        }
+        
+        throw new NotImplementedException();
     }
 
     private IStatement ExpectingStatement()

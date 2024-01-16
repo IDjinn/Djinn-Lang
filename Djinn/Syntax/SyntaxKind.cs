@@ -40,6 +40,10 @@ public enum SyntaxKind : long
     DecrementOperator = LogicalOperators | ArithmeticOperators | 8,
     MinusAssignmentOperator = LogicalOperators | ArithmeticOperators | 9,
     EqualsEqualsOperator = LogicalOperators | 9,
+    LessThanOperator = LogicalOperators | 10,
+    GreaterThanOperator = LogicalOperators | 11,
+    LessThanEqualsOperator = LogicalOperators | 12,
+    GreaterThanEqualsOperator = LogicalOperators | 13,
 
     FunctionIdentifier = Identifier | 1,
     LambdaIdentifier = Identifier | 2,
@@ -110,7 +114,7 @@ public enum SyntaxKind : long
     While,
     Do,
     ForEach,
-    ReadVariable
+    ReadVariable,
 }
 
 public static class SyntaxKindExtensions
@@ -125,7 +129,8 @@ public static class SyntaxKindExtensions
 
         SyntaxKind.StarToken or SyntaxKind.SlashToken => 30,
 
-
+        SyntaxKind.LessThanOperator or SyntaxKind.GreaterThanOperator => 40,
+        SyntaxKind.LessThanEqualsOperator or SyntaxKind.GreaterThanEqualsOperator => 40,
         _ => InvalidOperatorPrecedence
     };
 

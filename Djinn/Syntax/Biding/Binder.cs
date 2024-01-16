@@ -119,6 +119,11 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         throw new NotImplementedException();
     }
 
+    public IBoundStatement Visit(WhileStatement whileStatement, BoundScope boundScope)
+    {
+        throw new NotImplementedException();
+    }
+
     public IEnumerable<IBoundStatement> Bind(SyntaxTree syntaxTree)
     {
         var globalScope = new BoundGlobalScope("global");
@@ -144,9 +149,16 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
            ImportStatement importStatement => BindImportStatement(importStatement,boundScope),
             SwitchStatement switchStatement => BindSwitchStatement(switchStatement, boundScope),
             VariableDeclarationStatement variableDeclarationStatement => BindVariableDeclarationStatement(variableDeclarationStatement, boundScope),
+          WhileStatement whileStatement => BindWhileStatement(whileStatement, boundScope),
             _ => Reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
+    }
+
+    private IBoundStatement BindWhileStatement(WhileStatement whileStatement, BoundScope boundScope)
+    {
+        return new BoundWhileStatement(BindExpression(whileStatement.Expression, boundScope),
+            BindBlockStatement(whileStatement.Block, boundScope));
     }
 
     private IBoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement, BoundScope boundScope)
@@ -296,9 +308,17 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             ConstantBooleanExpression constantBoolean => BindLiteralBoolean(constantBoolean, boundScope),
             FunctionCallExpression functionCallExpression => BindFunctionCallExpression(functionCallExpression, boundScope),
             IdentifierExpression nameExpression => BindIdentifierExpression(nameExpression, boundScope),
-            ReadVariableExpression readVariableExpression => throw new NotImplementedException(),
+            AssigmentExpression assigmentExpression => BindAssigmentExpression(assigmentExpression, boundScope), 
             _ => throw new NotImplementedException()
         };
+    }
+
+    private IBoundExpression BindAssigmentExpression(AssigmentExpression assigmentExpression, BoundScope boundScope)
+    {
+        return new BoundAssigmentVariableExpression(
+            boundScope.FindVariable((string)assigmentExpression.Identifier.Value).Value,
+            BindExpression(assigmentExpression.Expression, boundScope)
+        );
     }
 
     private IBoundExpression BindIdentifierExpression(IdentifierExpression identifierExpression, BoundScope boundScope)

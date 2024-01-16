@@ -18,15 +18,12 @@ public static class Program
 
         var source = $$"""
                        function int1 main() {
-                           switch (2) {
-                              case 1: {
-                                  ret -1;
-                              }
-                              default: {
-                                  ret 1;
-                              }
-                          }
-                          ret -2;
+                            int32 counter = 0;
+                            while(counter <= 3){
+                                printf(".");
+                                counter++;
+                            }
+                           ret 0;
                        }
                        """;
 

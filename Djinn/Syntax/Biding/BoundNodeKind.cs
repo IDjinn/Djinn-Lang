@@ -21,7 +21,9 @@ public enum BoundNodeKind
     Import,
     Switch,
     Case,
-    DeclareVariable
+    DeclareVariable,
+    While,
+    AssigmentVariable
 }
 
 public static class BoundNodeKindExtensions

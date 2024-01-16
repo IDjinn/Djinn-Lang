@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Linq.Expressions;
 using Djinn.Compile.Scopes;
 using Djinn.Compile.Variables;
 using Djinn.Syntax;
+using Djinn.Syntax.Biding.Expressions;
 using Djinn.Syntax.Biding.Scopes;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
@@ -23,8 +25,52 @@ public static class CompileStatements
             BoundImportStatement importStatement => GenerateImportStatement(ctx, importStatement),
             BoundSwitchStatement switchStatement => GenerateSwitchStatement(ctx,switchStatement),
             BoundVariableStatement variableStatement => GenerateVariableStatement(ctx, variableStatement),
+            BoundWhileStatement whileStatement => GenerateWhileStatement(ctx, whileStatement),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
+    }
+
+    private static LLVMValueRef GenerateWhileStatement(CompilationContext ctx, BoundWhileStatement whileStatement)
+    {
+        var functionPointer = ctx.Stack.Peek();
+        var whileBlock = LLVM.AppendBasicBlock(functionPointer, "while");
+        var whileCheck = LLVM.AppendBasicBlock(functionPointer, "while_check");
+        var whileExit = LLVM.AppendBasicBlock(functionPointer, "while_exit");
+
+        LLVM.BuildBr(ctx.Builder, whileBlock);
+        LLVM.PositionBuilderAtEnd(ctx.Builder, whileBlock);
+        GenerateStatement(ctx, whileStatement.Block);
+
+        LLVM.BuildBr(ctx.Builder, whileCheck);
+        LLVM.PositionBuilderAtEnd(ctx.Builder, whileCheck);
+  
+        LLVMValueRef comparison;
+        // TODO: THIS MUST BE DYNAMIC.
+        if (whileStatement.Expression.Type.GetType().IsInstanceOfType(new Bool()) && whileStatement.Expression is BoundBinaryExpression bin) // THIS IS A LOGICAL EXPRESSION
+        {
+           var left= bin.Left.Generate(ctx);
+           var op = bin.Operator.OperatorKind.ToLLVMIntPredicate();
+           var right= bin.Right.Generate(ctx);
+            comparison= LLVM.BuildICmp(ctx.Builder,
+                op,
+                left,
+                right,
+                "cmp");
+        }
+        else
+        {
+            var expression = whileStatement.Expression.Generate(ctx);
+            comparison= LLVM.BuildICmp(ctx.Builder,
+                LLVMIntPredicate.LLVMIntEQ,
+                expression,
+                Integer1.GenerateFromValue((Integer1)1),
+                "cmp");
+        }
+
+        LLVM.BuildCondBr(ctx.Builder, comparison, whileBlock, whileExit);
+        
+        LLVM.PositionBuilderAtEnd(ctx.Builder, whileExit);
+        return whileExit;
     }
 
     private static LLVMValueRef GenerateVariableStatement(CompilationContext ctx, BoundVariableStatement variableStatement)

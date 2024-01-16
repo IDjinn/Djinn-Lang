@@ -17,8 +17,9 @@ public record Lexer(string Source)
 
     public int Advance(int count = 1)
     {
+        var aux = Index;
         Index += count;
-        return Index;
+        return aux;
     }
 
     public char Consume()
@@ -31,7 +32,7 @@ public record Lexer(string Source)
     public char Peek(int offset = 0)
     {
         Debug.Assert(Source.Length > offset + Index);
-        return Source[offset];
+        return Source[offset + Index];
     }
 
     public SyntaxToken NextToken()
@@ -46,7 +47,7 @@ public record Lexer(string Source)
                 case '+':
                 {
                     if (Peek(1) == '+')
-                        return new SyntaxToken(SyntaxKind.IncrementOperator, current, new Position(Advance(2), 2));
+                        return new SyntaxToken(SyntaxKind.IncrementOperator, 1, new Position(Advance(2), 2));
                     if (Peek(1) == '=')
                         return new SyntaxToken(SyntaxKind.PlusAssignmentOperator, current, new Position(Advance(2), 2));
                     if (char.IsNumber(Peek(1))) // this is a positive number
@@ -61,8 +62,7 @@ public record Lexer(string Source)
                     if (Peek(1) == '-')
                         return new SyntaxToken(SyntaxKind.DecrementOperator, current, new Position(Advance(2), 2));
                     if (Peek(1) == '=')
-                        return new SyntaxToken(SyntaxKind.MinusAssignmentOperator, current,
-                            new Position(Advance(2), 2));
+                        return new SyntaxToken(SyntaxKind.MinusAssignmentOperator, current, new Position(Advance(2), 2));
                     if (char.IsNumber(Peek(1))) // this is a negative number 
                     {
                         Advance();
@@ -70,6 +70,17 @@ public record Lexer(string Source)
                     }
 
                     return new SyntaxToken(SyntaxKind.MinusToken, current, new Position(Advance(), 1));
+                case '<':
+                    if (Peek(1) == '=')
+                        return new SyntaxToken(SyntaxKind.LessThanEqualsOperator, current, new Position(Advance(2), 1));
+                    
+                    return new SyntaxToken(SyntaxKind.LessThanOperator, current, new Position(Advance(), 1));
+                
+                case '>':
+                    if (Peek(1) == '=')
+                        return new SyntaxToken(SyntaxKind.GreaterThanEqualsOperator, current, new Position(Advance(2), 1));
+
+                    return new SyntaxToken(SyntaxKind.GreaterThanOperator, current, new Position(Advance(), 1));
 
                 case '/':
                     return new SyntaxToken(SyntaxKind.SlashToken, current, new Position(Advance(), 1));
