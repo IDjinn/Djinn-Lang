@@ -13,15 +13,10 @@ public static class Program
     {
         var source = $$"""
                        function int1 main() {
-                           switch (1) {
-                              case 1: {
-                                  ret 2;
-                              }
-                              default: {
-                                  ret -3;
-                              }
-                          }
-                          ret -4;
+                            if (true) {
+                                printf("true hit");
+                            }
+                            ret 1;
                        }
                        """;
 

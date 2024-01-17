@@ -7,7 +7,8 @@ namespace Djinn.Statements;
 [System.Diagnostics.DebuggerDisplay("{DebugInformationDisplay}")]
 public record IfStatement(
     IExpressionSyntax Conditional, // TODO MAKE THIS CONDITIONAL AT COMPILE TIME
-    IStatement Block
+    IStatement Block,
+    IStatement? Else
 ) : IStatement
 {
 #if DEBUG

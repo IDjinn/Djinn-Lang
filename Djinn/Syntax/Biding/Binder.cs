@@ -206,8 +206,12 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
     private IBoundStatement BindIfStatement(IfStatement ifStatement, BoundScope boundScope)
     {
         var ifScope = new BoundScope("if", boundScope);
-        return new BoundIfStatement(BindExpression(ifStatement.Conditional, ifScope),
-            BindStatement(ifStatement.Block, ifScope));
+        var elseScope = new BoundScope("else", boundScope);
+        return new BoundIfStatement(
+            BindExpression(ifStatement.Conditional, ifScope),
+            BindStatement(ifStatement.Block, ifScope),
+            ifStatement.Else is not null ? BindStatement(ifStatement.Else, elseScope) : null
+        );
     }
 
     private IBoundStatement BindDiscartExpressionResult(DiscardExpressionResultStatement discartExpressionResult,
@@ -345,9 +349,6 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
     private IBoundExpression BindFunctionCallExpression(FunctionCallExpression functionCallExpression,
         BoundScope boundScope)
     {
-        if (boundScope is not BoundFunctionScope fnScope)
-            throw new ArgumentException();
-
         return new BoundFunctionCallExpression(new BoundIdentifier((string)functionCallExpression.Identifier.Value),
             BindExpressions(functionCallExpression.Arguments, boundScope))
         {

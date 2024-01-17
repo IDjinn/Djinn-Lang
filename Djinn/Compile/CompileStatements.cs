@@ -145,7 +145,12 @@ public static class CompileStatements
     {
         var functionPointer = ctx.Stack.Peek();
         var ifBlock = LLVM.AppendBasicBlock(functionPointer, "if_block");
-        var elseBlock = LLVM.AppendBasicBlock(functionPointer, "else_block");
+
+        LLVMValueRef? elseBlock = default;
+        if (ifStatement.Else is not null)
+            elseBlock = LLVM.AppendBasicBlock(functionPointer, "else_block");
+
+        var exitBlock = LLVM.AppendBasicBlock(functionPointer, "exit");
         var cnd = ifStatement.Condition.Generate(ctx);
         var condition = LLVM.BuildICmp(ctx.Builder,
             LLVMIntPredicate.LLVMIntEQ,
@@ -153,17 +158,19 @@ public static class CompileStatements
             Integer1.GenerateFromValue((Integer1)1),
             "cmp");
 
-        LLVM.BuildCondBr(ctx.Builder, condition, ifBlock, elseBlock);
+        LLVM.BuildCondBr(ctx.Builder, condition, ifBlock, elseBlock ?? exitBlock);
         LLVM.PositionBuilderAtEnd(ctx.Builder, ifBlock);
         GenerateStatement(ctx, ifStatement.Block);
+        LLVM.BuildBr(ctx.Builder, exitBlock);
 
-        if (ifStatement.ElseBlock is IBoundStatement elseBranch)
+        if (ifStatement.Else is not null)
         {
-            LLVM.PositionBuilderAtEnd(ctx.Builder, elseBlock);
-            GenerateStatement(ctx, elseBranch);
+            LLVM.PositionBuilderAtEnd(ctx.Builder, elseBlock!.Value);
+            GenerateStatement(ctx, ifStatement.Else);
+            LLVM.BuildBr(ctx.Builder, exitBlock);
         }
 
-        LLVM.PositionBuilderAtEnd(ctx.Builder, elseBlock);
+        LLVM.PositionBuilderAtEnd(ctx.Builder, exitBlock);
         return ifBlock;
     }
 

@@ -61,6 +61,8 @@ public class Parser
         }
     }
 
+    public Keyword CurrentKeyword => KeywordExtensions.FromString((string)Current.Value);
+
 #if DEBUG
     public SyntaxToken? Previous => (_index > 1) ? _tokens[_index - 1] : null;
 #endif
@@ -424,11 +426,19 @@ public class Parser
         Consume(SyntaxKind.OpenParenthesis);
         var conditional = ParseBooleanExpression();
         Consume(SyntaxKind.CloseParenthesis);
-        var body = ParseBlockStatement();
+
+        var ifBlock = ParseBlockStatement();
+        IStatement? statement = null;
+        if (CurrentKeyword == Keyword.Else)
+        {
+            Advance();
+            statement = ParseStatement();
+        }
 
         return new IfStatement(
             conditional,
-            body
+            ifBlock,
+            statement
         );
     }
 

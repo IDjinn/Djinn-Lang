@@ -2,8 +2,8 @@
 
 namespace Djinn.Syntax.Biding.Statements;
 
-public record BoundIfStatement(IBoundExpression Condition, IBoundStatement Block) :IBoundStatement
+public record BoundIfStatement(IBoundExpression Condition, IBoundStatement Block, IBoundStatement? Else)
+    : IBoundStatement
 {
     public BoundNodeKind Kind => BoundNodeKind.If;
-    public IBoundStatement? ElseBlock { get; init; }
 }

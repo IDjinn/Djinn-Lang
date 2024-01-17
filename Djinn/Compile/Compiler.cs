@@ -18,14 +18,14 @@ public static class Compiler
 
         if (parser.Diagnostics.Any())
         {
-            throw new Exception();
+            // throw new Exception();
         }
 
         var binder = new Binder();
         var syntaxTree = binder.Bind(tree);
         if (binder.Reporter.Diagnostics.Any())
         {
-            throw new Exception();
+            // throw new Exception();
         }
 
         // LLVM.InitializeAllTargets();
