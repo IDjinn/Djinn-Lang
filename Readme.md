@@ -5,12 +5,23 @@ Simple and basic compiler of Djinn language to generate native code binaries wit
 ### Example code
 
 ```fsharp
-function int64 add(int64 a, int64 b) {
-    ret b + c;
+function int32 add(int32 a, int32 b) {
+    ret a + b;
 }
 
-function void main() {
-    printf(add(1,2));
+function int32 main() {
+    int32 counter = 0;
+    while (counter < 10 ) {
+        printf(add(counter, 1));
+        counter++;
+    }
+
+    if ( counter < 10 ) {
+        printf("counter = %d", counter);
+        ret counter;
+    }    
+
+    ret 0;
 }
 ```
 
@@ -35,9 +46,9 @@ function void main() {
     - [ ] Abstract classes
     - [ ] Generics
 - [ ] Arrays
-- [ ] Loops
+- [X] Loops
     - [ ] For
-    - [ ] While
+    - [X] While
     - [ ] Do-while
 
 #### Future
