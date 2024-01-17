@@ -8,12 +8,16 @@ namespace Djinn.Lexing;
 
 public record Lexer(string Source)
 {
+    private bool _isNegativeFlag = false;
     private int Index = 0;
 
     [MemberNotNullWhen(false, nameof(Current))]
     public bool EOF => Index >= Source.Length;
 
     public char? Current => Source[Index];
+#if DEBUG
+    public char? Previous => Source.Length - Index - 1 >= 0 ? Source[Index - 1] : null;
+#endif
 
     public int Advance(int count = 1)
     {
@@ -37,6 +41,7 @@ public record Lexer(string Source)
 
     public SyntaxToken NextToken()
     {
+        ResetState();
         while (!EOF)
         {
             var current = Current.Value;
@@ -66,6 +71,7 @@ public record Lexer(string Source)
                             new Position(Advance(2), 2));
                     if (char.IsNumber(Peek(1))) // this is a negative number 
                     {
+                        _isNegativeFlag = true;
                         Advance();
                         goto case '0';
                     }
@@ -133,7 +139,9 @@ public record Lexer(string Source)
                 {
                     var (value, startIndex, lenght) = ReadToken(char.IsNumber);
                     var position = new Position(startIndex, lenght);
-                    return new SyntaxToken(SyntaxKind.NumberLiteral, int.Parse(value), position);
+                    var integer = int.Parse(value);
+                    integer = _isNegativeFlag ? -integer : integer;
+                    return new SyntaxToken(SyntaxKind.NumberLiteral, integer, position);
                 }
 
                 case 'A':
@@ -206,6 +214,11 @@ public record Lexer(string Source)
         }
 
         return new SyntaxToken(SyntaxKind.EndOfFileToken, '\0', new Position(Advance(), 1));
+    }
+
+    private void ResetState()
+    {
+        _isNegativeFlag = false;
     }
 
     /// <summary>

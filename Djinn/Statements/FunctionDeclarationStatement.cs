@@ -4,6 +4,7 @@ using Djinn.Syntax.Biding.Scopes;
 
 namespace Djinn.Statements;
 
+[System.Diagnostics.DebuggerDisplay("{DebugInformationDisplay}")]
 public record FunctionDeclarationStatement(
     SyntaxToken ReturnType,
     SyntaxToken Identifier,
@@ -11,7 +12,13 @@ public record FunctionDeclarationStatement(
     IStatement Statement // TODO BETTER TYPING THIS
 ) : IStatement
 {
+#if DEBUG
+    public string DebugInformationDisplay =>
+        $"fn {ReturnType.Value} {Identifier.Value} ({string.Join(", ", Parameters.Select(param => param.DebugInformationDisplay))})";
+#endif
+
     public SyntaxKind Kind => SyntaxKind.FunctionDeclaration;
+
 
     public T Visit<T>(IStatementVisitor<T> visitor, BoundScope boundScope)
     {

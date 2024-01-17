@@ -9,7 +9,14 @@ public record SwitchStatement(
     IEnumerable<SwitchCaseStatement> Cases
 ) : IStatement
 {
+#if DEBUG
+    public string DebugInformationDisplay =>
+        $@"switch ({Expression.DebugInformationDisplay}) {{Cases.Count: {Cases.Count()}}}";
+#endif
+
+
     public SyntaxKind Kind => SyntaxKind.Switch;
+
 
     public T Visit<T>(IStatementVisitor<T> visitor, BoundScope boundScope)
     {

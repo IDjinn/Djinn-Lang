@@ -82,11 +82,6 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindStatement(discardExpressionResult, boundScope);
     }
 
-    public IBoundStatement Visit(FunctionStatement functionStatement, BoundScope boundScope)
-    {
-        throw new NotImplementedException();
-    }
-
     public IBoundStatement Visit(ReturnStatement returnStatement, BoundScope boundScope)
     {
         return BindReturnStatement(returnStatement, boundScope);

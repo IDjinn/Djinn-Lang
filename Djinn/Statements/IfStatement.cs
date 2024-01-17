@@ -4,12 +4,19 @@ using Djinn.Syntax.Biding.Scopes;
 
 namespace Djinn.Statements;
 
+[System.Diagnostics.DebuggerDisplay("{DebugInformationDisplay}")]
 public record IfStatement(
     IExpressionSyntax Conditional, // TODO MAKE THIS CONDITIONAL AT COMPILE TIME
     IStatement Block
-    ) : IStatement
+) : IStatement
 {
+#if DEBUG
+    public string DebugInformationDisplay =>
+        $"if {Conditional.DebugInformationDisplay} ({Block.DebugInformationDisplay})";
+#endif
+
     public SyntaxKind Kind => SyntaxKind.IfStatement;
+
     public T Visit<T>(IStatementVisitor<T> visitor, BoundScope boundScope)
     {
         return visitor.Visit(this, boundScope);

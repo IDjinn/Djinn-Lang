@@ -13,12 +13,15 @@ public static class Program
     {
         var source = $$"""
                        function int1 main() {
-                           int32 counter = 10;
-                           while(counter >= 1){
-                            printf(".");
-                            counter--;
-                           }
-                           ret counter;
+                           switch (1) {
+                              case 1: {
+                                  ret 2;
+                              }
+                              default: {
+                                  ret -3;
+                              }
+                          }
+                          ret -4;
                        }
                        """;
 

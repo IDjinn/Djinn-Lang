@@ -46,7 +46,24 @@ public class Parser
     [MemberNotNullWhen(true, nameof(Current))]
     public bool HasCurrent => _index < _tokens.Count;
 
-    public SyntaxToken Current => Peek();
+    public SyntaxToken Current
+    {
+        get
+        {
+            if (_index >= _tokens.Count)
+            {
+                Debug.Fail($"Out of bounds to peek current {_index} token");
+                DiagnosticError<SyntaxToken>($"Out of bounds to peek current {_index} token");
+                return SyntaxToken.BadToken;
+            }
+
+            return _tokens[_index];
+        }
+    }
+
+#if DEBUG
+    public SyntaxToken? Previous => (_index > 1) ? _tokens[_index - 1] : null;
+#endif
 
     public SyntaxTree Parse()
     {
