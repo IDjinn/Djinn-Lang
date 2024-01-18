@@ -1,0 +1,29 @@
+﻿; ModuleID = 'test_for_declaring_variable'
+source_filename = "test_for_declaring_variable"
+target datalayout = "e-m:w-i64:64-f80:128-n8:16:32:64-S128"
+
+@constString = private unnamed_addr constant [9 x i8] c"i = %d\5Cn\00"
+
+declare i32 @printf(i8*, ...)
+
+declare i32 @scanf(i8*)
+
+define i32 @main() {
+entry:
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %for
+
+for:                                              ; preds = %for, %entry
+  %read = load i32, i32* %i
+  %add = add i32 %read, 1
+  store i32 %add, i32* %i
+  %read1 = load i32, i32* %i
+  %printf_call = call i32 (i8*, ...) @printf([9 x i8]* @constString, i32 %read1)
+  %read2 = load i32, i32* %i
+  %cmp = icmp ult i32 %read2, 10
+  br i1 %cmp, label %for, label %exit
+
+exit:                                             ; preds = %for
+  ret i32 1
+}

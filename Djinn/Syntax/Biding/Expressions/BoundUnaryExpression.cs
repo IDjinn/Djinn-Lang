@@ -5,7 +5,8 @@ using LLVMSharp;
 
 namespace Djinn.Syntax.Biding.Expressions;
 
-[DebuggerDisplay("Unary => ({OperandExpression}) => {Operator.OperatorKind.UnaryOperatorKindToString()} returns {Type.GetType().Name}")]
+[DebuggerDisplay(
+    "Unary => ({OperandExpression}) => {Operator.OperatorKind.UnaryOperatorKindToString()} returns {Type.GetType().Name}")]
 public record BoundUnaryExpression : IBoundExpression
 {
     public required BoundUnaryOperator? Operator { get; init; }
@@ -23,10 +24,11 @@ public record BoundUnaryExpression : IBoundExpression
                 BoundUnaryOperatorKind.Negation => -(Integer32)boundLiteralExpression.Number,
                 _ => throw new NotImplementedException()
             };
-            var result = boundLiteralExpression with { Number =newValue };
+            var result = boundLiteralExpression with { Number = newValue };
             return result.Evaluate(expressionGenerator, boundScope);
         }
-        return expressionGenerator.GenerateUnaryExpression(this,boundScope);
+
+        return expressionGenerator.GenerateUnaryExpression(this, boundScope);
     }
 
     public LLVMValueRef Generate(CompilationContext ctx)
@@ -38,12 +40,17 @@ public record BoundUnaryExpression : IBoundExpression
                 BoundUnaryOperatorKind.Identity => +(Integer32)boundLiteralExpression.Number,
                 BoundUnaryOperatorKind.Negation => -(Integer32)boundLiteralExpression.Number,
                 _ => throw new NotImplementedException()
-
             };
-            var result = boundLiteralExpression with { Number =newValue };
+            var result = boundLiteralExpression with { Number = newValue };
             return result.Generate(ctx);
         }
 
-        throw new NotImplementedException();
+        var left = OperandExpression.Generate(ctx);
+        return Operator?.OperatorKind switch
+        {
+            BoundUnaryOperatorKind.Addition => LLVM.BuildAdd(ctx.Builder, left,
+                Integer32.GenerateFromValue(new Integer32(1)), "add"),
+            _ => throw new NotImplementedException()
+        };
     }
 }

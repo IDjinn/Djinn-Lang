@@ -1,4 +1,6 @@
-﻿using Djinn.Compile;
+﻿#define NO_LOAD_IF_FOUND
+
+using Djinn.Compile;
 using Djinn.Compile.Scopes;
 using Djinn.Compile.Variables;
 using Djinn.Syntax.Biding.Scopes;
@@ -29,7 +31,7 @@ public record BoundReadVariableExpression(BoundVariable BoundVariable) : IBoundE
         var variable = ctx.Scope.FindVariable<LocalVariable>(BoundVariable.Identifier);
         if (variable.HasValue)
             return LLVM.BuildLoad(ctx.Builder, variable.Value.Pointer, "read");
-        
+
         throw new NotImplementedException();
     }
 }

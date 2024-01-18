@@ -23,7 +23,8 @@ public enum BoundNodeKind
     Case,
     DeclareVariable,
     While,
-    AssigmentVariable
+    AssigmentVariable,
+    For
 }
 
 public static class BoundNodeKindExtensions

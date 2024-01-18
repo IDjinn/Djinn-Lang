@@ -47,7 +47,7 @@ function int32 main() {
     - [ ] Generics
 - [ ] Arrays
 - [X] Loops
-    - [ ] For
+  - [X] For
     - [X] While
     - [ ] Do-while
 

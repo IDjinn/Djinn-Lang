@@ -24,8 +24,53 @@ public static class CompileStatements
             BoundSwitchStatement switchStatement => GenerateSwitchStatement(ctx, switchStatement),
             BoundVariableStatement variableStatement => GenerateVariableStatement(ctx, variableStatement),
             BoundWhileStatement whileStatement => GenerateWhileStatement(ctx, whileStatement),
+            BoundForStatement forStatement => GenerateForStatement(ctx, forStatement),
             _ => throw new NotImplementedException(statement.GetType().FullName)
         };
+    }
+
+    private static LLVMValueRef GenerateForStatement(CompilationContext ctx, BoundForStatement forStatement)
+    {
+        var functionPointer = ctx.Stack.Peek();
+
+        var forBlock = LLVM.AppendBasicBlock(functionPointer, "for");
+        var exitBlock = LLVM.AppendBasicBlock(functionPointer, "exit");
+        GenerateStatement(ctx, forStatement.Variable);
+        LLVM.BuildBr(ctx.Builder, forBlock);
+        LLVM.PositionBuilderAtEnd(ctx.Builder, forBlock);
+
+        var value = forStatement.Operation.Generate(ctx);
+        var variable = ctx.Scope.FindVariable<LocalVariable>(forStatement.Variable.Name).Value;
+        LLVM.BuildStore(ctx.Builder, value, variable.Pointer);
+        GenerateStatement(ctx, forStatement.Block);
+        LLVMValueRef comparison;
+        // TODO: THIS MUST BE DYNAMIC.
+        if (forStatement.Condition.Type.GetType().IsInstanceOfType(new Bool()) &&
+            forStatement.Condition is BoundBinaryExpression bin) // THIS IS A LOGICAL EXPRESSION
+        {
+            var left = bin.Left.Generate(ctx);
+            var op = bin.Operator.OperatorKind.ToLLVMIntPredicate();
+            var right = bin.Right.Generate(ctx);
+            comparison = LLVM.BuildICmp(ctx.Builder,
+                op,
+                left,
+                right,
+                "cmp");
+        }
+        else
+        {
+            var expression = forStatement.Condition.Generate(ctx);
+            comparison = LLVM.BuildICmp(ctx.Builder,
+                LLVMIntPredicate.LLVMIntEQ,
+                expression,
+                Integer1.GenerateFromValue((Integer1)1),
+                "cmp");
+        }
+
+        LLVM.BuildCondBr(ctx.Builder, comparison, forBlock, exitBlock);
+
+        LLVM.PositionBuilderAtEnd(ctx.Builder, exitBlock);
+        return default;
     }
 
     private static LLVMValueRef GenerateWhileStatement(CompilationContext ctx, BoundWhileStatement whileStatement)

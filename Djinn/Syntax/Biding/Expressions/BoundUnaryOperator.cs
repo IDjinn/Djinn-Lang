@@ -25,6 +25,13 @@ public record BoundUnaryOperator
             OperandType = typeof(INumber),
             ResultType = typeof(INumber)
         },
+        new()
+        {
+            SyntaxKind = SyntaxKind.IncrementOperator,
+            OperatorKind = BoundUnaryOperatorKind.Addition,
+            OperandType = typeof(INumber),
+            ResultType = typeof(INumber)
+        },
     };
 
     public required SyntaxKind SyntaxKind { get; init; }

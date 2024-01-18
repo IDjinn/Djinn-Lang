@@ -14,4 +14,5 @@ public interface IStatementVisitor<T>
     public T Visit(SwitchStatement switchStatement, BoundScope boundScope);
     public T Visit(VariableDeclarationStatement variableDeclaration, BoundScope boundScope);
     public T Visit(WhileStatement whileStatement, BoundScope boundScope);
+    public T Visit(ForStatement forStatement, BoundScope boundScope);
 }

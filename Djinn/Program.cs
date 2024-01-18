@@ -13,15 +13,12 @@ public static class Program
     {
         var source = $$"""
                        function int1 main() {
-                            if (true) {
-                                printf("true hit");
+                            for (int32 i = 0; i < 10; i++) {
+                                printf("i = %d", i);
                             }
                             ret 1;
                        }
                        """;
-
-        // await CompilerTools.CompileAsync(source);
-        // return;
 
         var options = new Compiler.CompilerOptions("test", "test");
         var result = Compiler.Compile(source, options);

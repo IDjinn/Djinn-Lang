@@ -122,6 +122,11 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         throw new NotImplementedException();
     }
 
+    public IBoundStatement Visit(ForStatement forStatement, BoundScope boundScope)
+    {
+        throw new NotImplementedException();
+    }
+
     public IEnumerable<IBoundStatement> Bind(SyntaxTree syntaxTree)
     {
         var globalScope = new BoundGlobalScope("global");
@@ -150,9 +155,21 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             VariableDeclarationStatement variableDeclarationStatement => BindVariableDeclarationStatement(
                 variableDeclarationStatement, boundScope),
             WhileStatement whileStatement => BindWhileStatement(whileStatement, boundScope),
+            ForStatement forStatement => BindForStatement(forStatement, boundScope),
             _ => Reporter.Error($"Unsupported binding statement of type '{statement.GetType().Name}'",
                 BoundBlockStatement.Empty)
         };
+    }
+
+    private BoundForStatement BindForStatement(ForStatement forStatement, BoundScope boundScope)
+    {
+        var boundVariable = BindVariableDeclarationStatement(forStatement.Variable, boundScope);
+        return new BoundForStatement(
+            boundVariable,
+            BindExpression(forStatement.Condition, boundScope),
+            BindExpression(forStatement.Operation, boundScope),
+            BindStatement(forStatement.Block, boundScope)
+        );
     }
 
     private IBoundStatement BindWhileStatement(WhileStatement whileStatement, BoundScope boundScope)
@@ -161,7 +178,8 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
             BindBlockStatement(whileStatement.Block, boundScope));
     }
 
-    private IBoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement,
+    private BoundVariableStatement BindVariableDeclarationStatement(
+        VariableDeclarationStatement variableDeclarationStatement,
         BoundScope boundScope)
     {
         var identifier = (string)variableDeclarationStatement.Identifier.Value;
@@ -323,8 +341,22 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
                 boundScope),
             IdentifierExpression nameExpression => BindIdentifierExpression(nameExpression, boundScope),
             AssigmentExpression assigmentExpression => BindAssigmentExpression(assigmentExpression, boundScope),
+            ReadVariableExpression readVariableExpression => BindReadVariableExpression(readVariableExpression,
+                boundScope),
             _ => throw new NotImplementedException()
         };
+    }
+
+    private IBoundExpression BindReadVariableExpression(ReadVariableExpression readVariableExpression,
+        BoundScope boundScope)
+    {
+        var identifier = (string)readVariableExpression.Identifier.Value;
+        var variable = boundScope.FindVariable(identifier);
+
+        if (!variable.HasValue)
+            throw new NotImplementedException();
+
+        return new BoundReadVariableExpression(variable.Value);
     }
 
     private IBoundExpression BindAssigmentExpression(AssigmentExpression assigmentExpression, BoundScope boundScope)
@@ -391,18 +423,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
     private BoundUnaryExpression BindUnaryExpression(UnaryExpressionSyntax unary, BoundScope boundScope)
     {
         var boundOperator = BoundUnaryOperator.Bind(unary.Operator.Kind, new Integer32());
-        if (boundOperator is null)
-        {
-            // TODO REPORTING
-        }
-
         var operand = BindExpression(unary.Operand, boundScope);
-        if (unary.Operand is not ConstantNumberExpressionSyntax cnst)
-        {
-            throw
-                new NotImplementedException(); // todo: unary must be compile-time handled. (sum, minus, div, mod) and other types
-        }
-
         return new BoundUnaryExpression()
         {
             OperandExpression = operand,

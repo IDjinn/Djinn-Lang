@@ -5,7 +5,9 @@ public enum BoundUnaryOperatorKind
     Unknown,
     Identity,
     Negation,
-    LogicalNegation
+    LogicalNegation,
+
+    Addition
 }
 
 public static class BoundUnaryOperatorKindExtensions

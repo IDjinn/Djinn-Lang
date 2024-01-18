@@ -94,9 +94,28 @@ public class Parser
             SyntaxKind.Switch => ParseSwitchStatement(),
             SyntaxKind.While => ParseWhileStatement(),
 
+            SyntaxKind.For => ParseForLoop(),
+
             SyntaxKind.BadToken or SyntaxKind.EndOfFileToken => throw new ArgumentException("EOF"),
             _ => ExpectingStatement(),
         };
+    }
+
+    private ForStatement ParseForLoop()
+    {
+        Consume(SyntaxKind.For);
+        Consume(SyntaxKind.OpenParenthesis);
+        TryParseVariableDeclaration(out var variable);
+        var condition = ParseExpression();
+        var operation = ParseExpression();
+        Consume(SyntaxKind.CloseParenthesis);
+        var block = ParseBlockStatement();
+        return new ForStatement(
+            variable!,
+            condition,
+            operation,
+            block
+        );
     }
 
     private IStatement ParseWhileStatement()
@@ -349,14 +368,27 @@ public class Parser
     {
         IExpressionSyntax left;
         var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
-        if (!unaryOperatorPrecedence.HasValue || parentPrecedence > unaryOperatorPrecedence.Value)
+        var nextUnaryOperatorPrecedence = HasNext ? Peek(1).Kind.GetUnaryOperatorPrecedence() : default;
+        if ((!unaryOperatorPrecedence.HasValue && !nextUnaryOperatorPrecedence.HasValue) ||
+            (parentPrecedence > unaryOperatorPrecedence.Value || parentPrecedence > nextUnaryOperatorPrecedence.Value))
         {
             left = ParsePrimaryExpression();
         }
         else
         {
-            var operatorToken = Consume(SyntaxKind.ArithmeticOperators);
-            var operand = ParseExpression(unaryOperatorPrecedence.Value);
+            SyntaxToken? operatorToken;
+            IExpressionSyntax? operand;
+            if (nextUnaryOperatorPrecedence.HasValue)
+            {
+                operand = ParseExpression(nextUnaryOperatorPrecedence.Value); // identifier
+                operatorToken = Consume(SyntaxKind.ArithmeticOperators);
+            }
+            else
+            {
+                operatorToken = Consume(SyntaxKind.ArithmeticOperators);
+                operand = ParseExpression(unaryOperatorPrecedence.Value);
+            }
+
             left = new UnaryExpressionSyntax(operand, operatorToken);
         }
 
@@ -377,9 +409,9 @@ public class Parser
     public IExpressionSyntax ParsePrimaryExpression()
     {
         if (TryMatch(SyntaxKind.EndOfFileToken, out var eof))
-            throw new Exception("eof");
+            return DiagnosticError<NoOpExpression>("Invalid expression syntax EndOfFileToken");
         if (TryMatch(SyntaxKind.BadToken, out var badToken))
-            throw new Exception("badtoken");
+            return DiagnosticError<NoOpExpression>("Invalid expression syntax BadToken");
 
         if (TryMatch(SyntaxKind.StringLiteral, out var stringToken))
             return new ConstantStringExpressionSyntax(stringToken);
@@ -408,7 +440,7 @@ public class Parser
                     if (TryMatch(SyntaxKind.OpenParenthesis, out var _))
                         return new FunctionCallExpression(identifierToken, ParseArgumentsExpression());
 
-                    return new IdentifierExpression(identifierToken);
+                    return new ReadVariableExpression(identifierToken, identifierToken);
             }
         }
 

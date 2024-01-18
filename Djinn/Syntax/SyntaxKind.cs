@@ -126,11 +126,11 @@ public static class SyntaxKindExtensions
         SyntaxKind.AmpersendAmpersandToken => 10,
 
         SyntaxKind.PlusToken or SyntaxKind.MinusToken => 20,
-
         SyntaxKind.StarToken or SyntaxKind.SlashToken => 30,
 
         SyntaxKind.LessThanOperator or SyntaxKind.GreaterThanOperator => 40,
         SyntaxKind.LessThanEqualsOperator or SyntaxKind.GreaterThanEqualsOperator => 40,
+
         _ => InvalidOperatorPrecedence
     };
 
@@ -138,6 +138,7 @@ public static class SyntaxKindExtensions
     {
         SyntaxKind.StarToken or SyntaxKind.SlashToken => 10,
         SyntaxKind.PlusToken or SyntaxKind.MinusToken => 20,
-        _ => default(Optional<int>) 
+        SyntaxKind.IncrementOperator or SyntaxKind.DecrementOperator => 30,
+        _ => default(Optional<int>)
     };
 }

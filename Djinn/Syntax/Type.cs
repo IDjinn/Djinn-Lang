@@ -8,6 +8,8 @@ public interface IType
     public int SizeOf { get; }
     public bool IsHeap { get; }
     public bool IsReadOnly { get; }
+
+    public LLVMTypeRef ToLLVMType();
 }
 
 public readonly record struct Bool(bool Value) : IType
@@ -15,6 +17,12 @@ public readonly record struct Bool(bool Value) : IType
     public int SizeOf => 1;
     public bool IsHeap => false;
     public bool IsReadOnly => false;
+
+    public LLVMTypeRef ToLLVMType()
+    {
+        return LLVM.Int1Type();
+    }
+
     public static LLVMValueRef GenerateFromValue(Bool boolean)
     {
         return LLVM.ConstInt(LLVMTypeRef.Int1Type(), (ulong)(boolean.Value ? 1 : 0), new LLVMBool(0));
@@ -47,10 +55,16 @@ public readonly record struct String : IType, IArray<char>
     public bool IsHeap => true;
     public bool IsReadOnly => true;
 
+    public LLVMTypeRef ToLLVMType()
+    {
+        throw new NotImplementedException();
+    }
+
     public static LLVMValueRef GenerateFromValue(string name, BoundValue value, LLVMBuilderRef builderRef)
     {
         return LLVM.BuildGlobalString(builderRef, value.Value.ToString(), name);
     }
+
     public static LLVMValueRef GenerateFromValue(string name, string rawString, LLVMBuilderRef builderRef)
     {
         return LLVM.BuildGlobalString(builderRef, rawString, name);
@@ -65,36 +79,46 @@ public readonly record struct Integer1(byte Value) : INumber
     public bool IsHeap => false;
     public bool IsReadOnly => false;
 
+    public LLVMTypeRef ToLLVMType()
+    {
+        return LLVM.Int1Type();
+    }
+
     public static LLVMValueRef GenerateFromValue(Integer1 integer)
     {
         return LLVM.ConstInt(LLVMTypeRef.Int1Type(), integer.Value, new LLVMBool(0));
     }
-    
+
     public static Integer1 operator +(Integer1 a, Integer1 b)
     {
         return new Integer1((byte)(a.Value + b.Value));
     }
+
     public static Integer1 operator -(Integer1 a, Integer1 b)
     {
         return new Integer1((byte)(a.Value - b.Value));
     }
+
     public static Integer1 operator *(Integer1 a, Integer1 b)
     {
         return new Integer1((byte)(a.Value * b.Value));
     }
+
     public static Integer1 operator /(Integer1 a, Integer1 b)
     {
         return new Integer1((byte)(a.Value / b.Value));
     }
-    
+
     public static Integer1 operator +(Integer1 a)
     {
         return new Integer1((byte)+a.Value);
     }
+
     public static Integer1 operator -(Integer1 a)
     {
         return new Integer1((byte)-a.Value);
     }
+
     public static explicit operator Integer1(byte value)
     {
         return new Integer1(value);
@@ -110,32 +134,41 @@ public readonly record struct Integer32(int Value) : INumber
     public bool IsHeap => false;
     public bool IsReadOnly => false;
 
+    public LLVMTypeRef ToLLVMType()
+    {
+        return LLVM.Int32Type();
+    }
+
     public static LLVMValueRef GenerateFromValue(Integer32 integer32)
     {
         return LLVM.ConstInt(LLVMTypeRef.Int32Type(), (ulong)integer32.Value, new LLVMBool(0));
     }
-    
+
     public static Integer32 operator +(Integer32 a, Integer32 b)
     {
         return new Integer32(a.Value + b.Value);
     }
+
     public static Integer32 operator -(Integer32 a, Integer32 b)
     {
         return new Integer32(a.Value - b.Value);
     }
+
     public static Integer32 operator *(Integer32 a, Integer32 b)
     {
         return new Integer32(a.Value * b.Value);
     }
+
     public static Integer32 operator /(Integer32 a, Integer32 b)
     {
         return new Integer32(a.Value / b.Value);
     }
-    
+
     public static Integer32 operator +(Integer32 a)
     {
         return new Integer32(+a.Value);
     }
+
     public static Integer32 operator -(Integer32 a)
     {
         return new Integer32(-a.Value);
