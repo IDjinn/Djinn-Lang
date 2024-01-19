@@ -4,6 +4,7 @@ using FluentAssertions;
 namespace Djinn.Tests.Expressions;
 
 [UsesVerify]
+[Collection("full-compilation-tests")]
 public class CompileTimeExpressions
 {
     [Fact]

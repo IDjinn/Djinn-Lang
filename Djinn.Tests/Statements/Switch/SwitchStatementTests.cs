@@ -4,6 +4,7 @@ using FluentAssertions;
 namespace Djinn.Tests.Statements.Switch;
 
 [UsesVerify]
+[Collection("full-compilation-tests")]
 public class SwitchStatementTests
 {
     [Fact]
@@ -23,8 +24,8 @@ public class SwitchStatementTests
         compileResult.ErrorLevel.Should().Be(1);
         await Verify(compileResult.IR);
     }
-    
-    
+
+
     [Fact]
     public async Task test_false_branch_switch()
     {
@@ -63,7 +64,7 @@ public class SwitchStatementTests
         compileResult.ErrorLevel.Should().Be(1);
         await Verify(compileResult.IR);
     }
-    
+
     [Fact]
     public async Task test_true_branch_switch()
     {
@@ -75,7 +76,7 @@ public class SwitchStatementTests
                             }
                             default: {
                                 ret -1;
-                            }    
+                            }
                         }
                         ret -2;
                      }

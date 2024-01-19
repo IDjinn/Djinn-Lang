@@ -4,6 +4,7 @@ using FluentAssertions;
 namespace Djinn.Tests.Statements.Variables;
 
 [UsesVerify]
+[Collection("full-compilation-tests")]
 public class LocalVariableDeclarationTests
 {
     [Fact]
@@ -19,8 +20,8 @@ public class LocalVariableDeclarationTests
         compileResult.ErrorLevel.Should().Be(2);
         await Verify(compileResult.IR);
     }
-    
-    
+
+
     [Fact]
     public async Task test_binary_var_expression()
     {

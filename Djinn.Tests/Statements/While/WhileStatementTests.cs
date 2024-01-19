@@ -4,6 +4,7 @@ using FluentAssertions;
 namespace Djinn.Tests.Statements.While;
 
 [UsesVerify]
+[Collection("full-compilation-tests")]
 public class WhileStatementTests
 {
     [Fact]

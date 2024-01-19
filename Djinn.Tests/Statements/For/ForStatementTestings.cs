@@ -4,6 +4,7 @@ using FluentAssertions;
 namespace Djinn.Tests.Statements.For;
 
 [UsesVerify]
+[Collection("full-compilation-tests")]
 public class ForStatementTestings
 {
     [Fact]

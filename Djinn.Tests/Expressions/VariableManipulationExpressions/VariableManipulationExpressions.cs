@@ -4,6 +4,7 @@ using FluentAssertions;
 namespace Djinn.Tests.Expressions.VariableManipulationExpressions;
 
 [UsesVerify]
+[Collection("full-compilation-tests")]
 public class VariableManipulationExpressions
 {
     [Fact]

@@ -4,6 +4,7 @@ using FluentAssertions;
 namespace Djinn.Tests;
 
 [UsesVerify]
+[Collection("full-compilation-tests")]
 public class IfStatementTestings
 {
     [Fact]

@@ -5,6 +5,7 @@ using Djinn.Syntax.Biding;
 namespace Djinn.Tests;
 
 [UsesVerify]
+[Collection("full-compilation-tests")]
 public partial class BindingExpressionTests
 {
     [Fact]
