@@ -7,7 +7,9 @@ public interface IType
 {
     public int SizeOf { get; }
     public bool IsHeap { get; }
-    public bool IsReadOnly { get; }
+    public bool IsMutable { get; }
+
+    public static abstract object DefaultValue { get; }
 
     public LLVMTypeRef ToLLVMType();
 }
@@ -16,7 +18,8 @@ public readonly record struct Bool(bool Value) : IType
 {
     public int SizeOf => 1;
     public bool IsHeap => false;
-    public bool IsReadOnly => false;
+    public bool IsMutable => false;
+    public static object DefaultValue => 0;
 
     public LLVMTypeRef ToLLVMType()
     {
@@ -51,9 +54,11 @@ public readonly record struct String : IType, IArray<char>
     }
 
     public char[] Values { get; }
+
+    public static object DefaultValue => string.Empty;
     public int SizeOf { get; }
     public bool IsHeap => true;
-    public bool IsReadOnly => true;
+    public bool IsMutable => true;
 
     public LLVMTypeRef ToLLVMType()
     {
@@ -77,7 +82,8 @@ public readonly record struct Integer1(byte Value) : INumber
     public bool IsFloat => false;
     public int SizeOf => sizeof(bool);
     public bool IsHeap => false;
-    public bool IsReadOnly => false;
+    public bool IsMutable => false;
+    public static object DefaultValue => 0;
 
     public LLVMTypeRef ToLLVMType()
     {
@@ -132,7 +138,8 @@ public readonly record struct Integer32(int Value) : INumber
     public bool IsFloat => false;
     public int SizeOf => sizeof(int);
     public bool IsHeap => false;
-    public bool IsReadOnly => false;
+    public bool IsMutable => false;
+    public static object DefaultValue => 0;
 
     public LLVMTypeRef ToLLVMType()
     {

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Djinn.Compile;
 
-namespace Djinn.Tools
+namespace Djinn
 {
     public static class CompilerTools
     {

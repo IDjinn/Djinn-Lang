@@ -16,7 +16,7 @@ public record IfStatement(
         $"if {Conditional.DebugInformationDisplay} ({Block.DebugInformationDisplay})";
 #endif
 
-    public SyntaxKind Kind => SyntaxKind.IfStatement;
+    public SyntaxKind Kind => SyntaxKind.If;
 
     public T Visit<T>(IStatementVisitor<T> visitor, BoundScope boundScope)
     {

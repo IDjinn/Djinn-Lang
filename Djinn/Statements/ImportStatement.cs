@@ -5,7 +5,6 @@ namespace Djinn.Statements;
 
 [System.Diagnostics.DebuggerDisplay("{DebugInformationDisplay}")]
 public record ImportStatement(
-    SyntaxToken Keyword,
     SyntaxToken Library
 ) : IStatement
 {

@@ -31,7 +31,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Djinn.Tools\Djinn.Tools.csproj" />
         <ProjectReference Include="..\Djinn\Djinn.csproj"/>
     </ItemGroup>
 

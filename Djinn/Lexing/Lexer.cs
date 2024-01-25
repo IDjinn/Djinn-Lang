@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Djinn.Syntax;
 using Djinn.Utils;
@@ -8,6 +9,8 @@ namespace Djinn.Lexing;
 
 public record Lexer(string Source)
 {
+    public static readonly SyntaxKind[] IgnoredTokens = [SyntaxKind.BadToken, SyntaxKind.WhiteSpaceToken];
+
     private bool _isNegativeFlag = false;
     private int Index = 0;
 
@@ -18,6 +21,21 @@ public record Lexer(string Source)
 #if DEBUG
     public char? Previous => Source.Length - Index - 1 >= 0 ? Source[Index - 1] : null;
 #endif
+
+    public IEnumerable<SyntaxToken> Lex()
+    {
+        var tokens = new List<SyntaxToken>();
+        do
+        {
+            var token = NextToken();
+            if (IgnoredTokens.Contains(token.Kind))
+                continue;
+
+            tokens.Add(token);
+        } while (!EOF);
+
+        return tokens;
+    }
 
     public int Advance(int count = 1)
     {
@@ -83,6 +101,9 @@ public record Lexer(string Source)
 
                     return new SyntaxToken(SyntaxKind.LessThanOperator, current, new Position(Advance(), 1));
 
+                case ';':
+                    return new SyntaxToken(SyntaxKind.SemiColon, current, new Position(Advance(), 1));
+
                 case '>':
                     if (Peek(1) == '=')
                         return new SyntaxToken(SyntaxKind.GreaterThanEqualsOperator, current,
@@ -137,8 +158,8 @@ public record Lexer(string Source)
                 case '8':
                 case '9':
                 {
-                    var (value, startIndex, lenght) = ReadToken(char.IsNumber);
-                    var position = new Position(startIndex, lenght);
+                    var (value, startIndex, length) = ReadToken(static (ch, _) => char.IsNumber(ch));
+                    var position = new Position(startIndex, length);
                     var integer = int.Parse(value);
                     integer = _isNegativeFlag ? -integer : integer;
                     return new SyntaxToken(SyntaxKind.NumberLiteral, integer, position);
@@ -197,13 +218,14 @@ public record Lexer(string Source)
                 case 'y':
                 case 'z':
                 {
-                    var (value, startIndex, lenght) =
-                        ReadToken((ch, index) => char.IsLetter(ch) || (index > 0 && char.IsDigit(ch)));
+                    var (value, startIndex, length) =
+                        ReadToken(static (ch, index) => char.IsLetter(ch) || (index > 0 && char.IsDigit(ch)));
                     var keyword = KeywordExtensions.FromString(value);
                     var keywordKind = KeywordExtensions.ToTokenKind(keyword);
-                    var position = new Position(startIndex, lenght);
+                    var position = new Position(startIndex, length);
+                    var isValidKeyword = keywordKind != SyntaxKind.BadToken && keywordKind != SyntaxKind.Unknown;
                     return new SyntaxToken(
-                        keywordKind != SyntaxKind.BadToken ? keywordKind : SyntaxKind.Identifier,
+                        isValidKeyword ? keywordKind : SyntaxKind.Identifier,
                         value,
                         position
                     );
@@ -226,6 +248,7 @@ public record Lexer(string Source)
     /// </summary>
     /// <param name="predicate">Predicate to filter. (CurrentChar, Index) => true | false</param>
     /// <returns>(ValueString, StartIndex, EndIndex)</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public (string, int, int) ReadToken(Func<char, int, bool> predicate)
     {
         var startIndex = Index;
@@ -236,8 +259,9 @@ public record Lexer(string Source)
         return (buffer.ToString(), startIndex, buffer.Length);
     }
 
-    public (string, int, int) ReadToken(Func<char, bool> predicate)
-    {
-        return ReadToken((ch, _) => predicate(ch));
-    }
+    // [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    // public (string, int, int) ReadToken(Func<char, bool> predicate)
+    // {
+    //     return ReadToken((ch, _) => predicate(ch));
+    // }
 }

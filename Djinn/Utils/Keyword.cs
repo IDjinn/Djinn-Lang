@@ -47,11 +47,13 @@ public enum Keyword
     Function,
     Var,
     Import,
-    
+
     Switch,
     Case,
     Default,
-    ForEach
+    ForEach,
+
+    Compile
 }
 
 public static class KeywordExtensions
@@ -62,7 +64,8 @@ public static class KeywordExtensions
         {
             "void" => Keyword.Void,
             "var" => Keyword.Var,
-            "function" or "fn" => Keyword.Function,
+            "compile" => Keyword.Compile,
+            "function" => Keyword.Function,
             "ret" or "return" => Keyword.Return,
             "true" => Keyword.True,
             "false" => Keyword.False,
@@ -79,15 +82,15 @@ public static class KeywordExtensions
             "float64" => Keyword.Float64,
             "float80" => Keyword.Float80,
             "float128" or "decimal" => Keyword.Float128,
-            
+
             "if" => Keyword.If,
             "else" => Keyword.Else,
-            
+
             "import" => Keyword.Import,
             "switch" => Keyword.Switch,
             "case" => Keyword.Case,
             "default" => Keyword.Default,
-            
+
             "do" => Keyword.Do,
             "while" => Keyword.While,
             "for" => Keyword.For,
@@ -102,7 +105,7 @@ public static class KeywordExtensions
         {
             Keyword.Void => SyntaxKind.Void,
             Keyword.Function => SyntaxKind.FunctionDeclaration,
-            Keyword.Return => SyntaxKind.ReturnDeclaration,
+            Keyword.Return => SyntaxKind.Return,
 
             Keyword.True => SyntaxKind.True,
             Keyword.False => SyntaxKind.False,
@@ -125,15 +128,17 @@ public static class KeywordExtensions
             // Keyword.Var => SyntaxKind.VariableDeclaration,
             Keyword.Import => SyntaxKind.Import,
             Keyword.Switch => SyntaxKind.Switch,
-            Keyword.Case =>  SyntaxKind.Case,
-            Keyword.Default =>  SyntaxKind.Default,
-            
+            Keyword.Case => SyntaxKind.Case,
+            Keyword.Default => SyntaxKind.Default,
+
             Keyword.For => SyntaxKind.For,
             Keyword.While => SyntaxKind.While,
             Keyword.Do => SyntaxKind.Do,
             Keyword.ForEach => SyntaxKind.ForEach,
-            
-            
+            Keyword.If => SyntaxKind.If,
+            Keyword.Else => SyntaxKind.Else,
+            Keyword.Compile => SyntaxKind.Compile,
+
             _ => SyntaxKind.BadToken
         };
     }

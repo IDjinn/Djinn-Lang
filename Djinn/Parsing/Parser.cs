@@ -7,6 +7,8 @@ using Djinn.Syntax;
 using Djinn.Syntax.Biding.Statements;
 using Djinn.Utils;
 using BinaryExpressionSyntax = Djinn.Expressions.BinaryExpressionSyntax;
+using Diagnostic = Djinn.Utils.Diagnostic;
+using DiagnosticSeverity = Djinn.Utils.DiagnosticSeverity;
 
 namespace Djinn.Parsing;
 
@@ -88,7 +90,7 @@ public class Parser
         {
             SyntaxKind.FunctionDeclaration => ParseFunctionDeclaration(), // TODO: IS THIS USED?
             SyntaxKind.OpenBrace => ParseBlockStatement(),
-            SyntaxKind.ReturnDeclaration => ParseReturnStatement(),
+            SyntaxKind.Return => ParseReturnStatement(),
             SyntaxKind.Identifier => ParseIdentifier(),
             SyntaxKind.Import => ParseImport(),
             SyntaxKind.Switch => ParseSwitchStatement(),
@@ -203,7 +205,7 @@ public class Parser
     {
         var importKeyword = Consume(SyntaxKind.Import);
         var targetLibrary = Consume(SyntaxKind.StringLiteral);
-        return new ImportStatement(importKeyword, targetLibrary);
+        return new ImportStatement(targetLibrary);
     }
 
     private IStatement ParseIdentifier()
@@ -274,7 +276,7 @@ public class Parser
 
     private IStatement ParseReturnStatement()
     {
-        Consume(SyntaxKind.ReturnDeclaration);
+        Consume(SyntaxKind.Return);
         var expression = ParseExpression();
         return new ReturnStatement(expression);
     }
@@ -366,44 +368,45 @@ public class Parser
 
     public IExpressionSyntax ParseExpression(int parentPrecedence = 0)
     {
-        IExpressionSyntax left;
-        var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
-        var nextUnaryOperatorPrecedence = HasNext ? Peek(1).Kind.GetUnaryOperatorPrecedence() : default;
-        if ((!unaryOperatorPrecedence.HasValue && !nextUnaryOperatorPrecedence.HasValue) ||
-            (parentPrecedence > unaryOperatorPrecedence.Value || parentPrecedence > nextUnaryOperatorPrecedence.Value))
-        {
-            left = ParsePrimaryExpression();
-        }
-        else
-        {
-            SyntaxToken? operatorToken;
-            IExpressionSyntax? operand;
-            if (nextUnaryOperatorPrecedence.HasValue)
-            {
-                operand = ParseExpression(nextUnaryOperatorPrecedence.Value); // identifier
-                operatorToken = Consume(SyntaxKind.ArithmeticOperators);
-            }
-            else
-            {
-                operatorToken = Consume(SyntaxKind.ArithmeticOperators);
-                operand = ParseExpression(unaryOperatorPrecedence.Value);
-            }
-
-            left = new UnaryExpressionSyntax(operand, operatorToken);
-        }
-
-        while (true)
-        {
-            var precedence = Current.Kind.GetBinaryOperatorPrecedence();
-            if (precedence == SyntaxKindExtensions.InvalidOperatorPrecedence || precedence <= parentPrecedence)
-                break;
-
-            var operatorToken = Consume(SyntaxKind.LogicalOperators);
-            var right = ParseExpression(precedence);
-            left = new BinaryExpressionSyntax(left, operatorToken, right);
-        }
-
-        return left;
+        return default;
+        // IExpressionSyntax left;
+        // var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
+        // var nextUnaryOperatorPrecedence = HasNext ? Peek(1).Kind.GetUnaryOperatorPrecedence() : default;
+        // if ((!unaryOperatorPrecedence.HasValue && !nextUnaryOperatorPrecedence.HasValue) ||
+        //     (parentPrecedence > unaryOperatorPrecedence.Value || parentPrecedence > nextUnaryOperatorPrecedence.Value))
+        // {
+        //     left = ParsePrimaryExpression();
+        // }
+        // else
+        // {
+        //     SyntaxToken? operatorToken;
+        //     IExpressionSyntax? operand;
+        //     if (nextUnaryOperatorPrecedence.HasValue)
+        //     {
+        //         operand = ParseExpression(nextUnaryOperatorPrecedence.Value); // identifier
+        //         operatorToken = Consume(SyntaxKind.ArithmeticOperators);
+        //     }
+        //     else
+        //     {
+        //         operatorToken = Consume(SyntaxKind.ArithmeticOperators);
+        //         operand = ParseExpression(unaryOperatorPrecedence.Value);
+        //     }
+        //
+        //     left = new UnaryExpressionSyntax(operand, operatorToken);
+        // }
+        //
+        // while (true)
+        // {
+        //     var precedence = Current.Kind.GetBinaryOperatorPrecedence();
+        //     if (precedence == SyntaxKindExtensions.InvalidOperatorPrecedence || precedence <= parentPrecedence)
+        //         break;
+        //
+        //     var operatorToken = Consume(SyntaxKind.LogicalOperators);
+        //     var right = ParseExpression(precedence);
+        //     left = new BinaryExpressionSyntax(left, operatorToken, right);
+        // }
+        //
+        // return left;
     }
 
     public IExpressionSyntax ParsePrimaryExpression()
@@ -599,7 +602,7 @@ public class Parser
     public T Diagnostic<T>(DiagnosticSeverity severity, string message)
     {
         Debug.Fail(message);
-        _diagnostics.Add(new Diagnostic(new Position(_index), message, severity));
+        // _diagnostics.Add(new Diagnostic(new Position(_index), message, severity)); TODO FIX ME
         _index++;
         return default!;
     }

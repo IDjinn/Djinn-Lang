@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace Djinn.Syntax;
 
 [Flags]
@@ -63,12 +61,12 @@ public enum SyntaxKind : long
     LocalVariableDeclaration = Variable | Declaration | 2,
     FunctionDeclaration = Function | Declaration | 3,
 
-    OpenBrace = Block | 1,
-    CloseBrace = Block | 2,
-    ReturnDeclaration = Block | 3,
-    BlockStatement = Block | 4,
-    OpenParenthesis = Block | 5,
-    CloseParenthesis = Block | 6,
+    OpenBrace,
+    CloseBrace,
+    Return,
+    BlockStatement,
+    OpenParenthesis,
+    CloseParenthesis,
 
     FloatLiteral = Constant | Float | 1,
     NumberLiteral = Constant | Integer | 1,
@@ -78,13 +76,13 @@ public enum SyntaxKind : long
     ConstantNumberExpression = Variable | StringLiteral | Expression | 1,
     ConstantFloatExpression = Variable | FloatLiteral | Expression | 1,
 
-    Void = ValueTypes | 30,
+    Void = ValueTypes | Constant | 30,
 
-    True = ValueTypes | 2,
-    False = ValueTypes | 3,
+    True = ValueTypes | Constant | 2,
+    False = ValueTypes | Constant | 3,
 
     StringType = ValueTypes | String | 1,
-    NullType = ValueTypes | Null | 2,
+    NullType = ValueTypes | Null | Constant | 2,
 
     Float16 = Float | 1,
     Float32 = Float | 2,
@@ -104,7 +102,8 @@ public enum SyntaxKind : long
     PipeToken,
     PipePipeToken,
     BangEqualsToken,
-    IfStatement,
+    If = 9999999,
+    Else,
     ImportStatement,
     Import,
     Switch,
@@ -115,13 +114,15 @@ public enum SyntaxKind : long
     Do,
     ForEach,
     ReadVariable,
+    Arrow,
+    SemiColon,
+    Compile,
+    NewLine
 }
 
 public static class SyntaxKindExtensions
 {
-    public const int InvalidOperatorPrecedence = -1;
-
-    public static int GetBinaryOperatorPrecedence(this SyntaxKind kind) => kind switch
+    public static int? GetBinaryOperatorPrecedence(this SyntaxKind kind) => kind switch
     {
         SyntaxKind.AmpersendAmpersandToken => 10,
 
@@ -131,14 +132,14 @@ public static class SyntaxKindExtensions
         SyntaxKind.LessThanOperator or SyntaxKind.GreaterThanOperator => 40,
         SyntaxKind.LessThanEqualsOperator or SyntaxKind.GreaterThanEqualsOperator => 40,
 
-        _ => InvalidOperatorPrecedence
+        _ => null
     };
 
-    public static Optional<int> GetUnaryOperatorPrecedence(this SyntaxKind kind) => kind switch
+    public static int? GetUnaryOperatorPrecedence(this SyntaxKind kind) => kind switch
     {
         SyntaxKind.StarToken or SyntaxKind.SlashToken => 10,
         SyntaxKind.PlusToken or SyntaxKind.MinusToken => 20,
         SyntaxKind.IncrementOperator or SyntaxKind.DecrementOperator => 30,
-        _ => default(Optional<int>)
+        _ => null
     };
 }

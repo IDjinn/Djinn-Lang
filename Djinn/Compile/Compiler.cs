@@ -3,7 +3,9 @@ using Djinn.Compile.Scopes;
 using Djinn.Compile.Types;
 using Djinn.Lexing;
 using Djinn.Parsing;
+using Djinn.Syntax;
 using Djinn.Syntax.Biding;
+using Djinn.Utils;
 using LLVMSharp;
 
 namespace Djinn.Compile;
@@ -13,16 +15,22 @@ public static class Compiler
     public static CompilationResult Compile(string sourceCode, CompilerOptions options)
     {
         var lexer = new Lexer(sourceCode);
-        var parser = new Parser(lexer);
-        var tree = parser.Parse();
+        var parser = new NewParser(lexer.Lex(), sourceCode);
+        var parseResult = parser.Parse();
 
-        if (parser.Diagnostics.Any())
-        {
-            // throw new Exception();
-        }
+        // if (parser.Diagnostics.Any())
+        // {
+        //     // throw new Exception();
+        // }
 
         var binder = new Binder();
+        var tree = new SyntaxTree
+        {
+            Statements = parseResult.ToList(),
+            Diagnostics = new List<Diagnostic>()
+        };
         var syntaxTree = binder.Bind(tree);
+
         if (binder.Reporter.Diagnostics.Any())
         {
             // throw new Exception();

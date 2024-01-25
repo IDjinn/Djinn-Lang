@@ -1,5 +1,4 @@
-﻿using Djinn.Tools;
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace Djinn.Tests.Expressions.VariableManipulationExpressions;
 
@@ -7,6 +6,22 @@ namespace Djinn.Tests.Expressions.VariableManipulationExpressions;
 [Collection("full-compilation-tests")]
 public class VariableManipulationExpressions
 {
+    [Fact]
+    public async Task test_variable_default_value()
+    {
+        var source = """
+                     function void main(){
+                        int32 a;
+                        a++;
+                        ret a;
+                     }
+                     """;
+
+        var compileResult = await CompilerTools.CompileAndRun(source);
+        compileResult.ErrorLevel.Should().Be(1);
+        await Verify(compileResult.IR);
+    }
+
     [Fact]
     public async Task test_variable_write()
     {

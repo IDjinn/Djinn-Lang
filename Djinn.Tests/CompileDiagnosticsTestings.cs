@@ -1,7 +1,5 @@
 using Djinn.Compile;
-using Djinn.Lexing;
 using Djinn.Parsing;
-using Djinn.Tools;
 using FluentAssertions;
 using Binder = Djinn.Syntax.Biding.Binder;
 

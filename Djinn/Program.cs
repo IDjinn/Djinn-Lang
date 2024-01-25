@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Djinn.Compile;
 
 namespace Djinn;
 
@@ -13,15 +12,18 @@ public static class Program
     {
         var source = $$"""
                        function int1 main() {
-                            for (int32 i = 0; i < 10; i++) {
-                                printf("i = %d", i);
-                            }
-                            ret 1;
+                            int32 a = 0;
+                            a++;
+                            ret a;
                        }
                        """;
 
-        var options = new Compiler.CompilerOptions("test", "test");
-        var result = Compiler.Compile(source, options);
-        Compiler.WriteToFile(result, options);
+        if (!Directory.Exists("./temp"))
+            Directory.CreateDirectory("./temp");
+
+        var compileResult = await CompilerTools.CompileAndRun(source);
+        Console.Clear();
+        Console.WriteLine(compileResult.IR);
+        Console.WriteLine($"[ERROR-LEVEL] = {compileResult.ErrorLevel}");
     }
 }

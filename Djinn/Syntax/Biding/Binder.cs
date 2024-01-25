@@ -77,6 +77,7 @@ public class Binder : IStatementVisitor<IBoundStatement>, IExpressionVisitor<IBo
         return BindExpression(readVariableExpression, boundScope);
     }
 
+
     public IBoundStatement Visit(DiscardExpressionResultStatement discardExpressionResult, BoundScope boundScope)
     {
         return BindStatement(discardExpressionResult, boundScope);
